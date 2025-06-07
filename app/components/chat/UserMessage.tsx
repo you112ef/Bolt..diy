@@ -30,7 +30,7 @@ export function UserMessage({ content }: UserMessageProps) {
                 loading="eager"
                 decoding="sync"
               />
-              <span className="text-bolt-elements-textPrimary text-sm">
+              <span className="text-gray-200 text-sm">
                 {profile?.username ? profile.username : ''}
               </span>
             </div>
@@ -38,7 +38,7 @@ export function UserMessage({ content }: UserMessageProps) {
             <div className="i-ph:user-fill text-accent-500 text-2xl" />
           )}
         </div>
-        <div className="flex flex-col gap-4 bg-accent-500/10 backdrop-blur-sm p-3 py-3 w-auto rounded-lg mr-auto">
+        <div className="flex flex-col gap-4 bg-accent-500/10 backdrop-blur-sm p-3 py-3 w-auto rounded-lg mr-auto text-white">
           {textContent && <Markdown html>{textContent}</Markdown>}
           {images.map((item, index) => (
             <img
@@ -57,7 +57,7 @@ export function UserMessage({ content }: UserMessageProps) {
   const textContent = stripMetadata(content);
 
   return (
-    <div className="overflow-hidden pt-[4px]">
+    <div className="overflow-hidden pt-[4px] text-white">
       <Markdown html>{textContent}</Markdown>
     </div>
   );

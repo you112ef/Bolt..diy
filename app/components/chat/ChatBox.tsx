@@ -66,7 +66,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div
       className={classNames(
-        'relative bg-bolt-elements-background-depth-2 backdrop-blur p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
+        'relative bg-bolt-elements-background-depth-2 backdrop-blur rounded-lg border border-bolt-elements-borderColor relative w-full max-w-screen-sm h-screen overflow-y-auto mx-auto z-prompt px-4 text-gray-200',
 
         /*
          * {
@@ -166,12 +166,12 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         </div>
       )}
       <div
-        className={classNames('relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg')}
+        className={classNames('relative shadow-xs border border-gray-600 backdrop-blur rounded-lg bg-gray-800/70')}
       >
         <textarea
           ref={props.textareaRef}
           className={classNames(
-            'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
+            'w-full pl-4 pt-4 pr-16 outline-none resize-none text-white placeholder-gray-400 bg-transparent text-sm',
             'transition-all duration-200',
             'hover:border-bolt-elements-focus',
           )}
@@ -318,7 +318,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             </IconButton>
           </div>
           {props.input.length > 3 ? (
-            <div className="text-xs text-bolt-elements-textTertiary">
+            <div className="text-xs text-gray-400">
               Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> +{' '}
               <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> a new line
             </div>

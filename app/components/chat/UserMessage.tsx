@@ -30,7 +30,7 @@ export function UserMessage({ content }: UserMessageProps) {
                 loading="eager"
                 decoding="sync"
               />
-              <span className="text-bolt-elements-textPrimary text-sm">
+              <span className="text-bolt-elements-textPrimary text-xs">
                 {profile?.username ? profile.username : ''}
               </span>
             </div>

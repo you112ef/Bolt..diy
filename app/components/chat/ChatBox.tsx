@@ -150,8 +150,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         )}
       </ClientOnly>
       {props.selectedElement && (
-        <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-bolt-elements-borderColor text-bolt-elements-textPrimary flex py-1 px-2.5 font-medium text-xs">
-          <div className="flex gap-2 items-center lowercase">
+        <div className="flex mx-1.5 gap-1.5 items-center justify-between rounded-lg rounded-b-none border border-b-none border-bolt-elements-borderColor text-bolt-elements-textPrimary flex py-1 px-2.5 font-medium text-xs">
+          <div className="flex gap-1.5 items-center lowercase">
             <code className="bg-accent-500 rounded-4px px-1.5 py-1 mr-0.5 text-white">
               {props?.selectedElement?.tagName}
             </code>
@@ -171,7 +171,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <textarea
           ref={props.textareaRef}
           className={classNames(
-            'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
+            'w-full pl-3 pt-3 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
             'transition-all duration-200',
             'hover:border-bolt-elements-focus',
           )}
@@ -257,7 +257,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             />
           )}
         </ClientOnly>
-        <div className="flex justify-between items-center text-sm p-4 pt-2">
+        <div className="flex justify-between items-center text-sm p-3 pt-2">
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
             <IconButton title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>

@@ -8,6 +8,7 @@ $code-font-size: 13px;
 }
 
 .MarkdownContent {
+  font-size: 0.875rem; /* Equivalent to text-sm */
   line-height: 1.6;
   color: var(--bolt-elements-textPrimary);
 

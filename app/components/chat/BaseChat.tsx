@@ -336,7 +336,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const baseChat = (
       <div
         ref={ref}
-        className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden text-gray-200')}
+        className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden text-slate-300')}
         data-chat-visible={showChat}
       >
         <ClientOnly>{() => <Menu />}</ClientOnly>
@@ -345,10 +345,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             {!chatStarted && (
               <div id="intro" className="mt-[16vh] max-w-2xl mx-auto text-center px-4 lg:px-0">
                 <img src="https://a.top4top.io/p_3445yhrkm0.png" alt="الشعار" className="w-40 mx-auto my-6" />
-                <h1 className="text-3xl lg:text-6xl font-bold text-white mb-4 animate-fade-in">
+                <h1 className="text-3xl lg:text-6xl font-bold text-slate-100 mb-4 animate-fade-in">
                   Where ideas begin
                 </h1>
-                <p className="text-md lg:text-xl mb-8 text-gray-200 animate-fade-in animation-delay-200">
+                <p className="text-md lg:text-xl mb-8 text-slate-300 animate-fade-in animation-delay-200">
                   Bring ideas to life in seconds or get help on existing projects.
                 </p>
               </div>
@@ -508,7 +508,7 @@ function ScrollToBottom() {
       <>
         <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-t from-bolt-elements-background-depth-1 to-transparent h-20 z-10" />
         <button
-          className="sticky z-50 bottom-0 left-0 right-0 text-4xl rounded-lg px-1.5 py-0.5 flex items-center justify-center mx-auto gap-2 bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor text-white text-sm"
+          className="sticky z-50 bottom-0 left-0 right-0 text-4xl rounded-lg px-1.5 py-0.5 flex items-center justify-center mx-auto gap-2 bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor text-slate-100 text-sm"
           onClick={() => scrollToBottom()}
         >
           Go to last message

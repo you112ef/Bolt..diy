@@ -353,7 +353,7 @@ export const Menu = () => {
                   decoding="sync"
                 />
               ) : (
-                <div className="i-ph:user-fill text-base" /> {/* Changed from text-lg */}
+                <div className="i-ph:user-fill text-base" />
               )}
             </div>
           </div>

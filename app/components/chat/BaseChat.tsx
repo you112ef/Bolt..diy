@@ -330,7 +330,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           break;
         }
       }
-    };
+    }, [uploadedFiles, setUploadedFiles, imageDataList, setImageDataList]); // Added dependencies
 
     const baseChat = (
       <div

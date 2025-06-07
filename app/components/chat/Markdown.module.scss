@@ -1,5 +1,5 @@
 $font-mono: ui-monospace, 'Fira Code', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-$code-font-size: 13px;
+$code-font-size: 0.875rem;
 
 @mixin not-inside-actions {
   &:not(:has(:global(.actions)), :global(.actions *)) {
@@ -12,7 +12,7 @@ $code-font-size: 13px;
   color: var(--bolt-elements-textPrimary);
 
   > *:not(:last-child) {
-    margin-block-end: 16px;
+    margin-block-end: 1.14rem;
   }
 
   :global(.artifact) {
@@ -21,8 +21,8 @@ $code-font-size: 13px;
 
   :is(h1, h2, h3, h4, h5, h6) {
     @include not-inside-actions {
-      margin-block-start: 24px;
-      margin-block-end: 16px;
+      margin-block-start: 1.71rem;
+      margin-block-end: 1.14rem;
       font-weight: 600;
       line-height: 1.25;
       color: var(--bolt-elements-textPrimary);
@@ -63,7 +63,7 @@ $code-font-size: 13px;
 
     &:not(:last-of-type) {
       margin-block-start: 0;
-      margin-block-end: 16px;
+      margin-block-end: 1.14rem;
     }
   }
 
@@ -82,7 +82,7 @@ $code-font-size: 13px;
     font-size: $code-font-size;
 
     @include not-inside-actions {
-      border-radius: 6px;
+      border-radius: 0.43rem;
       padding: 0.2em 0.4em;
       background-color: var(--bolt-elements-messages-inlineCode-background);
       color: var(--bolt-elements-messages-inlineCode-text);
@@ -90,8 +90,8 @@ $code-font-size: 13px;
   }
 
   pre {
-    padding: 20px 16px;
-    border-radius: 6px;
+    padding: 1.43rem 1.14rem;
+    border-radius: 0.43rem;
   }
 
   pre:has(> code) {
@@ -113,7 +113,7 @@ $code-font-size: 13px;
     @include not-inside-actions {
       padding-left: 2em;
       margin-block-start: 0;
-      margin-block-end: 16px;
+      margin-block-end: 1.14rem;
     }
   }
 
@@ -132,11 +132,11 @@ $code-font-size: 13px;
   li {
     @include not-inside-actions {
       & + li {
-        margin-block-start: 8px;
+        margin-block-start: 0.57rem;
       }
 
       > *:not(:last-child) {
-        margin-block-end: 16px;
+        margin-block-end: 1.14rem;
       }
     }
   }
@@ -149,7 +149,7 @@ $code-font-size: 13px;
   hr {
     height: 0.25em;
     padding: 0;
-    margin: 24px 0;
+    margin: 1.71rem 0;
     background-color: var(--bolt-elements-borderColor);
     border: 0;
   }
@@ -157,10 +157,10 @@ $code-font-size: 13px;
   table {
     border-collapse: collapse;
     width: 100%;
-    margin-block-end: 16px;
+    margin-block-end: 1.14rem;
 
     :is(th, td) {
-      padding: 6px 13px;
+      padding: 0.43rem 0.93rem;
       border: 1px solid #dfe2e5;
     }
 

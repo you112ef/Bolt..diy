@@ -8,11 +8,22 @@
 @use 'components/editor.scss';
 @use 'components/toast.scss';
 
+html {
+  font-size: 87.5%; // Makes 1rem = 14px if browser default is 16px
+}
+
 html,
 body {
   height: 100%;
   width: 100%;
   background-color: var(--bolt-elements-bg-depth-1);
+}
+
+body {
+  @apply text-sm;
+  // This will ensure Tailwind's text-sm utility is applied.
+  // text-sm is 0.875rem. With html at 87.5%,
+  // this results in 16px * 0.875 * 0.875 = ~12.25px.
 }
 
 :root {

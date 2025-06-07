@@ -221,7 +221,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       }
     }, [providerList, provider]);
 
-    const onApiKeysChange = async (providerName: string, apiKey: string) => {
+    const onApiKeysChange = useCallback(async (providerName: string, apiKey: string) => {
       const newApiKeys = { ...apiKeys, [providerName]: apiKey };
       setApiKeys(newApiKeys);
       Cookies.set('apiKeys', JSON.stringify(newApiKeys));
@@ -244,7 +244,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         return [...otherModels, ...providerModels];
       });
       setIsModelLoading(undefined);
-    }, [apiKeys]); // Added apiKeys dependency
+    }, [apiKeys, setApiKeys, setIsModelLoading, setModelList]); // Corrected dependencies
 
     const startListening = useCallback(() => { // Wrapped with useCallback
       if (recognition) {

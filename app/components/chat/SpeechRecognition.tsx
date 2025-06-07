@@ -15,6 +15,7 @@ export const SpeechRecognitionButton = ({
 }) => {
   return (
     <IconButton
+      size="md"
       title={isListening ? 'Stop listening' : 'Start speech recognition'}
       disabled={disabled}
       className={classNames('transition-all', {
@@ -23,9 +24,9 @@ export const SpeechRecognitionButton = ({
       onClick={isListening ? onStop : onStart}
     >
       {isListening ? (
-        <div className="i-ph:microphone-slash text-base" />
+        <div className="i-ph:microphone-slash" />
       ) : (
-        <div className="i-ph:microphone text-base" />
+        <div className="i-ph:microphone" />
       )}
     </IconButton>
   );

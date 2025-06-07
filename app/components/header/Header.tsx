@@ -17,7 +17,7 @@ export function Header() {
     >
       <div className="flex items-center gap-1 z-logo text-bolt-elements-textPrimary cursor-pointer">
         <div className="i-ph:sidebar-simple-duotone text-base" />
-        <a href="/" className="text-xl font-semibold text-accent flex items-center">
+        <a href="/" className="text-lg font-semibold text-accent flex items-center">
           {/* <span className="i-bolt:logo-text?mask w-[46px] inline-block" /> */}
           <img src="/logo-light-styled.png" alt="logo" className="w-[65px] inline-block dark:hidden" />
           <img src="/logo-dark-styled.png" alt="logo" className="w-[65px] inline-block hidden dark:block" />

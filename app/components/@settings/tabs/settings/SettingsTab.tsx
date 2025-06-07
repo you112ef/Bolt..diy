@@ -63,12 +63,12 @@ export default function SettingsTab() {
     <div className="space-y-3">
       {/* Language & Notifications */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-[10px] space-y-[10px]"
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-2 space-y-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-center gap-1 mb-[10px]">
+        <div className="flex items-center gap-1 mb-2">
           <div className="i-ph:palette-fill w-3 h-3 text-purple-500" />
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Preferences</span>
         </div>
@@ -82,7 +82,7 @@ export default function SettingsTab() {
             value={settings.language}
             onChange={(e) => setSettings((prev) => ({ ...prev, language: e.target.value }))}
             className={classNames(
-              'w-full px-2.5 py-1.5 rounded-md text-xs',
+              'h-6 w-full px-2 py-1.5 rounded-md text-xs',
               'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
               'border border-[#E5E5E5] dark:border-[#1A1A1A]',
               'text-bolt-elements-textPrimary',
@@ -143,12 +143,12 @@ export default function SettingsTab() {
 
       {/* Timezone */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-[10px]"
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="flex items-center gap-1 mb-[10px]">
+        <div className="flex items-center gap-1 mb-2">
           <div className="i-ph:clock-fill w-3 h-3 text-purple-500" />
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Time Settings</span>
         </div>
@@ -162,7 +162,7 @@ export default function SettingsTab() {
             value={settings.timezone}
             onChange={(e) => setSettings((prev) => ({ ...prev, timezone: e.target.value }))}
             className={classNames(
-              'w-full px-2.5 py-1.5 rounded-md text-xs',
+              'h-6 w-full px-2 py-1.5 rounded-md text-xs',
               'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
               'border border-[#E5E5E5] dark:border-[#1A1A1A]',
               'text-bolt-elements-textPrimary',
@@ -177,12 +177,12 @@ export default function SettingsTab() {
 
       {/* Simplified Keyboard Shortcuts */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-[10px]"
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <div className="flex items-center gap-1 mb-[10px]">
+        <div className="flex items-center gap-1 mb-2">
           <div className="i-ph:keyboard-fill w-3 h-3 text-purple-500" />
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Keyboard Shortcuts</span>
         </div>

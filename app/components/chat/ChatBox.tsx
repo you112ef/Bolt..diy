@@ -260,11 +260,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <div className="flex justify-between items-center text-xs p-1.5 pt-1">
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-            <IconButton size="md" title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
+            <IconButton size="sm" title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
               <div className="i-ph:paperclip"></div>
             </IconButton>
             <IconButton
-              size="md"
+              size="sm"
               title="Enhance prompt"
               disabled={props.input.length === 0 || props.enhancingPrompt}
               className={classNames('transition-all', props.enhancingPrompt ? 'opacity-100' : '')}
@@ -304,7 +304,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               </IconButton>
             )}
             <IconButton
-              size="md"
+              size="sm"
               title="Model Settings"
               className={classNames('transition-all flex items-center gap-1', {
                 'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':

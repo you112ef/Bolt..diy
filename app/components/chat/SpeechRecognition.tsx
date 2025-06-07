@@ -15,7 +15,7 @@ export const SpeechRecognitionButton = ({
 }) => {
   return (
     <IconButton
-      size="md"
+      size="sm"
       title={isListening ? 'Stop listening' : 'Start speech recognition'}
       disabled={disabled}
       className={classNames('transition-all', {

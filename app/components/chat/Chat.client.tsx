@@ -249,17 +249,17 @@ export const ChatImpl = memo(
         parseMessages,
         storeMessageHistory,
       });
-    }, [messages, isLoading, parseMessages]);
+    }, [messages, initialMessages, isLoading, parseMessages, storeMessageHistory]); // Added initialMessages & storeMessageHistory
 
-    const scrollTextArea = () => {
+    const scrollTextArea = useCallback(() => { // Wrapped
       const textarea = textareaRef.current;
 
       if (textarea) {
         textarea.scrollTop = textarea.scrollHeight;
       }
-    };
+    }, [textareaRef]); // Dependency: textareaRef
 
-    const abort = () => {
+    const abort = useCallback(() => { // Wrapped
       stop();
       chatStore.setKey('aborted', true);
       workbenchStore.abortAllActions();
@@ -478,9 +478,9 @@ export const ChatImpl = memo(
      * Handles the change event for the textarea and updates the input state.
      * @param event - The change event from the textarea.
      */
-    const onTextareaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const onTextareaChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => { // Wrapped
       handleInputChange(event);
-    };
+    }, [handleInputChange]); // Dependency: handleInputChange (from useChat, stable)
 
     /**
      * Debounced function to cache the prompt in cookies.
@@ -502,15 +502,15 @@ export const ChatImpl = memo(
       }
     }, []);
 
-    const handleModelChange = (newModel: string) => {
+    const handleModelChange = useCallback((newModel: string) => { // Wrapped
       setModel(newModel);
       Cookies.set('selectedModel', newModel, { expires: 30 });
-    };
+    }, [setModel]); // Dependency: setModel (from useState, stable)
 
-    const handleProviderChange = (newProvider: ProviderInfo) => {
+    const handleProviderChange = useCallback((newProvider: ProviderInfo) => { // Wrapped
       setProvider(newProvider);
       Cookies.set('selectedProvider', newProvider.name, { expires: 30 });
-    };
+    }, [setProvider]); // Dependency: setProvider (from useState, stable)
 
     return (
       <BaseChat

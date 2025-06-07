@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react'; // Import useCallback
 import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '~/utils/classNames';
 import { PROVIDER_LIST } from '~/utils/constants';
@@ -122,9 +122,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                   <APIKeyManager
                     provider={props.provider}
                     apiKey={props.apiKeys[props.provider.name] || ''}
-                    setApiKey={(key) => {
+                    setApiKey={useCallback((key) => { // useCallback for setApiKey
                       props.onApiKeysChange(props.provider.name, key);
-                    }}
+                    }, [props.onApiKeysChange, props.provider?.name])}
                   />
                 )}
             </div>
@@ -134,10 +134,10 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
       <FilePreview
         files={props.uploadedFiles}
         imageDataList={props.imageDataList}
-        onRemove={(index) => {
+        onRemove={useCallback((index) => { // useCallback for onRemove
           props.setUploadedFiles?.(props.uploadedFiles.filter((_, i) => i !== index));
           props.setImageDataList?.(props.imageDataList.filter((_, i) => i !== index));
-        }}
+        }, [props.setUploadedFiles, props.uploadedFiles, props.setImageDataList, props.imageDataList])}
       />
       <ClientOnly>
         {() => (
@@ -159,7 +159,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           </div>
           <button
             className="bg-transparent text-accent-500 pointer-auto"
-            onClick={() => props.setSelectedElement?.(null)}
+            onClick={useCallback(() => props.setSelectedElement?.(null), [props.setSelectedElement])} // useCallback for clear selected element
           >
             Clear
           </button>
@@ -244,7 +244,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               show={props.input.length > 0 || props.isStreaming || props.uploadedFiles.length > 0}
               isStreaming={props.isStreaming}
               disabled={!props.providerList || props.providerList.length === 0}
-              onClick={(event) => {
+              onClick={useCallback((event) => { // useCallback for SendButton onClick
                 if (props.isStreaming) {
                   props.handleStop?.();
                   return;
@@ -253,14 +253,14 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 if (props.input.length > 0 || props.uploadedFiles.length > 0) {
                   props.handleSendMessage?.(event);
                 }
-              }}
+              }, [props.isStreaming, props.input, props.uploadedFiles, props.handleStop, props.handleSendMessage])}
             />
           )}
         </ClientOnly>
         <div className="flex justify-between items-center text-xs p-1.5 pt-1">
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-            <IconButton size="sm" title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
+            <IconButton size="sm" title="Upload file" className="transition-all" onClick={useCallback(() => props.handleFileUpload(), [props.handleFileUpload])}>
               <div className="i-ph:paperclip"></div>
             </IconButton>
             <IconButton
@@ -268,10 +268,10 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               title="Enhance prompt"
               disabled={props.input.length === 0 || props.enhancingPrompt}
               className={classNames('transition-all', props.enhancingPrompt ? 'opacity-100' : '')}
-              onClick={() => {
+              onClick={useCallback(() => { // useCallback for Enhance prompt onClick
                 props.enhancePrompt?.();
                 toast.success('Prompt enhanced!');
-              }}
+              }, [props.enhancePrompt])}
             >
               {props.enhancingPrompt ? (
                 <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress animate-spin"></div>
@@ -295,9 +295,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                     ? '!bg-bolt-elements-item-backgroundAccent !text-bolt-elements-item-contentAccent'
                     : 'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault',
                 )}
-                onClick={() => {
+                onClick={useCallback(() => { // useCallback for Discuss onClick
                   props.setChatMode?.(props.chatMode === 'discuss' ? 'build' : 'discuss');
-                }}
+                }, [props.setChatMode, props.chatMode])}
               >
                 <div className={`i-ph:chats`} /> {/* Size managed by IconButton's size prop */}
                 {props.chatMode === 'discuss' ? <span>Discuss</span> : <span />}
@@ -312,7 +312,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
                   !props.isModelSettingsCollapsed,
               })}
-              onClick={() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed)}
+              onClick={useCallback(() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed), [props.setIsModelSettingsCollapsed, props.isModelSettingsCollapsed])} // useCallback for Model Settings onClick
               disabled={!props.providerList || props.providerList.length === 0}
             >
               <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'}`} /> {/* Size managed by IconButton's size prop */}

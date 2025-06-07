@@ -202,18 +202,19 @@ export const Menu = () => {
     [deleteChat, loadEntries, db],
   );
 
-  const closeDialog = () => {
+  const closeDialog = useCallback(() => { // Wrapped with useCallback
     setDialogContent(null);
-  };
+  }, [setDialogContent]);
 
-  const toggleSelectionMode = () => {
-    setSelectionMode(!selectionMode);
+  const toggleSelectionMode = useCallback(() => {
+    setSelectionMode(prevMode => !prevMode); // Functional update for robustness
 
+    // This if condition uses the 'selectionMode' from the closure of when useCallback was defined.
+    // If we are turning selectionMode OFF (it was true), clear items.
     if (selectionMode) {
-      // If turning selection mode OFF, clear selection
       setSelectedItems([]);
     }
-  };
+  }, [selectionMode, setSelectedItems]);
 
   const toggleItemSelection = useCallback((id: string) => {
     setSelectedItems((prev) => {
@@ -303,19 +304,19 @@ export const Menu = () => {
     };
   }, [isSettingsOpen]);
 
-  const handleDuplicate = async (id: string) => {
+  const handleDuplicate = useCallback(async (id: string) => { // Wrapped with useCallback
     await duplicateCurrentChat(id);
     loadEntries(); // Reload the list after duplication
-  };
+  }, [duplicateCurrentChat, loadEntries]);
 
-  const handleSettingsClick = () => {
+  const handleSettingsClick = useCallback(() => { // Wrapped with useCallback
     setIsSettingsOpen(true);
-    setOpen(false);
-  };
+    setOpen(false); // setOpen is stable
+  }, [setIsSettingsOpen]);
 
-  const handleSettingsClose = () => {
+  const handleSettingsClose = useCallback(() => { // Wrapped with useCallback
     setIsSettingsOpen(false);
-  };
+  }, [setIsSettingsOpen]);
 
   const setDialogContentWithLogging = useCallback((content: DialogContent) => {
     console.log('Setting dialog content:', content);
@@ -349,8 +350,8 @@ export const Menu = () => {
                   src={profile.avatar}
                   alt={profile?.username || 'User'}
                   className="w-full h-full object-cover"
-                  loading="eager"
-                  decoding="sync"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <div className="i-ph:user-fill text-base" />

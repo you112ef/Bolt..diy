@@ -3,7 +3,7 @@ import { classNames } from '~/utils/classNames';
 import { type ChatHistoryItem } from '~/lib/persistence';
 import WithTooltip from '~/components/ui/Tooltip';
 import { useEditChatDescription } from '~/lib/hooks';
-import { forwardRef, type ForwardedRef, useCallback } from 'react';
+import { forwardRef, type ForwardedRef, useCallback, memo } from 'react'; // Added memo
 import { Checkbox } from '~/components/ui/Checkbox';
 
 interface HistoryItemProps {
@@ -155,9 +155,9 @@ export function HistoryItem({
       )}
     </div>
   );
-}
+}); // Wrapped HistoryItem with memo
 
-const ChatActionButton = forwardRef(
+const ChatActionButton = memo(forwardRef( // Wrapped ChatActionButton with memo
   (
     {
       toolTipContent,

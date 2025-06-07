@@ -3,7 +3,7 @@
  * Preventing TS checks with files presented in the video for a better presentation.
  */
 import type { JSONValue, Message } from 'ai';
-import React, { type RefCallback, useEffect, useState } from 'react';
+import React, { type RefCallback, useEffect, useState, useCallback } from 'react'; // Import useCallback
 import { ClientOnly } from 'remix-utils/client-only';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { Workbench } from '~/components/workbench/Workbench.client';
@@ -244,33 +244,32 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         return [...otherModels, ...providerModels];
       });
       setIsModelLoading(undefined);
-    };
+    }, [apiKeys]); // Added apiKeys dependency
 
-    const startListening = () => {
+    const startListening = useCallback(() => { // Wrapped with useCallback
       if (recognition) {
         recognition.start();
         setIsListening(true);
       }
-    };
+    }, [recognition]);
 
-    const stopListening = () => {
+    const stopListening = useCallback(() => { // Wrapped with useCallback
       if (recognition) {
         recognition.stop();
         setIsListening(false);
       }
-    };
+    }, [recognition]);
 
-    const handleSendMessage = (event: React.UIEvent, messageInput?: string) => {
+    const handleSendMessage = useCallback((event: React.UIEvent, messageInput?: string) => { // Wrapped with useCallback
       if (sendMessage) {
         sendMessage(event, messageInput);
         setSelectedElement?.(null);
 
         if (recognition) {
-          recognition.abort(); // Stop current recognition
-          setTranscript(''); // Clear transcript
+          recognition.abort();
+          setTranscript('');
           setIsListening(false);
 
-          // Clear the input by triggering handleInputChange with empty value
           if (handleInputChange) {
             const syntheticEvent = {
               target: { value: '' },
@@ -279,9 +278,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           }
         }
       }
-    };
+    }, [sendMessage, recognition, handleInputChange, setSelectedElement]);
 
-    const handleFileUpload = () => {
+    const handleFileUpload = useCallback(() => { // Wrapped with useCallback
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
@@ -302,9 +301,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       };
 
       input.click();
-    };
+    }, [setUploadedFiles, uploadedFiles, setImageDataList, imageDataList]);
 
-    const handlePaste = async (e: React.ClipboardEvent) => {
+    const handlePaste = useCallback(async (e: React.ClipboardEvent) => { // Wrapped with useCallback
       const items = e.clipboardData?.items;
 
       if (!items) {

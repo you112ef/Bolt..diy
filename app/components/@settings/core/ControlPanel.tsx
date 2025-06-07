@@ -432,7 +432,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
           >
             <motion.div
               className={classNames(
-                'w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto h-[90vh]',
+                'w-full max-w-[430px] mx-auto h-[90vh]',
                 'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
                 'rounded-2xl shadow-2xl',
                 'border border-[#E5E5E5] dark:border-[#1A1A1A]',

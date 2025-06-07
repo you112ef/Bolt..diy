@@ -8,9 +8,10 @@ $code-font-size: 13px;
 }
 
 .MarkdownContent {
-  font-size: 0.875rem; /* Equivalent to text-sm */
+  font-size: 0.75rem; /* Equivalent to text-xs */
   line-height: 1.6;
   color: var(--bolt-elements-textPrimary);
+  overflow-wrap: break-word;
 
   > *:not(:last-child) {
     margin-block-end: 16px;

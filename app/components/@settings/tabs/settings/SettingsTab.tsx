@@ -63,19 +63,19 @@ export default function SettingsTab() {
     <div className="space-y-3">
       {/* Language & Notifications */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-3 space-y-3"
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-[10px] space-y-[10px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-center gap-1.5 mb-3">
-          <div className="i-ph:palette-fill w-3.5 h-3.5 text-purple-500" />
+        <div className="flex items-center gap-1 mb-[10px]">
+          <div className="i-ph:palette-fill w-3 h-3 text-purple-500" />
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Preferences</span>
         </div>
 
         <div>
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <div className="i-ph:translate-fill w-3.5 h-3.5 text-bolt-elements-textSecondary" />
+          <div className="flex items-center gap-1 mb-1">
+            <div className="i-ph:translate-fill w-3 h-3 text-bolt-elements-textSecondary" />
             <label className="block text-xs text-bolt-elements-textSecondary">Language</label>
           </div>
           <select
@@ -104,8 +104,8 @@ export default function SettingsTab() {
         </div>
 
         <div>
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <div className="i-ph:bell-fill w-3.5 h-3.5 text-bolt-elements-textSecondary" />
+          <div className="flex items-center gap-1 mb-1">
+            <div className="i-ph:bell-fill w-3 h-3 text-bolt-elements-textSecondary" />
             <label className="block text-xs text-bolt-elements-textSecondary">Notifications</label>
           </div>
           <div className="flex items-center justify-between">
@@ -143,19 +143,19 @@ export default function SettingsTab() {
 
       {/* Timezone */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-3"
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-[10px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="flex items-center gap-1.5 mb-3">
-          <div className="i-ph:clock-fill w-3.5 h-3.5 text-purple-500" />
+        <div className="flex items-center gap-1 mb-[10px]">
+          <div className="i-ph:clock-fill w-3 h-3 text-purple-500" />
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Time Settings</span>
         </div>
 
         <div>
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <div className="i-ph:globe-fill w-3.5 h-3.5 text-bolt-elements-textSecondary" />
+          <div className="flex items-center gap-1 mb-1">
+            <div className="i-ph:globe-fill w-3 h-3 text-bolt-elements-textSecondary" />
             <label className="block text-xs text-bolt-elements-textSecondary">Timezone</label>
           </div>
           <select
@@ -177,13 +177,13 @@ export default function SettingsTab() {
 
       {/* Simplified Keyboard Shortcuts */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-3"
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-[10px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <div className="flex items-center gap-1.5 mb-3">
-          <div className="i-ph:keyboard-fill w-3.5 h-3.5 text-purple-500" />
+        <div className="flex items-center gap-1 mb-[10px]">
+          <div className="i-ph:keyboard-fill w-3 h-3 text-purple-500" />
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Keyboard Shortcuts</span>
         </div>
 

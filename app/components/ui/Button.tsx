@@ -17,11 +17,11 @@ const buttonVariants = cva(
         link: 'text-bolt-elements-textPrimary underline-offset-4 hover:underline',
       },
       size: {
-        md: 'h-9 px-4 py-2 text-sm',
-        default: 'h-8 rounded-md px-3 text-xs',
-        xs: 'h-7 rounded-md px-2 text-xs',
+        md: 'h-8 px-3 py-1.5 text-sm',
+        default: 'h-7 rounded-md px-2.5 text-xs',
+        xs: 'h-6 rounded-md px-2 text-xs',
         lg: 'h-10 rounded-md px-8',
-        icon: 'h-7 w-7',
+        icon: 'h-6 w-6',
       },
     },
     defaultVariants: {

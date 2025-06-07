@@ -341,7 +341,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       >
         <ClientOnly>{() => <Menu />}</ClientOnly>
         <div className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
-          <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto')}>
+          <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full w-full max-w-[430px] mx-auto')}>
             {!chatStarted && (
               <div id="intro" className="mt-[16vh] max-w-2xl mx-auto text-center px-4 lg:px-0">
                 <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
@@ -353,7 +353,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </div>
             )}
             <StickToBottom
-              className={classNames('pt-4 px-1.5 sm:px-4 relative', {
+              className={classNames('pt-3 px-1 sm:px-3 relative', {
                 'h-full flex flex-col modern-scrollbar': chatStarted,
               })}
               resize="smooth"
@@ -364,7 +364,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   {() => {
                     return chatStarted ? (
                       <Messages
-                        className="flex flex-col w-full flex-1 max-w-chat pb-3 mx-auto z-1"
+                        className="flex flex-col w-full flex-1 max-w-chat pb-2 mx-auto z-1"
                         messages={messages}
                         isStreaming={isStreaming}
                         append={append}
@@ -379,7 +379,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <ScrollToBottom />
               </StickToBottom.Content>
               <div
-                className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-4', {
+                className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-3', {
                   'sticky bottom-2': chatStarted,
                 })}
               >

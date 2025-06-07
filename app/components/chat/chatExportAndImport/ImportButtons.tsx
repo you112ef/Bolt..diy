@@ -65,17 +65,18 @@ export function ImportButtons(importChat: ((description: string, messages: Messa
               input?.click();
             }}
             variant="default"
-            size="lg"
+            size="default"
             className={classNames(
               'gap-2 bg-bolt-elements-background-depth-1',
               'text-bolt-elements-textPrimary',
               'hover:bg-bolt-elements-background-depth-2',
               'border border-bolt-elements-borderColor',
-              'h-10 px-4 py-2 min-w-[120px] justify-center',
+              // Explicit height/padding removed, relying on size="default"
+              'min-w-[120px] justify-center', // min-w and justify-center can remain
               'transition-all duration-200 ease-in-out',
             )}
           >
-            <span className="i-ph:upload-simple w-4 h-4" />
+            <span className="i-ph:upload-simple w-3 h-3" />
             Import Chat
           </Button>
           <ImportFolderButton
@@ -85,8 +86,8 @@ export function ImportButtons(importChat: ((description: string, messages: Messa
               'text-bolt-elements-textPrimary',
               'hover:bg-bolt-elements-background-depth-2',
               'border border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.08)]',
-              'h-10 px-4 py-2 min-w-[120px] justify-center',
-              'transition-all duration-200 ease-in-out rounded-lg',
+              'h-7 px-2.5 text-xs min-w-[120px] justify-center', // Adjusted height, padding, added text-xs
+              'transition-all duration-200 ease-in-out rounded-lg', // rounded-lg can remain or be changed to rounded-md if desired for consistency
             )}
           />
         </div>

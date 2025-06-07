@@ -1,3 +1,4 @@
+@use 'responsive.scss';
 @use 'variables.scss';
 @use 'z-index.scss';
 @use 'animations.scss';
@@ -29,8 +30,8 @@ body {
 
   // WebKit scrollbar styling
   &::-webkit-scrollbar {
-    width: 2px;
-    height: 4px;
+    width: 0.125rem;
+    height: 0.25rem;
   }
 
   &::-webkit-scrollbar-track {
@@ -41,7 +42,9 @@ body {
     // Use CSS variables for colors
     background-color: var(--modern-scrollbar-thumb-background);
     border-radius: 9999px; // pill shape
-    border: 2px solid transparent; // for padding-like effect
+    border-width: 0.125rem;
+    border-style: solid;
+    border-color: transparent; // for padding-like effect
     background-clip: content-box;
     transition: background-color 0.2s ease-in-out; // Add transition
   }

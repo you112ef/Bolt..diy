@@ -184,5 +184,5 @@ const ChatActionButton = memo(forwardRef( // Wrapped ChatActionButton with memo
         />
       </WithTooltip>
     );
-  },
-);
+  } // Removed comma here
+));

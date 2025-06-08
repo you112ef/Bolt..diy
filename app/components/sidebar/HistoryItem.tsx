@@ -16,7 +16,8 @@ interface HistoryItemProps {
   onToggleSelection?: (id: string) => void;
 }
 
-export function HistoryItem({
+// Changed from 'export function HistoryItem...' to a const assignment for memoization
+export const HistoryItem = memo(function HistoryItem({
   item,
   onDelete,
   onDuplicate,
@@ -155,7 +156,7 @@ export function HistoryItem({
       )}
     </div>
   );
-}); // Wrapped HistoryItem with memo
+}); // Correctly closing the memo wrapper
 
 const ChatActionButton = memo(forwardRef( // Wrapped ChatActionButton with memo
   (

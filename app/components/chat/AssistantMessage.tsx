@@ -82,13 +82,13 @@ export const AssistantMessage = memo(
     } = filteredAnnotations.find((annotation) => annotation.type === 'usage')?.value;
 
     return (
-      <div className="overflow-hidden w-full">
+      <div className="overflow-hidden w-full text-slate-100">
         <>
-          <div className=" flex gap-2 items-center text-sm text-bolt-elements-textSecondary mb-2">
+          <div className=" flex gap-2 items-center text-sm text-slate-400 mb-2">
             {(codeContext || chatSummary) && (
               <Popover side="right" align="start" trigger={<div className="i-ph:info" />}>
                 {chatSummary && (
-                  <div className="max-w-chat">
+                  <div className="max-w-chat text-slate-300">
                     <div className="summary max-h-96 flex flex-col">
                       <h2 className="border border-bolt-elements-borderColor rounded-md p4">Summary</h2>
                       <div style={{ zoom: 0.7 }} className="overflow-y-auto m4">
@@ -104,7 +104,7 @@ export const AssistantMessage = memo(
                             return (
                               <Fragment key={normalized}>
                                 <code
-                                  className="bg-bolt-elements-artifacts-inlineCode-background text-bolt-elements-artifacts-inlineCode-text px-1.5 py-1 rounded-md text-bolt-elements-item-contentAccent hover:underline cursor-pointer"
+                                  className="bg-gray-700 text-slate-300 px-1.5 py-1 rounded-md text-teal-400 hover:underline cursor-pointer"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
@@ -137,7 +137,7 @@ export const AssistantMessage = memo(
                       <button
                         onClick={() => onRewind(messageId)}
                         key="i-ph:arrow-u-up-left"
-                        className="i-ph:arrow-u-up-left text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
+                        className="i-ph:arrow-u-up-left text-xl text-slate-400 hover:text-slate-100 transition-colors"
                       />
                     </WithTooltip>
                   )}
@@ -146,7 +146,7 @@ export const AssistantMessage = memo(
                       <button
                         onClick={() => onFork(messageId)}
                         key="i-ph:git-fork"
-                        className="i-ph:git-fork text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
+                        className="i-ph:git-fork text-xl text-slate-400 hover:text-slate-100 transition-colors"
                       />
                     </WithTooltip>
                   )}

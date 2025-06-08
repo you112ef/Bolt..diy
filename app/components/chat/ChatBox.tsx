@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react'; // Import useCallback
 import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '~/utils/classNames';
 import { PROVIDER_LIST } from '~/utils/constants';
@@ -66,7 +66,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div
       className={classNames(
-        'relative bg-bolt-elements-background-depth-2 backdrop-blur p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
+        'relative bg-bolt-elements-background-depth-2 backdrop-blur p-2 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
 
         /*
          * {
@@ -122,9 +122,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                   <APIKeyManager
                     provider={props.provider}
                     apiKey={props.apiKeys[props.provider.name] || ''}
-                    setApiKey={(key) => {
+                    setApiKey={useCallback((key) => { // useCallback for setApiKey
                       props.onApiKeysChange(props.provider.name, key);
-                    }}
+                    }, [props.onApiKeysChange, props.provider?.name])}
                   />
                 )}
             </div>
@@ -134,10 +134,10 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
       <FilePreview
         files={props.uploadedFiles}
         imageDataList={props.imageDataList}
-        onRemove={(index) => {
+        onRemove={useCallback((index) => { // useCallback for onRemove
           props.setUploadedFiles?.(props.uploadedFiles.filter((_, i) => i !== index));
           props.setImageDataList?.(props.imageDataList.filter((_, i) => i !== index));
-        }}
+        }, [props.setUploadedFiles, props.uploadedFiles, props.setImageDataList, props.imageDataList])}
       />
       <ClientOnly>
         {() => (
@@ -150,16 +150,16 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         )}
       </ClientOnly>
       {props.selectedElement && (
-        <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-bolt-elements-borderColor text-bolt-elements-textPrimary flex py-1 px-2.5 font-medium text-xs">
-          <div className="flex gap-2 items-center lowercase">
-            <code className="bg-accent-500 rounded-4px px-1.5 py-1 mr-0.5 text-white">
+        <div className="flex mx-1.5 gap-1 items-center justify-between rounded-lg rounded-b-none border border-b-none border-bolt-elements-borderColor text-bolt-elements-textPrimary flex py-1 px-2.5 font-medium text-xs">
+          <div className="flex gap-1 items-center lowercase">
+            <code className="bg-accent-500 rounded-4px px-1 py-0.5 mr-0.5 text-white">
               {props?.selectedElement?.tagName}
             </code>
             selected for inspection
           </div>
           <button
             className="bg-transparent text-accent-500 pointer-auto"
-            onClick={() => props.setSelectedElement?.(null)}
+            onClick={useCallback(() => props.setSelectedElement?.(null), [props.setSelectedElement])} // useCallback for clear selected element
           >
             Clear
           </button>
@@ -171,7 +171,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <textarea
           ref={props.textareaRef}
           className={classNames(
-            'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
+            'w-full pl-2 pt-2 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-xs',
             'transition-all duration-200',
             'hover:border-bolt-elements-focus',
           )}
@@ -244,7 +244,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               show={props.input.length > 0 || props.isStreaming || props.uploadedFiles.length > 0}
               isStreaming={props.isStreaming}
               disabled={!props.providerList || props.providerList.length === 0}
-              onClick={(event) => {
+              onClick={useCallback((event) => { // useCallback for SendButton onClick
                 if (props.isStreaming) {
                   props.handleStop?.();
                   return;
@@ -253,29 +253,30 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 if (props.input.length > 0 || props.uploadedFiles.length > 0) {
                   props.handleSendMessage?.(event);
                 }
-              }}
+              }, [props.isStreaming, props.input, props.uploadedFiles, props.handleStop, props.handleSendMessage])}
             />
           )}
         </ClientOnly>
-        <div className="flex justify-between items-center text-sm p-4 pt-2">
+        <div className="flex justify-between items-center text-xs p-1.5 pt-1">
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-            <IconButton title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
-              <div className="i-ph:paperclip text-xl"></div>
+            <IconButton size="sm" title="Upload file" className="transition-all" onClick={useCallback(() => props.handleFileUpload(), [props.handleFileUpload])}>
+              <div className="i-ph:paperclip"></div>
             </IconButton>
             <IconButton
+              size="sm"
               title="Enhance prompt"
               disabled={props.input.length === 0 || props.enhancingPrompt}
               className={classNames('transition-all', props.enhancingPrompt ? 'opacity-100' : '')}
-              onClick={() => {
+              onClick={useCallback(() => { // useCallback for Enhance prompt onClick
                 props.enhancePrompt?.();
                 toast.success('Prompt enhanced!');
-              }}
+              }, [props.enhancePrompt])}
             >
               {props.enhancingPrompt ? (
-                <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
+                <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress animate-spin"></div>
               ) : (
-                <div className="i-bolt:stars text-xl"></div>
+                <div className="i-bolt:stars"></div>
               )}
             </IconButton>
 
@@ -294,15 +295,16 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                     ? '!bg-bolt-elements-item-backgroundAccent !text-bolt-elements-item-contentAccent'
                     : 'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault',
                 )}
-                onClick={() => {
+                onClick={useCallback(() => { // useCallback for Discuss onClick
                   props.setChatMode?.(props.chatMode === 'discuss' ? 'build' : 'discuss');
-                }}
+                }, [props.setChatMode, props.chatMode])}
               >
-                <div className={`i-ph:chats text-xl`} />
+                <div className={`i-ph:chats`} /> {/* Size managed by IconButton's size prop */}
                 {props.chatMode === 'discuss' ? <span>Discuss</span> : <span />}
               </IconButton>
             )}
             <IconButton
+              size="sm"
               title="Model Settings"
               className={classNames('transition-all flex items-center gap-1', {
                 'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
@@ -310,10 +312,10 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
                   !props.isModelSettingsCollapsed,
               })}
-              onClick={() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed)}
+              onClick={useCallback(() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed), [props.setIsModelSettingsCollapsed, props.isModelSettingsCollapsed])} // useCallback for Model Settings onClick
               disabled={!props.providerList || props.providerList.length === 0}
             >
-              <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
+              <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'}`} /> {/* Size managed by IconButton's size prop */}
               {props.isModelSettingsCollapsed ? <span className="text-xs">{props.model}</span> : <span />}
             </IconButton>
           </div>

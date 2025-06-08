@@ -53,9 +53,9 @@ function CurrentDateTime() {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800/50">
+    <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800/50">
       <div className="h-4 w-4 i-ph:clock opacity-80" />
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         <span>{dateTime.toLocaleDateString()}</span>
         <span>{dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
       </div>
@@ -202,18 +202,19 @@ export const Menu = () => {
     [deleteChat, loadEntries, db],
   );
 
-  const closeDialog = () => {
+  const closeDialog = useCallback(() => { // Wrapped with useCallback
     setDialogContent(null);
-  };
+  }, [setDialogContent]);
 
-  const toggleSelectionMode = () => {
-    setSelectionMode(!selectionMode);
+  const toggleSelectionMode = useCallback(() => {
+    setSelectionMode(prevMode => !prevMode); // Functional update for robustness
 
+    // This if condition uses the 'selectionMode' from the closure of when useCallback was defined.
+    // If we are turning selectionMode OFF (it was true), clear items.
     if (selectionMode) {
-      // If turning selection mode OFF, clear selection
       setSelectedItems([]);
     }
-  };
+  }, [selectionMode, setSelectedItems]);
 
   const toggleItemSelection = useCallback((id: string) => {
     setSelectedItems((prev) => {
@@ -303,19 +304,19 @@ export const Menu = () => {
     };
   }, [isSettingsOpen]);
 
-  const handleDuplicate = async (id: string) => {
+  const handleDuplicate = useCallback(async (id: string) => { // Wrapped with useCallback
     await duplicateCurrentChat(id);
     loadEntries(); // Reload the list after duplication
-  };
+  }, [duplicateCurrentChat, loadEntries]);
 
-  const handleSettingsClick = () => {
+  const handleSettingsClick = useCallback(() => { // Wrapped with useCallback
     setIsSettingsOpen(true);
-    setOpen(false);
-  };
+    setOpen(false); // setOpen is stable
+  }, [setIsSettingsOpen]);
 
-  const handleSettingsClose = () => {
+  const handleSettingsClose = useCallback(() => { // Wrapped with useCallback
     setIsSettingsOpen(false);
-  };
+  }, [setIsSettingsOpen]);
 
   const setDialogContentWithLogging = useCallback((content: DialogContent) => {
     console.log('Setting dialog content:', content);
@@ -333,14 +334,14 @@ export const Menu = () => {
         className={classNames(
           'flex selection-accent flex-col side-menu fixed top-0 h-full rounded-r-2xl',
           'bg-white dark:bg-gray-950 border-r border-bolt-elements-borderColor',
-          'shadow-sm text-sm',
+          'shadow-sm text-xs', // Changed from text-sm
           isSettingsOpen ? 'z-40' : 'z-sidebar',
         )}
       >
-        <div className="h-12 flex items-center justify-between px-4 border-b border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-900/50 rounded-tr-2xl">
+        <div className="h-12 flex items-center justify-between px-3 border-b border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-900/50 rounded-tr-2xl">
           <div className="text-gray-900 dark:text-white font-medium"></div>
-          <div className="flex items-center gap-3">
-            <span className="font-medium text-sm text-gray-900 dark:text-white truncate">
+          <div className="flex items-center gap-2"> {/* gap-3 to gap-2 */}
+            <span className="font-medium text-xs text-gray-900 dark:text-white truncate"> {/* Changed from text-sm */}
               {profile?.username || 'Guest User'}
             </span>
             <div className="flex items-center justify-center w-[32px] h-[32px] overflow-hidden bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-500 rounded-full shrink-0">
@@ -349,30 +350,30 @@ export const Menu = () => {
                   src={profile.avatar}
                   alt={profile?.username || 'User'}
                   className="w-full h-full object-cover"
-                  loading="eager"
-                  decoding="sync"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
-                <div className="i-ph:user-fill text-lg" />
+                <div className="i-ph:user-fill text-base" />
               )}
             </div>
           </div>
         </div>
         <CurrentDateTime />
         <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
-          <div className="p-4 space-y-3">
-            <div className="flex gap-2">
+          <div className="p-3 space-y-2"> {/* p-4 to p-3, space-y-3 to space-y-2 */}
+            <div className="flex gap-1.5"> {/* gap-2 to gap-1.5 */}
               <a
                 href="/"
-                className="flex-1 flex gap-2 items-center bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/20 rounded-lg px-4 py-2 transition-colors"
+                className="flex-1 flex gap-1.5 items-center bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/20 rounded-lg px-3 py-1.5 transition-colors" // px-4 py-2 to px-3 py-1.5, gap-2 to gap-1.5
               >
                 <span className="inline-block i-ph:plus-circle h-4 w-4" />
-                <span className="text-sm font-medium">Start new chat</span>
+                <span className="text-xs font-medium">Start new chat</span> {/* Changed from text-sm */}
               </a>
               <button
                 onClick={toggleSelectionMode}
                 className={classNames(
-                  'flex gap-1 items-center rounded-lg px-3 py-2 transition-colors',
+                  'flex gap-1 items-center rounded-lg px-2 py-1.5 transition-colors', // px-3 py-2 to px-2 py-1.5
                   selectionMode
                     ? 'bg-purple-600 dark:bg-purple-500 text-white border border-purple-700 dark:border-purple-600'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700',
@@ -383,11 +384,11 @@ export const Menu = () => {
               </button>
             </div>
             <div className="relative w-full">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              <div className="absolute left-2.5 top-1/2 -translate-y-1/2"> {/* left-3 to left-2.5 */}
                 <span className="i-ph:magnifying-glass h-4 w-4 text-gray-400 dark:text-gray-500" />
               </div>
               <input
-                className="w-full bg-gray-50 dark:bg-gray-900 relative pl-9 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/50 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 border border-gray-200 dark:border-gray-800"
+                className="w-full bg-gray-50 dark:bg-gray-900 relative pl-8 pr-2 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/50 text-xs text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 border border-gray-200 dark:border-gray-800" // pl-9 pr-3 py-2 to pl-8 pr-2 py-1.5
                 type="search"
                 placeholder="Search chats..."
                 onChange={handleSearchChange}
@@ -395,10 +396,10 @@ export const Menu = () => {
               />
             </div>
           </div>
-          <div className="flex items-center justify-between text-sm px-4 py-2">
+          <div className="flex items-center justify-between text-xs px-3 py-1.5"> {/* px-4 py-2 to px-3 py-1.5 */}
             <div className="font-medium text-gray-600 dark:text-gray-400">Your Chats</div>
             {selectionMode && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5"> {/* gap-2 to gap-1.5 */}
                 <Button variant="ghost" size="sm" onClick={selectAll}>
                   {selectedItems.length === filteredList.length ? 'Deselect all' : 'Select all'}
                 </Button>
@@ -415,14 +416,14 @@ export const Menu = () => {
           </div>
           <div className="flex-1 overflow-auto px-3 pb-3">
             {filteredList.length === 0 && (
-              <div className="px-4 text-gray-500 dark:text-gray-400 text-sm">
+              <div className="px-4 text-gray-500 dark:text-gray-400 text-xs"> {/* Changed from text-sm */}
                 {list.length === 0 ? 'No previous conversations' : 'No matches found'}
               </div>
             )}
             <DialogRoot open={dialogContent !== null}>
               {binDates(filteredList).map(({ category, items }) => (
                 <div key={category} className="mt-2 first:mt-0 space-y-1">
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 sticky top-0 z-1 bg-white dark:bg-gray-950 px-4 py-1">
+                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 sticky top-0 z-1 bg-white dark:bg-gray-950 px-3 py-1"> {/* px-4 to px-3 */}
                     {category}
                   </div>
                   <div className="space-y-0.5 pr-1">
@@ -449,19 +450,19 @@ export const Menu = () => {
               <Dialog onBackdrop={closeDialog} onClose={closeDialog}>
                 {dialogContent?.type === 'delete' && (
                   <>
-                    <div className="p-6 bg-white dark:bg-gray-950">
+                    <div className="p-4 bg-white dark:bg-gray-950"> {/* p-6 to p-4 */}
                       <DialogTitle className="text-gray-900 dark:text-white">Delete Chat?</DialogTitle>
-                      <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
+                      <DialogDescription className="mt-1.5 text-gray-600 dark:text-gray-400"> {/* mt-2 to mt-1.5 */}
                         <p>
                           You are about to delete{' '}
                           <span className="font-medium text-gray-900 dark:text-white">
                             {dialogContent.item.description}
                           </span>
                         </p>
-                        <p className="mt-2">Are you sure you want to delete this chat?</p>
+                        <p className="mt-1.5">Are you sure you want to delete this chat?</p> {/* mt-2 to mt-1.5 */}
                       </DialogDescription>
                     </div>
-                    <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-end gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800"> {/* gap-3 to gap-2, px-6 py-4 to px-4 py-3 */}
                       <DialogButton type="secondary" onClick={closeDialog}>
                         Cancel
                       </DialogButton>
@@ -480,26 +481,26 @@ export const Menu = () => {
                 )}
                 {dialogContent?.type === 'bulkDelete' && (
                   <>
-                    <div className="p-6 bg-white dark:bg-gray-950">
+                    <div className="p-4 bg-white dark:bg-gray-950"> {/* p-6 to p-4 */}
                       <DialogTitle className="text-gray-900 dark:text-white">Delete Selected Chats?</DialogTitle>
-                      <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
+                      <DialogDescription className="mt-1.5 text-gray-600 dark:text-gray-400"> {/* mt-2 to mt-1.5 */}
                         <p>
                           You are about to delete {dialogContent.items.length}{' '}
                           {dialogContent.items.length === 1 ? 'chat' : 'chats'}:
                         </p>
-                        <div className="mt-2 max-h-32 overflow-auto border border-gray-100 dark:border-gray-800 rounded-md bg-gray-50 dark:bg-gray-900 p-2">
+                        <div className="mt-1.5 max-h-28 overflow-auto border border-gray-100 dark:border-gray-800 rounded-md bg-gray-50 dark:bg-gray-900 p-1.5"> {/* mt-2 to mt-1.5, max-h-32 to max-h-28, p-2 to p-1.5 */}
                           <ul className="list-disc pl-5 space-y-1">
                             {dialogContent.items.map((item) => (
-                              <li key={item.id} className="text-sm">
+                              <li key={item.id} className="text-xs"> {/* Changed from text-sm */}
                                 <span className="font-medium text-gray-900 dark:text-white">{item.description}</span>
                               </li>
                             ))}
                           </ul>
                         </div>
-                        <p className="mt-3">Are you sure you want to delete these chats?</p>
+                        <p className="mt-2">Are you sure you want to delete these chats?</p> {/* mt-3 to mt-2 */}
                       </DialogDescription>
                     </div>
-                    <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-end gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800"> {/* gap-3 to gap-2, px-6 py-4 to px-4 py-3 */}
                       <DialogButton type="secondary" onClick={closeDialog}>
                         Cancel
                       </DialogButton>
@@ -524,7 +525,7 @@ export const Menu = () => {
               </Dialog>
             </DialogRoot>
           </div>
-          <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-4 py-3">
+          <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-3 py-2"> {/* px-4 py-3 to px-3 py-2 */}
             <SettingsButton onClick={handleSettingsClick} />
             <ThemeSwitch />
           </div>

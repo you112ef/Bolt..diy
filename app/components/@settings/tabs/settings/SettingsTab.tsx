@@ -60,29 +60,29 @@ export default function SettingsTab() {
   }, [settings]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Language & Notifications */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-4 space-y-4"
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-2 space-y-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-center gap-2 mb-4">
-          <div className="i-ph:palette-fill w-4 h-4 text-purple-500" />
+        <div className="flex items-center gap-1 mb-2">
+          <div className="i-ph:palette-fill w-3 h-3 text-purple-500" />
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Preferences</span>
         </div>
 
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="i-ph:translate-fill w-4 h-4 text-bolt-elements-textSecondary" />
-            <label className="block text-sm text-bolt-elements-textSecondary">Language</label>
+          <div className="flex items-center gap-1 mb-1">
+            <div className="i-ph:translate-fill w-3 h-3 text-bolt-elements-textSecondary" />
+            <label className="block text-xs text-bolt-elements-textSecondary">Language</label>
           </div>
           <select
             value={settings.language}
             onChange={(e) => setSettings((prev) => ({ ...prev, language: e.target.value }))}
             className={classNames(
-              'w-full px-3 py-2 rounded-lg text-sm',
+              'h-6 w-full px-2 py-1.5 rounded-md text-xs',
               'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
               'border border-[#E5E5E5] dark:border-[#1A1A1A]',
               'text-bolt-elements-textPrimary',
@@ -104,12 +104,12 @@ export default function SettingsTab() {
         </div>
 
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="i-ph:bell-fill w-4 h-4 text-bolt-elements-textSecondary" />
-            <label className="block text-sm text-bolt-elements-textSecondary">Notifications</label>
+          <div className="flex items-center gap-1 mb-1">
+            <div className="i-ph:bell-fill w-3 h-3 text-bolt-elements-textSecondary" />
+            <label className="block text-xs text-bolt-elements-textSecondary">Notifications</label>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-bolt-elements-textSecondary">
+            <span className="text-xs text-bolt-elements-textSecondary">
               {settings.notifications ? 'Notifications are enabled' : 'Notifications are disabled'}
             </span>
             <Switch
@@ -143,26 +143,26 @@ export default function SettingsTab() {
 
       {/* Timezone */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-4"
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="flex items-center gap-2 mb-4">
-          <div className="i-ph:clock-fill w-4 h-4 text-purple-500" />
+        <div className="flex items-center gap-1 mb-2">
+          <div className="i-ph:clock-fill w-3 h-3 text-purple-500" />
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Time Settings</span>
         </div>
 
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="i-ph:globe-fill w-4 h-4 text-bolt-elements-textSecondary" />
-            <label className="block text-sm text-bolt-elements-textSecondary">Timezone</label>
+          <div className="flex items-center gap-1 mb-1">
+            <div className="i-ph:globe-fill w-3 h-3 text-bolt-elements-textSecondary" />
+            <label className="block text-xs text-bolt-elements-textSecondary">Timezone</label>
           </div>
           <select
             value={settings.timezone}
             onChange={(e) => setSettings((prev) => ({ ...prev, timezone: e.target.value }))}
             className={classNames(
-              'w-full px-3 py-2 rounded-lg text-sm',
+              'h-6 w-full px-2 py-1.5 rounded-md text-xs',
               'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
               'border border-[#E5E5E5] dark:border-[#1A1A1A]',
               'text-bolt-elements-textPrimary',
@@ -177,33 +177,33 @@ export default function SettingsTab() {
 
       {/* Simplified Keyboard Shortcuts */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-4"
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <div className="flex items-center gap-2 mb-4">
-          <div className="i-ph:keyboard-fill w-4 h-4 text-purple-500" />
+        <div className="flex items-center gap-1 mb-2">
+          <div className="i-ph:keyboard-fill w-3 h-3 text-purple-500" />
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Keyboard Shortcuts</span>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between p-2 rounded-lg bg-[#FAFAFA] dark:bg-[#1A1A1A]">
             <div className="flex flex-col">
-              <span className="text-sm text-bolt-elements-textPrimary">Toggle Theme</span>
+              <span className="text-xs text-bolt-elements-textPrimary">Toggle Theme</span>
               <span className="text-xs text-bolt-elements-textSecondary">Switch between light and dark mode</span>
             </div>
             <div className="flex items-center gap-1">
-              <kbd className="px-2 py-1 text-xs font-semibold text-bolt-elements-textSecondary bg-white dark:bg-[#0A0A0A] border border-[#E5E5E5] dark:border-[#1A1A1A] rounded shadow-sm">
+              <kbd className="px-1.5 py-0.5 text-xs font-semibold text-bolt-elements-textSecondary bg-white dark:bg-[#0A0A0A] border border-[#E5E5E5] dark:border-[#1A1A1A] rounded shadow-sm">
                 {getModifierSymbol('meta')}
               </kbd>
-              <kbd className="px-2 py-1 text-xs font-semibold text-bolt-elements-textSecondary bg-white dark:bg-[#0A0A0A] border border-[#E5E5E5] dark:border-[#1A1A1A] rounded shadow-sm">
+              <kbd className="px-1.5 py-0.5 text-xs font-semibold text-bolt-elements-textSecondary bg-white dark:bg-[#0A0A0A] border border-[#E5E5E5] dark:border-[#1A1A1A] rounded shadow-sm">
                 {getModifierSymbol('alt')}
               </kbd>
-              <kbd className="px-2 py-1 text-xs font-semibold text-bolt-elements-textSecondary bg-white dark:bg-[#0A0A0A] border border-[#E5E5E5] dark:border-[#1A1A1A] rounded shadow-sm">
+              <kbd className="px-1.5 py-0.5 text-xs font-semibold text-bolt-elements-textSecondary bg-white dark:bg-[#0A0A0A] border border-[#E5E5E5] dark:border-[#1A1A1A] rounded shadow-sm">
                 {getModifierSymbol('shift')}
               </kbd>
-              <kbd className="px-2 py-1 text-xs font-semibold text-bolt-elements-textSecondary bg-white dark:bg-[#0A0A0A] border border-[#E5E5E5] dark:border-[#1A1A1A] rounded shadow-sm">
+              <kbd className="px-1.5 py-0.5 text-xs font-semibold text-bolt-elements-textSecondary bg-white dark:bg-[#0A0A0A] border border-[#E5E5E5] dark:border-[#1A1A1A] rounded shadow-sm">
                 D
               </kbd>
             </div>

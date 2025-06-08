@@ -64,8 +64,8 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
               return (
                 <div
                   key={index}
-                  className={classNames('flex gap-4 py-3 w-full rounded-lg', {
-                    'mt-4': !isFirst,
+                  className={classNames('flex gap-2 py-2 w-full rounded-lg', { // gap-4 to gap-2, py-3 to py-2
+                    'mt-2': !isFirst, // mt-4 to mt-2
                   })}
                 >
                   <div className="grid grid-col-1 w-full">

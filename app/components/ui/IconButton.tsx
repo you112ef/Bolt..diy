@@ -31,7 +31,7 @@ export const IconButton = memo(
     (
       {
         icon,
-        size = 'xl',
+        size = 'sm',
         className,
         iconClassName,
         disabledClassName,
@@ -71,14 +71,14 @@ export const IconButton = memo(
 
 function getIconSize(size: IconSize) {
   if (size === 'sm') {
-    return 'text-sm';
+    return 'text-xs';
   } else if (size === 'md') {
-    return 'text-md';
+    return 'text-sm';
   } else if (size === 'lg') {
-    return 'text-lg';
+    return 'text-base';
   } else if (size === 'xl') {
+    return 'text-lg';
+  } else { // xxl
     return 'text-xl';
-  } else {
-    return 'text-2xl';
   }
 }

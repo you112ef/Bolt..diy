@@ -19,12 +19,12 @@ export function ChatDescription() {
   }
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center text-xs">
       {editing ? (
         <form onSubmit={handleSubmit} className="flex items-center justify-center">
           <input
             type="text"
-            className="bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary rounded px-2 mr-2 w-fit"
+            className="bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary rounded px-2 mr-2 w-fit text-xs max-w-[150px]"
             autoFocus
             value={currentDescription}
             onChange={handleChange}

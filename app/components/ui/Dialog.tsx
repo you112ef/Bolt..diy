@@ -22,7 +22,7 @@ export const DialogButton = memo(({ type, children, onClick, disabled }: DialogB
   return (
     <button
       className={classNames(
-        'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors',
+        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors',
         type === 'primary'
           ? 'bg-purple-500 text-white hover:bg-purple-600 dark:bg-purple-500 dark:hover:bg-purple-600'
           : type === 'secondary'
@@ -40,7 +40,7 @@ export const DialogButton = memo(({ type, children, onClick, disabled }: DialogB
 export const DialogTitle = memo(({ className, children, ...props }: RadixDialog.DialogTitleProps) => {
   return (
     <RadixDialog.Title
-      className={classNames('text-lg font-medium text-bolt-elements-textPrimary flex items-center gap-2', className)}
+      className={classNames('text-base font-medium text-bolt-elements-textPrimary flex items-center gap-1.5', className)}
       {...props}
     >
       {children}
@@ -51,7 +51,7 @@ export const DialogTitle = memo(({ className, children, ...props }: RadixDialog.
 export const DialogDescription = memo(({ className, children, ...props }: RadixDialog.DialogDescriptionProps) => {
   return (
     <RadixDialog.Description
-      className={classNames('text-sm text-bolt-elements-textSecondary mt-1', className)}
+      className={classNames('text-xs text-bolt-elements-textSecondary mt-1', className)}
       {...props}
     >
       {children}
@@ -130,7 +130,7 @@ export const Dialog = memo(({ children, className, showCloseButton = true, onClo
               <RadixDialog.Close asChild onClick={onClose}>
                 <IconButton
                   icon="i-ph:x"
-                  className="absolute top-3 right-3 text-bolt-elements-textTertiary hover:text-bolt-elements-textSecondary"
+                  className="absolute top-2 right-2 text-bolt-elements-textTertiary hover:text-bolt-elements-textSecondary"
                 />
               </RadixDialog.Close>
             )}
@@ -208,10 +208,10 @@ export function ConfirmationDialog({
   return (
     <RadixDialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog showCloseButton={false}>
-        <div className="p-6 bg-white dark:bg-gray-950 relative z-10">
+        <div className="p-4 bg-white dark:bg-gray-950 relative z-10">
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription className="mb-4">{description}</DialogDescription>
-          <div className="flex justify-end space-x-2">
+          <DialogDescription className="mb-3">{description}</DialogDescription> {/* mb-4 to mb-3 */}
+          <div className="flex justify-end space-x-1.5"> {/* space-x-2 to space-x-1.5 */}
             <Button variant="outline" onClick={onClose} disabled={isLoading}>
               {cancelLabel}
             </Button>
@@ -227,7 +227,7 @@ export function ConfirmationDialog({
             >
               {isLoading ? (
                 <>
-                  <div className="i-ph-spinner-gap-bold animate-spin w-4 h-4 mr-2" />
+                  <div className="i-ph-spinner-gap-bold animate-spin w-3 h-3 mr-2" />
                   {confirmLabel}
                 </>
               ) : (
@@ -345,7 +345,7 @@ export function SelectionDialog({
       <div
         key={item.id}
         className={classNames(
-          'flex items-start space-x-3 p-2 rounded-md transition-colors',
+          'flex items-start space-x-2 p-1.5 rounded-md transition-colors', // space-x-3 to space-x-2, p-2 to p-1.5
           selectedItems.includes(item.id)
             ? 'bg-bolt-elements-item-backgroundAccent'
             : 'bg-bolt-elements-bg-depth-2 hover:bg-bolt-elements-item-backgroundActive',
@@ -361,11 +361,11 @@ export function SelectionDialog({
           checked={selectedItems.includes(item.id)}
           onCheckedChange={() => handleToggleItem(item.id)}
         />
-        <div className="grid gap-1.5 leading-none">
+        <div className="grid gap-1 leading-none"> {/* gap-1.5 to gap-1 */}
           <Label
             htmlFor={`item-${item.id}`}
             className={classNames(
-              'text-sm font-medium cursor-pointer',
+              'text-xs font-medium cursor-pointer',
               selectedItems.includes(item.id)
                 ? 'text-bolt-elements-item-contentAccent'
                 : 'text-bolt-elements-textPrimary',
@@ -382,23 +382,23 @@ export function SelectionDialog({
   return (
     <RadixDialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog showCloseButton={false}>
-        <div className="p-6 bg-white dark:bg-gray-950 relative z-10">
+        <div className="p-4 bg-white dark:bg-gray-950 relative z-10"> {/* p-6 to p-4 */}
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription className="mt-2 mb-4">
+          <DialogDescription className="mt-1.5 mb-3"> {/* mt-2 mb-4 to mt-1.5 mb-3 */}
             Select the items you want to include and click{' '}
             <span className="text-bolt-elements-item-contentAccent font-medium">{confirmLabel}</span>.
           </DialogDescription>
 
-          <div className="py-4">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-bolt-elements-textSecondary">
+          <div className="py-3"> {/* py-4 to py-3 */}
+            <div className="flex items-center justify-between mb-3"> {/* mb-4 to mb-3 */}
+              <span className="text-xs font-medium text-bolt-elements-textSecondary">
                 {selectedItems.length} of {items.length} selected
               </span>
               <Button
                 variant="ghost"
-                size="sm"
+                size="default"
                 onClick={handleSelectAll}
-                className="text-xs h-8 px-2 text-bolt-elements-textPrimary hover:text-bolt-elements-item-contentAccent hover:bg-bolt-elements-item-backgroundAccent bg-bolt-elements-bg-depth-2 dark:bg-transparent"
+                className="text-xs text-bolt-elements-textPrimary hover:text-bolt-elements-item-contentAccent hover:bg-bolt-elements-item-backgroundAccent bg-bolt-elements-bg-depth-2 dark:bg-transparent"
               >
                 {selectAll ? 'Deselect All' : 'Select All'}
               </Button>
@@ -421,12 +421,12 @@ export function SelectionDialog({
                   {ItemRenderer}
                 </FixedSizeList>
               ) : (
-                <div className="text-center py-4 text-sm text-bolt-elements-textTertiary">No items to display</div>
+                <div className="text-center py-4 text-xs text-bolt-elements-textTertiary">No items to display</div>
               )}
             </div>
           </div>
 
-          <div className="flex justify-between mt-6">
+          <div className="flex justify-between mt-4"> {/* mt-6 to mt-4 */}
             <Button
               variant="outline"
               onClick={onClose}

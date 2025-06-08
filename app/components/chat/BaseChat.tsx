@@ -3,7 +3,7 @@
  * Preventing TS checks with files presented in the video for a better presentation.
  */
 import type { JSONValue, Message } from 'ai';
-import React, { type RefCallback, useEffect, useState } from 'react';
+import React, { type RefCallback, useEffect, useState, useCallback } from 'react'; // Import useCallback
 import { ClientOnly } from 'remix-utils/client-only';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { Workbench } from '~/components/workbench/Workbench.client';
@@ -221,7 +221,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       }
     }, [providerList, provider]);
 
-    const onApiKeysChange = async (providerName: string, apiKey: string) => {
+    const onApiKeysChange = useCallback(async (providerName: string, apiKey: string) => {
       const newApiKeys = { ...apiKeys, [providerName]: apiKey };
       setApiKeys(newApiKeys);
       Cookies.set('apiKeys', JSON.stringify(newApiKeys));
@@ -244,33 +244,32 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         return [...otherModels, ...providerModels];
       });
       setIsModelLoading(undefined);
-    };
+    }, [apiKeys, setApiKeys, setIsModelLoading, setModelList]); // Corrected dependencies
 
-    const startListening = () => {
+    const startListening = useCallback(() => { // Wrapped with useCallback
       if (recognition) {
         recognition.start();
         setIsListening(true);
       }
-    };
+    }, [recognition]);
 
-    const stopListening = () => {
+    const stopListening = useCallback(() => { // Wrapped with useCallback
       if (recognition) {
         recognition.stop();
         setIsListening(false);
       }
-    };
+    }, [recognition]);
 
-    const handleSendMessage = (event: React.UIEvent, messageInput?: string) => {
+    const handleSendMessage = useCallback((event: React.UIEvent, messageInput?: string) => { // Wrapped with useCallback
       if (sendMessage) {
         sendMessage(event, messageInput);
         setSelectedElement?.(null);
 
         if (recognition) {
-          recognition.abort(); // Stop current recognition
-          setTranscript(''); // Clear transcript
+          recognition.abort();
+          setTranscript('');
           setIsListening(false);
 
-          // Clear the input by triggering handleInputChange with empty value
           if (handleInputChange) {
             const syntheticEvent = {
               target: { value: '' },
@@ -279,9 +278,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           }
         }
       }
-    };
+    }, [sendMessage, recognition, handleInputChange, setSelectedElement]);
 
-    const handleFileUpload = () => {
+    const handleFileUpload = useCallback(() => { // Wrapped with useCallback
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
@@ -302,9 +301,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       };
 
       input.click();
-    };
+    }, [setUploadedFiles, uploadedFiles, setImageDataList, imageDataList]);
 
-    const handlePaste = async (e: React.ClipboardEvent) => {
+    const handlePaste = useCallback(async (e: React.ClipboardEvent) => { // Wrapped with useCallback
       const items = e.clipboardData?.items;
 
       if (!items) {
@@ -331,7 +330,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           break;
         }
       }
-    };
+    }, [uploadedFiles, setUploadedFiles, imageDataList, setImageDataList]); // Added dependencies
 
     const baseChat = (
       <div
@@ -341,7 +340,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       >
         <ClientOnly>{() => <Menu />}</ClientOnly>
         <div className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
-          <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
+          <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full w-full max-w-[430px] mx-auto')}>
             {!chatStarted && (
               <div id="intro" className="mt-[16vh] max-w-2xl mx-auto text-center px-4 lg:px-0">
                 <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
@@ -353,7 +352,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </div>
             )}
             <StickToBottom
-              className={classNames('pt-6 px-2 sm:px-6 relative', {
+              className={classNames('pt-2 px-1 sm:px-2 relative', {
                 'h-full flex flex-col modern-scrollbar': chatStarted,
               })}
               resize="smooth"
@@ -364,7 +363,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   {() => {
                     return chatStarted ? (
                       <Messages
-                        className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
+                        className="flex flex-col w-full flex-1 max-w-chat pb-1.5 mx-auto z-1"
                         messages={messages}
                         isStreaming={isStreaming}
                         append={append}
@@ -379,7 +378,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <ScrollToBottom />
               </StickToBottom.Content>
               <div
-                className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-6', {
+                className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-2', {
                   'sticky bottom-2': chatStarted,
                 })}
               >

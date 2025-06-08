@@ -1,9 +1,9 @@
 import { motion, type Variants } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react'; // Added React and Suspense
 import { toast } from 'react-toastify';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
-import { ControlPanel } from '~/components/@settings/core/ControlPanel';
+// import { ControlPanel } from '~/components/@settings/core/ControlPanel'; // Removed direct import
 import { SettingsButton } from '~/components/ui/SettingsButton';
 import { Button } from '~/components/ui/Button';
 import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
@@ -14,6 +14,9 @@ import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { classNames } from '~/utils/classNames';
 import { useStore } from '@nanostores/react';
 import { profileStore } from '~/lib/stores/profile';
+
+// Lazy load ControlPanel
+const ControlPanel = React.lazy(() => import('~/components/@settings/core/ControlPanel'));
 
 const menuVariants = {
   closed: {
@@ -396,7 +399,7 @@ export const Menu = () => {
             </div>
           </div>
           <div className="flex items-center justify-between text-sm px-4 py-2">
-            <div className="font-medium text-gray-600 dark:text-gray-400">Your Chats</div>
+            <div className="font-medium text-xs text-gray-500 dark:text-gray-400 tracking-wider uppercase">Your Chats</div>
             {selectionMode && (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={selectAll}>
@@ -415,7 +418,7 @@ export const Menu = () => {
           </div>
           <div className="flex-1 overflow-auto px-3 pb-3">
             {filteredList.length === 0 && (
-              <div className="px-4 text-gray-500 dark:text-gray-400 text-sm">
+              <div className="px-4 text-gray-500 dark:text-gray-400 text-xs">
                 {list.length === 0 ? 'No previous conversations' : 'No matches found'}
               </div>
             )}
@@ -531,7 +534,12 @@ export const Menu = () => {
         </div>
       </motion.div>
 
-      <ControlPanel open={isSettingsOpen} onClose={handleSettingsClose} />
+      {/* Conditionally render ControlPanel with Suspense for lazy loading */}
+      {isSettingsOpen && (
+        <Suspense fallback={null}> {/* Can use a spinner here if preferred */}
+          <ControlPanel open={isSettingsOpen} onClose={handleSettingsClose} />
+        </Suspense>
+      )}
     </>
   );
 };

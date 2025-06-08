@@ -270,7 +270,7 @@ export const ChatImpl = memo(
         model,
         provider: provider.name,
       });
-    };
+    }, [stop, model, provider]); // Added dependencies
 
     useEffect(() => {
       const textarea = textareaRef.current;

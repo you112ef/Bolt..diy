@@ -221,7 +221,7 @@ export const ModelSelector = ({
       <div className="relative flex w-full" onKeyDown={handleProviderKeyDown} ref={providerDropdownRef}>
         <div
           className={classNames(
-            'w-full p-2 rounded-lg border border-bolt-elements-borderColor',
+            'w-full py-2 px-3 text-xs rounded-lg border border-bolt-elements-borderColor', // Changed p-2 to py-2 px-3 and added text-xs
             'bg-bolt-elements-prompt-background text-bolt-elements-textPrimary',
             'focus-within:outline-none focus-within:ring-2 focus-within:ring-bolt-elements-focus',
             'transition-all cursor-pointer',
@@ -265,8 +265,8 @@ export const ModelSelector = ({
                   value={providerSearchQuery}
                   onChange={(e) => setProviderSearchQuery(e.target.value)}
                   placeholder="Search providers..."
-                  className={classNames(
-                    'w-full pl-2 py-1.5 rounded-md text-sm',
+                  className={classNames( // Changed py-1.5 to py-2 px-2 and text-sm to text-xs
+                    'w-full pl-8 pr-2 py-2 rounded-md text-xs', // pl-8 to account for icon
                     'bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
                     'text-bolt-elements-textPrimary placeholder:text-bolt-elements-textTertiary',
                     'focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus',
@@ -307,8 +307,8 @@ export const ModelSelector = ({
                     key={providerOption.name}
                     role="option"
                     aria-selected={provider?.name === providerOption.name}
-                    className={classNames(
-                      'px-3 py-2 text-sm cursor-pointer',
+                    className={classNames( // Changed text-sm to text-xs
+                      'px-3 py-2 text-xs cursor-pointer',
                       'hover:bg-bolt-elements-background-depth-3',
                       'text-bolt-elements-textPrimary',
                       'outline-none',
@@ -348,7 +348,7 @@ export const ModelSelector = ({
       <div className="relative flex w-full min-w-[70%]" onKeyDown={handleModelKeyDown} ref={modelDropdownRef}>
         <div
           className={classNames(
-            'w-full p-2 rounded-lg border border-bolt-elements-borderColor',
+            'w-full py-2 px-3 text-xs rounded-lg border border-bolt-elements-borderColor', // Changed p-2 to py-2 px-3 and added text-xs
             'bg-bolt-elements-prompt-background text-bolt-elements-textPrimary',
             'focus-within:outline-none focus-within:ring-2 focus-within:ring-bolt-elements-focus',
             'transition-all cursor-pointer',
@@ -392,8 +392,8 @@ export const ModelSelector = ({
                   value={modelSearchQuery}
                   onChange={(e) => setModelSearchQuery(e.target.value)}
                   placeholder="Search models..."
-                  className={classNames(
-                    'w-full pl-2 py-1.5 rounded-md text-sm',
+                  className={classNames( // Changed py-1.5 to py-2 px-2 and text-sm to text-xs
+                    'w-full pl-8 pr-2 py-2 rounded-md text-xs', // pl-8 to account for icon
                     'bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
                     'text-bolt-elements-textPrimary placeholder:text-bolt-elements-textTertiary',
                     'focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus',
@@ -436,8 +436,8 @@ export const ModelSelector = ({
                     key={index} // Consider using modelOption.name if unique
                     role="option"
                     aria-selected={model === modelOption.name}
-                    className={classNames(
-                      'px-3 py-2 text-sm cursor-pointer',
+                    className={classNames( // Changed text-sm to text-xs
+                      'px-3 py-2 text-xs cursor-pointer',
                       'hover:bg-bolt-elements-background-depth-3',
                       'text-bolt-elements-textPrimary',
                       'outline-none',

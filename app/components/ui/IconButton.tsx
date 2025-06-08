@@ -45,8 +45,8 @@ export const IconButton = memo(
       return (
         <button
           ref={ref}
-          className={classNames(
-            'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed focus:outline-none',
+          className={classNames( // Added justify-center, changed p-1 to p-2, added h-10 w-10
+            'flex items-center justify-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-2 h-10 w-10 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed focus:outline-none',
             {
               [classNames('opacity-30', disabledClassName)]: disabled,
             },
@@ -82,3 +82,4 @@ function getIconSize(size: IconSize) {
     return 'text-2xl';
   }
 }
+IconButton.displayName = 'IconButton'; // Add display name

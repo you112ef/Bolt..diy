@@ -1,9 +1,10 @@
 import { useParams } from '@remix-run/react';
 import { classNames } from '~/utils/classNames';
 import { type ChatHistoryItem } from '~/lib/persistence';
+import { IconButton } from '~/components/ui/IconButton';
 import WithTooltip from '~/components/ui/Tooltip';
 import { useEditChatDescription } from '~/lib/hooks';
-import { forwardRef, type ForwardedRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Checkbox } from '~/components/ui/Checkbox';
 
 interface HistoryItemProps {
@@ -80,7 +81,7 @@ export function HistoryItem({
             id={`select-${item.id}`}
             checked={isSelected}
             onCheckedChange={handleCheckboxChange}
-            className="h-4 w-4"
+            className="!h-5 !w-5"
           />
         </div>
       )}
@@ -116,39 +117,51 @@ export function HistoryItem({
               'absolute right-0 top-0 bottom-0 flex items-center bg-transparent px-2 transition-colors',
             )}
           >
-            <div className="flex items-center gap-2.5 text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
-              <ChatActionButton
-                toolTipContent="Export"
-                icon="i-ph:download-simple h-4 w-4"
-                onClick={(event) => {
-                  event.preventDefault();
-                  exportChat(item.id);
-                }}
-              />
-              {onDuplicate && (
-                <ChatActionButton
-                  toolTipContent="Duplicate"
-                  icon="i-ph:copy h-4 w-4"
+            <div className="flex items-center gap-0.5 text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+              <WithTooltip tooltip="Export" position="bottom" sideOffset={4}>
+                <IconButton
+                  title="Export"
+                  icon="i-ph:download-simple"
+                  size="md"
                   onClick={(event) => {
                     event.preventDefault();
-                    onDuplicate?.(item.id);
+                    exportChat(item.id);
                   }}
                 />
+              </WithTooltip>
+              {onDuplicate && (
+                <WithTooltip tooltip="Duplicate" position="bottom" sideOffset={4}>
+                  <IconButton
+                    title="Duplicate"
+                    icon="i-ph:copy"
+                    size="md"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      onDuplicate?.(item.id);
+                    }}
+                  />
+                </WithTooltip>
               )}
-              <ChatActionButton
-                toolTipContent="Rename"
-                icon="i-ph:pencil-fill h-4 w-4"
-                onClick={(event) => {
-                  event.preventDefault();
-                  toggleEditMode();
-                }}
-              />
-              <ChatActionButton
-                toolTipContent="Delete"
-                icon="i-ph:trash h-4 w-4"
-                className="hover:text-red-500 dark:hover:text-red-400"
-                onClick={handleDeleteClick}
-              />
+              <WithTooltip tooltip="Rename" position="bottom" sideOffset={4}>
+                <IconButton
+                  title="Rename"
+                  icon="i-ph:pencil-fill"
+                  size="md"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    toggleEditMode();
+                  }}
+                />
+              </WithTooltip>
+              <WithTooltip tooltip="Delete" position="bottom" sideOffset={4}>
+                <IconButton
+                  title="Delete"
+                  icon="i-ph:trash"
+                  size="md"
+                  className="hover:!text-red-500 dark:hover:!text-red-400"
+                  onClick={handleDeleteClick}
+                />
+              </WithTooltip>
             </div>
           </div>
         </a>
@@ -156,32 +169,3 @@ export function HistoryItem({
     </div>
   );
 }
-
-const ChatActionButton = forwardRef(
-  (
-    {
-      toolTipContent,
-      icon,
-      className,
-      onClick,
-    }: {
-      toolTipContent: string;
-      icon: string;
-      className?: string;
-      onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-      btnTitle?: string;
-    },
-    ref: ForwardedRef<HTMLButtonElement>,
-  ) => {
-    return (
-      <WithTooltip tooltip={toolTipContent} position="bottom" sideOffset={4}>
-        <button
-          ref={ref}
-          type="button"
-          className={`text-gray-400 dark:text-gray-500 hover:text-purple-500 dark:hover:text-purple-400 transition-colors ${icon} ${className ? className : ''}`}
-          onClick={onClick}
-        />
-      </WithTooltip>
-    );
-  },
-);

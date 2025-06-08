@@ -73,11 +73,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   return (
-    <>
+    <div className="max-w-screen-sm mx-auto px-4 w-full min-h-full flex flex-col">
       <ClientOnly>{() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}</ClientOnly>
       <ScrollRestoration />
       <Scripts />
-    </>
+    </div>
   );
 }
 

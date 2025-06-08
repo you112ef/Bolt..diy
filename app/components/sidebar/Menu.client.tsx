@@ -396,7 +396,7 @@ export const Menu = () => {
             </div>
           </div>
           <div className="flex items-center justify-between text-sm px-4 py-2">
-            <div className="font-medium text-gray-600 dark:text-gray-400">Your Chats</div>
+            <div className="font-medium text-xs text-gray-500 dark:text-gray-400 tracking-wider uppercase">Your Chats</div>
             {selectionMode && (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={selectAll}>
@@ -415,7 +415,7 @@ export const Menu = () => {
           </div>
           <div className="flex-1 overflow-auto px-3 pb-3">
             {filteredList.length === 0 && (
-              <div className="px-4 text-gray-500 dark:text-gray-400 text-sm">
+              <div className="px-4 text-gray-500 dark:text-gray-400 text-xs">
                 {list.length === 0 ? 'No previous conversations' : 'No matches found'}
               </div>
             )}

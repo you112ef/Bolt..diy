@@ -100,7 +100,7 @@ const AnimatedSwitch = ({ checked, onCheckedChange, id, label }: AnimatedSwitchP
         checked={checked}
         onCheckedChange={onCheckedChange}
         className={classNames(
-          'relative inline-flex h-6 w-11 items-center rounded-full',
+          'relative inline-flex h-5 w-9 items-center rounded-full', // Adjusted track size
           'transition-all duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)]',
           'bg-gray-200 dark:bg-gray-700',
           'data-[state=checked]:bg-purple-500',
@@ -112,7 +112,7 @@ const AnimatedSwitch = ({ checked, onCheckedChange, id, label }: AnimatedSwitchP
         <motion.span
           className={classNames(
             'absolute left-[2px] top-[2px]',
-            'inline-block h-5 w-5 rounded-full',
+            'inline-block h-4 w-4 rounded-full', // Adjusted thumb size
             'bg-white shadow-lg',
             'transition-shadow duration-300',
             'group-hover:shadow-md group-active:shadow-sm',
@@ -126,7 +126,7 @@ const AnimatedSwitch = ({ checked, onCheckedChange, id, label }: AnimatedSwitchP
             duration: 0.2,
           }}
           animate={{
-            x: checked ? '1.25rem' : '0rem',
+            x: checked ? '1rem' : '0rem', // Adjusted thumb translation
           }}
         >
           <motion.div
@@ -432,7 +432,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
           >
             <motion.div
               className={classNames(
-                'w-[1200px] h-[90vh]',
+                'w-full sm:max-w-[430px] h-[85vh]', // Adjusted dimensions
                 'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
                 'rounded-2xl shadow-2xl',
                 'border border-[#E5E5E5] dark:border-[#1A1A1A]',
@@ -449,7 +449,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
               </div>
               <div className="relative z-10 flex flex-col h-full">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center space-x-4">
                     {(activeTab || showTabManagement) && (
                       <button
@@ -459,7 +459,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                         <div className="i-ph:arrow-left w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-purple-500 transition-colors" />
                       </button>
                     )}
-                    <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
                       {showTabManagement ? 'Tab Management' : activeTab ? TAB_LABELS[activeTab] : 'Control Panel'}
                     </DialogTitle>
                   </div>
@@ -510,7 +510,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="p-6"
+                    className="p-4" // Adjusted content area padding
                   >
                     {showTabManagement ? (
                       <TabManagement />
@@ -518,7 +518,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                       getTabComponent(activeTab)
                     ) : (
                       <motion.div
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative"
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative" // Adjusted grid gap
                         variants={gridLayoutVariants}
                         initial="hidden"
                         animate="visible"

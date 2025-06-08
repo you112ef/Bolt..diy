@@ -42,9 +42,9 @@ const FeatureCard = memo(
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
     >
-      <div className="p-4">
+      <div className="p-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className={classNames(feature.icon, 'w-5 h-5 text-bolt-elements-textSecondary')} />
             <div className="flex items-center gap-2">
               <h4 className="font-medium text-bolt-elements-textPrimary">{feature.title}</h4>
@@ -60,7 +60,7 @@ const FeatureCard = memo(
           </div>
           <Switch checked={feature.enabled} onCheckedChange={(checked) => onToggle(feature.id, checked)} />
         </div>
-        <p className="mt-2 text-sm text-bolt-elements-textSecondary">{feature.description}</p>
+        <p className="mt-1.5 text-sm text-bolt-elements-textSecondary">{feature.description}</p>
         {feature.tooltip && <p className="mt-1 text-xs text-bolt-elements-textTertiary">{feature.tooltip}</p>}
       </div>
     </motion.div>
@@ -89,14 +89,14 @@ const FeatureSection = memo(
       transition={{ duration: 0.3 }}
     >
       <div className="flex items-center gap-3">
-        <div className={classNames(icon, 'text-xl text-purple-500')} />
+        <div className={classNames(icon, 'text-lg text-purple-500')} />
         <div>
-          <h3 className="text-lg font-medium text-bolt-elements-textPrimary">{title}</h3>
+          <h3 className="text-base font-medium text-bolt-elements-textPrimary">{title}</h3>
           <p className="text-sm text-bolt-elements-textSecondary">{description}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {features.map((feature, index) => (
           <FeatureCard key={feature.id} feature={feature} index={index} onToggle={onToggleFeature} />
         ))}
@@ -216,7 +216,7 @@ export default function FeaturesTab() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-4">
       <FeatureSection
         title="Core Features"
         features={features.stable}
@@ -241,17 +241,17 @@ export default function FeaturesTab() {
           'bg-bolt-elements-background-depth-2',
           'hover:bg-bolt-elements-background-depth-3',
           'transition-all duration-200',
-          'rounded-lg p-4',
+          'rounded-lg p-3', // Adjusted padding
           'group',
         )}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div
             className={classNames(
-              'p-2 rounded-lg text-xl',
+              'p-2 rounded-lg text-lg', // Adjusted icon size
               'bg-bolt-elements-background-depth-3 group-hover:bg-bolt-elements-background-depth-4',
               'transition-colors duration-200',
               'text-purple-500',
@@ -274,7 +274,7 @@ export default function FeaturesTab() {
               toast.success('Prompt template updated');
             }}
             className={classNames(
-              'p-2 rounded-lg text-sm min-w-[200px]',
+              'px-2 py-1.5 rounded-md text-sm min-w-[200px]', // Adjusted select styling
               'bg-bolt-elements-background-depth-3 border border-bolt-elements-borderColor',
               'text-bolt-elements-textPrimary',
               'focus:outline-none focus:ring-2 focus:ring-purple-500/30',

@@ -66,7 +66,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div
       className={classNames(
-        'relative bg-bolt-elements-background-depth-2 backdrop-blur p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
+        'relative bg-bolt-elements-background-depth-2 backdrop-blur p-2 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt', // Adjusted padding
 
         /*
          * {
@@ -171,7 +171,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <textarea
           ref={props.textareaRef}
           className={classNames(
-            'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
+            'w-full pl-3 pt-3 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm', // Adjusted padding
             'transition-all duration-200',
             'hover:border-bolt-elements-focus',
           )}
@@ -257,11 +257,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             />
           )}
         </ClientOnly>
-        <div className="flex justify-between items-center text-sm p-4 pt-2">
+        <div className="flex justify-between items-center text-sm p-2 pt-1">
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
             <IconButton title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
-              <div className="i-ph:paperclip text-xl"></div>
+              <div className="i-ph:paperclip text-lg"></div>
             </IconButton>
             <IconButton
               title="Enhance prompt"
@@ -273,9 +273,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               }}
             >
               {props.enhancingPrompt ? (
-                <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
+                <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-lg animate-spin"></div>
               ) : (
-                <div className="i-bolt:stars text-xl"></div>
+                <div className="i-bolt:stars text-lg"></div>
               )}
             </IconButton>
 
@@ -298,7 +298,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                   props.setChatMode?.(props.chatMode === 'discuss' ? 'build' : 'discuss');
                 }}
               >
-                <div className={`i-ph:chats text-xl`} />
+                <div className={`i-ph:chats text-lg`} />
                 {props.chatMode === 'discuss' ? <span>Discuss</span> : <span />}
               </IconButton>
             )}
@@ -313,7 +313,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               onClick={() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed)}
               disabled={!props.providerList || props.providerList.length === 0}
             >
-              <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
+              <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'} text-base`} />
               {props.isModelSettingsCollapsed ? <span className="text-xs">{props.model}</span> : <span />}
             </IconButton>
           </div>

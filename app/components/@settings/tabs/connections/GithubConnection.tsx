@@ -540,18 +540,18 @@ export default function GitHubConnection() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <GithubLogo />
-            <h3 className="text-base font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
+            <h3 className="text-sm font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
               GitHub Connection
             </h3>
           </div>
         </div>
 
         {!connection.user && (
-          <div className="text-xs text-bolt-elements-textSecondary bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 p-3 rounded-lg mb-4">
+          <div className="text-xs text-bolt-elements-textSecondary bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 p-2 rounded-lg mb-4">
             <p className="flex items-center gap-1 mb-1">
               <span className="i-ph:lightbulb w-3.5 h-3.5 text-bolt-elements-icon-success dark:text-bolt-elements-icon-success" />
               <span className="font-medium">Tip:</span> You can also set the{' '}
@@ -568,9 +568,9 @@ export default function GitHubConnection() {
             </p>
           </div>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mb-2">
+            <label className="block text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mb-1.5">
               Token Type
             </label>
             <select
@@ -582,7 +582,7 @@ export default function GitHubConnection() {
               }}
               disabled={isConnecting || !!connection.user}
               className={classNames(
-                'w-full px-3 py-2 rounded-lg text-sm',
+                'w-full px-2 py-1.5 rounded-md text-sm', // Adjusted select padding & rounding
                 'bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1',
                 'border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor',
                 'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
@@ -596,7 +596,7 @@ export default function GitHubConnection() {
           </div>
 
           <div>
-            <label className="block text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mb-2">
+            <label className="block text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mb-1.5">
               {connection.tokenType === 'classic' ? 'Personal Access Token' : 'Fine-grained Token'}
             </label>
             <input
@@ -608,7 +608,7 @@ export default function GitHubConnection() {
                 connection.tokenType === 'classic' ? 'personal access token' : 'fine-grained token'
               }`}
               className={classNames(
-                'w-full px-3 py-2 rounded-lg text-sm',
+                'w-full px-2 py-1.5 rounded-md text-sm', // Adjusted input padding & rounding
                 'bg-[#F8F8F8] dark:bg-[#1A1A1A]',
                 'border border-[#E5E5E5] dark:border-[#333333]',
                 'text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary',
@@ -643,7 +643,7 @@ export default function GitHubConnection() {
               onClick={handleConnect}
               disabled={isConnecting || !connection.token}
               className={classNames(
-                'px-4 py-2 rounded-lg text-sm flex items-center gap-2',
+                'px-3 py-1.5 rounded-md text-sm flex items-center gap-2', // Adjusted button
                 'bg-[#303030] text-white',
                 'hover:bg-[#5E41D0] hover:text-white',
                 'disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200',
@@ -669,7 +669,7 @@ export default function GitHubConnection() {
                   <button
                     onClick={handleDisconnect}
                     className={classNames(
-                      'px-4 py-2 rounded-lg text-sm flex items-center gap-2',
+                      'px-3 py-1.5 rounded-md text-sm flex items-center gap-2', // Adjusted button
                       'bg-red-500 text-white',
                       'hover:bg-red-600',
                     )}
@@ -719,8 +719,8 @@ export default function GitHubConnection() {
         </div>
 
         {connection.user && connection.stats && (
-          <div className="mt-6 border-t border-bolt-elements-borderColor dark:border-bolt-elements-borderColor pt-6">
-            <div className="flex items-center gap-4 p-4 bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 rounded-lg mb-4">
+          <div className="mt-4 border-t border-bolt-elements-borderColor dark:border-bolt-elements-borderColor pt-4">
+            <div className="flex items-center gap-3 p-3 bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 rounded-lg mb-4">
               <img
                 src={connection.user.avatar_url}
                 alt={connection.user.login}
@@ -738,7 +738,7 @@ export default function GitHubConnection() {
 
             <Collapsible open={isStatsExpanded} onOpenChange={setIsStatsExpanded}>
               <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between p-4 rounded-lg bg-bolt-elements-background dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive/70 dark:hover:border-bolt-elements-borderColorActive/70 transition-all duration-200">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-bolt-elements-background dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive/70 dark:hover:border-bolt-elements-borderColorActive/70 transition-all duration-200">
                   <div className="flex items-center gap-2">
                     <div className="i-ph:chart-bar w-4 h-4 text-bolt-elements-item-contentAccent" />
                     <span className="text-sm font-medium text-bolt-elements-textPrimary">GitHub Stats</span>
@@ -754,8 +754,8 @@ export default function GitHubConnection() {
               <CollapsibleContent className="overflow-hidden">
                 <div className="space-y-4 mt-4">
                   {/* Languages Section */}
-                  <div className="mb-6">
-                    <h4 className="text-sm font-medium text-bolt-elements-textPrimary mb-3">Top Languages</h4>
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-bolt-elements-textPrimary mb-2">Top Languages</h4>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(connection.stats.languages)
                         .sort(([, a], [, b]) => b - a)
@@ -763,7 +763,7 @@ export default function GitHubConnection() {
                         .map(([language]) => (
                           <span
                             key={language}
-                            className="px-3 py-1 text-xs rounded-full bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText"
+                            className="px-2 py-0.5 text-xs rounded-full bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText" // Adjusted padding
                           >
                             {language}
                           </span>
@@ -772,7 +772,7 @@ export default function GitHubConnection() {
                   </div>
 
                   {/* Additional Stats */}
-                  <div className="grid grid-cols-4 gap-4 mb-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
                     {[
                       {
                         label: 'Member Since',
@@ -793,10 +793,10 @@ export default function GitHubConnection() {
                     ].map((stat, index) => (
                       <div
                         key={index}
-                        className="flex flex-col p-3 rounded-lg bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor"
+                        className="flex flex-col p-2 rounded-lg bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor" // Adjusted padding
                       >
                         <span className="text-xs text-bolt-elements-textSecondary">{stat.label}</span>
-                        <span className="text-lg font-medium text-bolt-elements-textPrimary">{stat.value}</span>
+                        <span className="text-base font-medium text-bolt-elements-textPrimary">{stat.value}</span>
                       </div>
                     ))}
                   </div>
@@ -806,7 +806,7 @@ export default function GitHubConnection() {
                     <div className="space-y-4">
                       <div>
                         <h5 className="text-sm font-medium text-bolt-elements-textPrimary mb-2">Repository Stats</h5>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-2">
                           {[
                             {
                               label: 'Public Repos',
@@ -819,10 +819,10 @@ export default function GitHubConnection() {
                           ].map((stat, index) => (
                             <div
                               key={index}
-                              className="flex flex-col p-3 rounded-lg bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor"
+                              className="flex flex-col p-2 rounded-lg bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor" // Adjusted padding
                             >
                               <span className="text-xs text-bolt-elements-textSecondary">{stat.label}</span>
-                              <span className="text-lg font-medium text-bolt-elements-textPrimary">{stat.value}</span>
+                              <span className="text-base font-medium text-bolt-elements-textPrimary">{stat.value}</span>
                             </div>
                           ))}
                         </div>
@@ -830,7 +830,7 @@ export default function GitHubConnection() {
 
                       <div>
                         <h5 className="text-sm font-medium text-bolt-elements-textPrimary mb-2">Contribution Stats</h5>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-3 gap-2">
                           {[
                             {
                               label: 'Stars',
@@ -853,10 +853,10 @@ export default function GitHubConnection() {
                           ].map((stat, index) => (
                             <div
                               key={index}
-                              className="flex flex-col p-3 rounded-lg bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor"
+                              className="flex flex-col p-2 rounded-lg bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor" // Adjusted padding
                             >
                               <span className="text-xs text-bolt-elements-textSecondary">{stat.label}</span>
-                              <span className="text-lg font-medium text-bolt-elements-textPrimary flex items-center gap-1">
+                              <span className="text-base font-medium text-bolt-elements-textPrimary flex items-center gap-1">
                                 <div className={`${stat.icon} w-4 h-4 ${stat.iconColor}`} />
                                 {stat.value}
                               </span>
@@ -867,7 +867,7 @@ export default function GitHubConnection() {
 
                       <div>
                         <h5 className="text-sm font-medium text-bolt-elements-textPrimary mb-2">Gists</h5>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-2">
                           {[
                             {
                               label: 'Public',
@@ -880,10 +880,10 @@ export default function GitHubConnection() {
                           ].map((stat, index) => (
                             <div
                               key={index}
-                              className="flex flex-col p-3 rounded-lg bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor"
+                              className="flex flex-col p-2 rounded-lg bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor" // Adjusted padding
                             >
                               <span className="text-xs text-bolt-elements-textSecondary">{stat.label}</span>
-                              <span className="text-lg font-medium text-bolt-elements-textPrimary">{stat.value}</span>
+                              <span className="text-base font-medium text-bolt-elements-textPrimary">{stat.value}</span>
                             </div>
                           ))}
                         </div>
@@ -900,16 +900,16 @@ export default function GitHubConnection() {
                   {/* Repositories Section */}
                   <div className="space-y-4">
                     <h4 className="text-sm font-medium text-bolt-elements-textPrimary">Recent Repositories</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {connection.stats.repos.map((repo) => (
                         <a
                           key={repo.full_name}
                           href={repo.html_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="group block p-4 rounded-lg bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive dark:hover:border-bolt-elements-borderColorActive transition-all duration-200"
+                          className="group block p-3 rounded-lg bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive dark:hover:border-bolt-elements-borderColorActive transition-all duration-200" // Adjusted padding
                         >
-                          <div className="space-y-3">
+                          <div className="space-y-2">
                             <div className="flex items-start justify-between">
                               <div className="flex items-center gap-2">
                                 <div className="i-ph:git-branch w-4 h-4 text-bolt-elements-icon-tertiary" />
@@ -970,7 +970,7 @@ export default function GitHubConnection() {
 
 function LoadingSpinner() {
   return (
-    <div className="flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-2">
       <div className="flex items-center gap-2">
         <div className="i-ph:spinner-gap-bold animate-spin w-4 h-4" />
         <span className="text-bolt-elements-textSecondary">Loading...</span>

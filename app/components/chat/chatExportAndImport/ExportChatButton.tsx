@@ -24,7 +24,7 @@ export const ExportChatButton = ({ exportChat }: { exportChat?: () => void }) =>
         >
           <DropdownMenu.Item
             className={classNames(
-              'cursor-pointer flex items-center w-auto px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
+              'cursor-pointer flex items-center w-auto px-2 py-1.5 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted padding and gap
             )}
             onClick={() => {
               workbenchStore.downloadZip();
@@ -35,7 +35,7 @@ export const ExportChatButton = ({ exportChat }: { exportChat?: () => void }) =>
           </DropdownMenu.Item>
           <DropdownMenu.Item
             className={classNames(
-              'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
+              'cursor-pointer flex items-center w-full px-2 py-1.5 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted padding and gap
             )}
             onClick={() => exportChat?.()}
           >

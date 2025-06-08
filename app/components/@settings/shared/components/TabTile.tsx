@@ -34,8 +34,8 @@ export const TabTile: React.FC<TabTileProps> = ({
           <motion.div
             onClick={onClick}
             className={classNames(
-              'relative flex flex-col items-center p-6 rounded-xl',
-              'w-full h-full min-h-[160px]',
+              'relative flex flex-col items-center p-3 rounded-xl', // Adjusted padding
+              'w-full h-full min-h-[120px]', // Adjusted min-height
               'bg-white dark:bg-[#141414]',
               'border border-[#E5E5E5] dark:border-[#333333]',
               'group',
@@ -52,7 +52,7 @@ export const TabTile: React.FC<TabTileProps> = ({
               <motion.div
                 className={classNames(
                   'relative',
-                  'w-14 h-14',
+                  'w-10 h-10', // Adjusted icon container size
                   'flex items-center justify-center',
                   'rounded-xl',
                   'bg-gray-100 dark:bg-gray-800',
@@ -65,7 +65,7 @@ export const TabTile: React.FC<TabTileProps> = ({
                 <motion.div
                   className={classNames(
                     TAB_ICONS[tab.id],
-                    'w-8 h-8',
+                    'w-5 h-5', // Adjusted icon size
                     'text-gray-600 dark:text-gray-300',
                     'group-hover:text-purple-500 dark:group-hover:text-purple-400/80',
                     isActive ? 'text-purple-500 dark:text-purple-400/90' : '',
@@ -74,10 +74,10 @@ export const TabTile: React.FC<TabTileProps> = ({
               </motion.div>
 
               {/* Label and Description */}
-              <div className="flex flex-col items-center mt-5 w-full">
+              <div className="flex flex-col items-center mt-3 w-full">
                 <h3
                   className={classNames(
-                    'text-[15px] font-medium leading-snug mb-2',
+                    'text-sm font-medium leading-snug mb-1.5', // Adjusted text size and margin
                     'text-gray-700 dark:text-gray-200',
                     'group-hover:text-purple-600 dark:group-hover:text-purple-300/90',
                     isActive ? 'text-purple-500 dark:text-purple-400/90' : '',
@@ -105,13 +105,13 @@ export const TabTile: React.FC<TabTileProps> = ({
             {/* Update Indicator with Tooltip */}
             {hasUpdate && (
               <>
-                <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-purple-500 dark:bg-purple-400 animate-pulse" />
+                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-purple-500 dark:bg-purple-400 animate-pulse" />
                 <Tooltip.Portal>
                   <Tooltip.Content
                     className={classNames(
-                      'px-3 py-1.5 rounded-lg',
+                      'px-2 py-1 rounded-lg', // Adjusted padding
                       'bg-[#18181B] text-white',
-                      'text-sm font-medium',
+                      'text-xs font-medium', // Adjusted text size
                       'select-none',
                       'z-[100]',
                     )}

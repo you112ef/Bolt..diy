@@ -307,6 +307,21 @@ export const ChatImpl = memo(
         return;
       }
 
+      const currentProviderConfig = PROVIDER_LIST.find(p => p.name === provider.name)?.config;
+
+      if (currentProviderConfig && currentProviderConfig.apiTokenKey && !apiKeys[provider.name]) {
+        // This is a simplified check. It warns if a provider is known to use an API key
+        // and that key is not found in the UI-managed keys (cookies).
+        // It doesn't account for keys set via environment variables on the server,
+        // so this message is more of a proactive hint for the user.
+        // The backend would ultimately reject if a truly required key is missing.
+        toast.error(
+          `API key for ${provider.displayName || provider.name} is not set via the UI. Please check Settings if this provider requires a key.`,
+          { autoClose: 7000 } // Longer duration for readability
+        );
+        return; // Stop further processing of the message submission
+      }
+
       if (isLoading) {
         abort();
         return;

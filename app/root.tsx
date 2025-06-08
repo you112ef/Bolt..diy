@@ -3,6 +3,7 @@ import type { LinksFunction } from '@remix-run/cloudflare';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
+// import { languageStore } from './lib/stores/language'; // Hypothetical
 import { stripIndents } from './utils/stripIndent';
 import { createHead } from 'remix-island';
 import { useEffect } from 'react';
@@ -71,6 +72,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     document.querySelector('html')?.setAttribute('data-theme', theme);
   }, [theme]);
+
+  // const currentLanguage = useStore(languageStore); // Hypothetical future language store
+  useEffect(() => {
+    // Placeholder for actual RTL logic based on language state
+    const isRtl = false; // Simulate LTR by default. Replace with: currentLanguage === 'ar';
+    if (isRtl) {
+      document.documentElement.dir = 'rtl';
+      // Add a body class for RTL specific global CSS if needed
+      // document.body.classList.add('rtl-active');
+      // document.body.classList.remove('ltr-active');
+    } else {
+      document.documentElement.dir = 'ltr';
+      // document.body.classList.add('ltr-active');
+      // document.body.classList.remove('rtl-active');
+    }
+    // Add dependency: e.g., [currentLanguage] when languageStore is implemented
+  }, []); // Empty dependency for now, so it runs once with placeholder
 
   return (
     <>

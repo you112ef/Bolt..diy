@@ -82,9 +82,9 @@ export default function SettingsTab() {
             value={settings.language}
             onChange={(e) => setSettings((prev) => ({ ...prev, language: e.target.value }))}
             className={classNames(
-              'w-full px-2 py-1 rounded-lg text-sm',
-              'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
-              'border border-[#E5E5E5] dark:border-[#1A1A1A]',
+              'w-full px-3 py-2 rounded-md text-xs',
+              'bg-bolt-elements-bg-depth-2 dark:bg-bolt-elements-bg-depth-3',
+              'border border-bolt-elements-borderColor',
               'text-bolt-elements-textPrimary',
               'focus:outline-none focus:ring-2 focus:ring-purple-500/30',
               'transition-all duration-200',
@@ -162,9 +162,9 @@ export default function SettingsTab() {
             value={settings.timezone}
             onChange={(e) => setSettings((prev) => ({ ...prev, timezone: e.target.value }))}
             className={classNames(
-              'w-full px-2 py-1 rounded-lg text-sm',
-              'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
-              'border border-[#E5E5E5] dark:border-[#1A1A1A]',
+              'w-full px-3 py-2 rounded-md text-xs',
+              'bg-bolt-elements-bg-depth-2 dark:bg-bolt-elements-bg-depth-3',
+              'border border-bolt-elements-borderColor',
               'text-bolt-elements-textPrimary',
               'focus:outline-none focus:ring-2 focus:ring-purple-500/30',
               'transition-all duration-200',

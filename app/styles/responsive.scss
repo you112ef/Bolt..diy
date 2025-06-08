@@ -1,0 +1,56 @@
+// For small screens (e.g., mobile phones)
+@media (max-width: 48rem) { /* 768px */
+  // Tentative: Adjust chat and workbench interaction
+  // This will likely involve changing how --workbench-width, --chat-min-width,
+  // and related variables like --workbench-left and --workbench-inner-width behave.
+  // For example, making chat full width and workbench an overlay or hidden.
+
+  // Example: reduce body font size slightly if needed, or adjust specific large text elements
+  // body {
+  //   font-size: 0.9rem; // Or adjust specific text elements
+  // }
+  :root {
+    // Allow chat to take full screen width on small devices
+    --chat-max-width: 100%;
+    // If --chat-min-width prevents this, we might need to adjust it too.
+    // For now, let's assume --chat-max-width: 100% is effective.
+  }
+
+  // Placeholder for potential adjustments to the file modified dropdown.
+  // Actual selector will depend on the rendered HTML structure or if a custom class can be added.
+  // For example, if the Popover.Panel in FileModifiedDropdown has a specific generated class or we can target it:
+  /*
+  .file-modified-dropdown-popover-panel { // Hypothetical selector
+    width: 90vw; // Use viewport width
+    max-width: 18rem; // Keep a reasonable max, slightly less than original 20rem
+    margin-left: auto;
+    margin-right: auto;
+    right: auto; // Override potential right:0 from original styles if it causes overflow
+    left: 5vw;   // Center it roughly if it's absolutely positioned
+  }
+  */
+  header.flex.items-center.px-4 { // Targeting the header from Header.tsx
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+// For medium screens (e.g., tablets) - optional, can add later if needed
+// @media (min-width: 48.0625rem) and (max-width: 74.9375rem) { /* 769px to 1199px */
+// }
+
+// For large screens (e.g., desktops)
+@media (min-width: 75rem) { /* 1200px */
+  // Example: Potentially increase base font size or specific text elements if they appear too small
+  // body {
+  //   font-size: 1.1rem; // Or adjust specific text elements
+  // }
+}
+
+@media (min-width: 120rem) { /* For screens wider than 1920px (assuming 16px base) */
+  html {
+    // Increase base font size slightly to make rem units scale up
+    font-size: 106.25%; // This makes 1rem = 17px if base was 16px
+                        // Or 112.5% for 18px. Let's be conservative.
+  }
+}

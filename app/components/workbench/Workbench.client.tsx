@@ -416,14 +416,14 @@ export const Workbench = memo(
                         </DropdownMenu.Trigger>
                         <DropdownMenu.Content
                           className={classNames(
-                            'min-w-[240px] z-[250]',
+                            'min-w-[15rem] z-[250]',
                             'bg-white dark:bg-[#141414]',
                             'rounded-lg shadow-lg',
                             'border border-gray-200/50 dark:border-gray-800/50',
                             'animate-in fade-in-0 zoom-in-95',
                             'py-1',
                           )}
-                          sideOffset={5}
+                          sideOffset={0.3125}
                           align="end"
                         >
                           <DropdownMenu.Item

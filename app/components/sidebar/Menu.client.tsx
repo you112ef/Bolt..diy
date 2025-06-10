@@ -360,7 +360,7 @@ export const Menu = () => {
         </div>
         <CurrentDateTime />
         <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
-          <div className="p-3 space-y-2">
+          <div className="p-3 space-y-2 content-padding">
             <div className="flex gap-2">
               <a
                 href="/"
@@ -387,7 +387,7 @@ export const Menu = () => {
                 <span className="i-ph:magnifying-glass h-4 w-4 text-gray-400 dark:text-gray-500" />
               </div>
               <input
-                className="w-full bg-gray-50 dark:bg-gray-900 relative pl-9 pr-3 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/50 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 border border-gray-200 dark:border-gray-800" // Adjusted padding
+                className="w-full bg-gray-50 dark:bg-gray-900 relative pl-9 pr-3 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/50 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 border border-gray-200 dark:border-gray-800"
                 type="search"
                 placeholder="Search chats..."
                 onChange={handleSearchChange}
@@ -413,7 +413,7 @@ export const Menu = () => {
               </div>
             )}
           </div>
-          <div className="flex-1 overflow-auto px-3 pb-3">
+          <div className="flex-1 overflow-auto px-3 pb-3 content-padding">
             {filteredList.length === 0 && (
               <div className="px-4 text-gray-500 dark:text-gray-400 text-sm">
                 {list.length === 0 ? 'No previous conversations' : 'No matches found'}

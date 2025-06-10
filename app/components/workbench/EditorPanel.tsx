@@ -118,7 +118,7 @@ export const EditorPanel = memo(
                     </div>
                   </PanelHeader>
 
-                  <Tabs.Content value="files" className="flex-grow overflow-auto focus-visible:outline-none">
+                  <Tabs.Content value="files" className="flex-grow overflow-auto focus-visible:outline-none content-padding">
                     <FileTree
                       className="h-full"
                       files={files}
@@ -131,11 +131,11 @@ export const EditorPanel = memo(
                     />
                   </Tabs.Content>
 
-                  <Tabs.Content value="search" className="flex-grow overflow-auto focus-visible:outline-none">
+                  <Tabs.Content value="search" className="flex-grow overflow-auto focus-visible:outline-none content-padding">
                     <Search />
                   </Tabs.Content>
 
-                  <Tabs.Content value="locks" className="flex-grow overflow-auto focus-visible:outline-none">
+                  <Tabs.Content value="locks" className="flex-grow overflow-auto focus-visible:outline-none content-padding">
                     <LockManager />
                   </Tabs.Content>
                 </Tabs.Root>

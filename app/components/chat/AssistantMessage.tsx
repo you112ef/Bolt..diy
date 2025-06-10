@@ -82,7 +82,7 @@ export const AssistantMessage = memo(
     } = filteredAnnotations.find((annotation) => annotation.type === 'usage')?.value;
 
     return (
-      <div className="overflow-hidden w-full">
+      <div className="overflow-hidden w-full break-words">
         <>
           <div className=" flex gap-2 items-center text-sm text-bolt-elements-textSecondary mb-2">
             {(codeContext || chatSummary) && (

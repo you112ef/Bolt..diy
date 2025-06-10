@@ -20,7 +20,7 @@ export function HeaderActionButtons({ chatStarted }: HeaderActionButtonsProps) {
   const shouldShowButtons = !isStreaming && activePreview;
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center flex-wrap wrap justify-end">
       {chatStarted && shouldShowButtons && <ExportChatButton exportChat={exportChat} />}
       {shouldShowButtons && <DeployButton />}
     </div>

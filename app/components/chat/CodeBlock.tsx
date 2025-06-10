@@ -78,7 +78,9 @@ export const CodeBlock = memo(
             </button>
           )}
         </div>
-        <div dangerouslySetInnerHTML={{ __html: html ?? '' }}></div>
+        <div className="overflow-x-auto">
+          <div dangerouslySetInnerHTML={{ __html: html ?? '' }}></div>
+        </div>
       </div>
     );
   },

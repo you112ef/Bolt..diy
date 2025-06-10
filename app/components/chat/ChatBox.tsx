@@ -66,7 +66,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div
       className={classNames(
-        'relative bg-bolt-elements-background-depth-2 backdrop-blur p-2 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt', // Adjusted padding
+        'relative bg-bolt-elements-background-depth-2 backdrop-blur px-1 py-2 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt', // Changed p-2 to px-1 py-2
 
         /*
          * {
@@ -257,8 +257,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             />
           )}
         </ClientOnly>
-        <div className="flex justify-between items-center text-sm p-2 pt-1">
-          <div className="flex gap-1 items-center">
+        <div className="flex justify-between items-center text-sm p-2 pt-1 flex-wrap wrap">
+          <div className="flex gap-1 items-center flex-wrap wrap">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
             <IconButton title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
               <div className="i-ph:paperclip text-lg"></div>

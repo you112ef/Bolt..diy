@@ -664,8 +664,8 @@ export default function GitHubConnection() {
             </button>
           ) : (
             <>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between w-full flex-wrap wrap gap-2">
+                <div className="flex items-center gap-4 flex-wrap wrap">
                   <button
                     onClick={handleDisconnect}
                     className={classNames(
@@ -682,7 +682,7 @@ export default function GitHubConnection() {
                     Connected to GitHub
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap wrap">
                   <Button
                     variant="outline"
                     onClick={() => window.open('https://github.com/dashboard', '_blank', 'noopener,noreferrer')}

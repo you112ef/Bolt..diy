@@ -8,6 +8,7 @@ import { createHead } from 'remix-island';
 import { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { ToastContainer, toast } from 'react-toastify';
 import { ClientOnly } from 'remix-utils/client-only';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
@@ -22,6 +23,7 @@ export const links: LinksFunction = () => [
     href: '/favicon.svg',
     type: 'image/svg+xml',
   },
+  { rel: "manifest", href: "/manifest.json" },
   { rel: 'stylesheet', href: reactToastifyStyles },
   { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
@@ -77,6 +79,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <ClientOnly>{() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}</ClientOnly>
       <ScrollRestoration />
       <Scripts />
+      <ToastContainer position="bottom-right" theme={theme === 'dark' ? 'dark' : 'light'} />
     </>
   );
 }
@@ -93,7 +96,23 @@ export default function App() {
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),
     });
-  }, []);
+
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        toast.info('A new version is available! Click here to refresh.', {
+          position: "bottom-right",
+          autoClose: false,
+          hideProgressBar: true,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: false,
+          onClick: () => {
+            window.location.reload();
+          },
+        });
+      });
+    }
+  }, []); // Keep dependency array empty for this effect to run once on mount
 
   return (
     <Layout>

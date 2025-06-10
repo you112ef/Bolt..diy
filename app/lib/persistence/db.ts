@@ -3,6 +3,21 @@ import { createScopedLogger } from '~/utils/logger';
 import type { ChatHistoryItem } from './useChatHistory';
 import type { Snapshot } from './types'; // Import Snapshot type
 
+// Interfaces for Project Data
+export interface ProjectFile {
+  path: string; // relative path within the project
+  content: string | ArrayBuffer; // content as string or ArrayBuffer for binary files
+  lastModified?: number;
+}
+
+export interface UserProject {
+  id: string; // unique project ID (e.g., a UUID or a sanitized git repo URL)
+  name: string; // user-friendly project name
+  files: ProjectFile[];
+  createdAt: string;
+  lastModified: string;
+}
+
 export interface IChatMetadata {
   gitUrl: string;
   gitBranch?: string;
@@ -19,23 +34,32 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
   }
 
   return new Promise((resolve) => {
-    const request = indexedDB.open('boltHistory', 2);
+    const request = indexedDB.open('boltHistory', 3); // Incremented version to 3
 
     request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
       const db = (event.target as IDBOpenDBRequest).result;
       const oldVersion = event.oldVersion;
 
       if (oldVersion < 1) {
+        // This block should technically not be needed if upgrading from version 2
+        // but kept for robustness if someone has a very old or no DB.
         if (!db.objectStoreNames.contains('chats')) {
-          const store = db.createObjectStore('chats', { keyPath: 'id' });
-          store.createIndex('id', 'id', { unique: true });
-          store.createIndex('urlId', 'urlId', { unique: true });
+          const chatsStore = db.createObjectStore('chats', { keyPath: 'id' });
+          chatsStore.createIndex('id', 'id', { unique: true });
+          chatsStore.createIndex('urlId', 'urlId', { unique: true });
         }
       }
 
       if (oldVersion < 2) {
         if (!db.objectStoreNames.contains('snapshots')) {
           db.createObjectStore('snapshots', { keyPath: 'chatId' });
+        }
+      }
+
+      if (oldVersion < 3) {
+        if (!db.objectStoreNames.contains('user_projects')) {
+          const store = db.createObjectStore('user_projects', { keyPath: 'id' });
+          store.createIndex('name', 'name', { unique: false });
         }
       }
     };
@@ -51,6 +75,53 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
   });
 }
 
+// CRUD functions for user_projects
+
+export async function saveUserProject(db: IDBDatabase, project: UserProject): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('user_projects', 'readwrite');
+    const store = transaction.objectStore('user_projects');
+    const request = store.put(project);
+
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function getUserProject(db: IDBDatabase, projectId: string): Promise<UserProject | undefined> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('user_projects', 'readonly');
+    const store = transaction.objectStore('user_projects');
+    const request = store.get(projectId);
+
+    request.onsuccess = () => resolve(request.result as UserProject | undefined);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function deleteUserProject(db: IDBDatabase, projectId: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('user_projects', 'readwrite');
+    const store = transaction.objectStore('user_projects');
+    const request = store.delete(projectId);
+
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function getAllUserProjects(db: IDBDatabase): Promise<UserProject[]> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('user_projects', 'readonly');
+    const store = transaction.objectStore('user_projects');
+    const request = store.getAll();
+
+    request.onsuccess = () => resolve(request.result as UserProject[]);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// Existing functions for chats and snapshots
 export async function getAll(db: IDBDatabase): Promise<ChatHistoryItem[]> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('chats', 'readonly');

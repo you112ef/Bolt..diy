@@ -1,6 +1,7 @@
 import { cloudflareDevProxyVitePlugin as remixCloudflareDevProxy, vitePlugin as remixVitePlugin } from '@remix-run/dev';
 import UnoCSS from 'unocss/vite';
 import { defineConfig, type ViteDevServer } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -131,6 +132,31 @@ export default defineConfig((config) => {
       tsconfigPaths(),
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'logo.svg'],
+        manifest: {
+          name: 'Bolt AI',
+          short_name: 'BoltAI',
+          description: 'An AI Agent with offline capabilities.',
+          theme_color: '#ffffff',
+          icons: [
+            {
+              src: 'logo.svg', // Using existing logo.svg as placeholder
+              sizes: '192x192',
+              type: 'image/svg+xml',
+            },
+            {
+              src: 'logo.svg', // Using existing logo.svg as placeholder
+              sizes: '512x512',
+              type: 'image/svg+xml',
+            },
+          ],
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        },
+      }),
     ],
     envPrefix: [
       'VITE_',

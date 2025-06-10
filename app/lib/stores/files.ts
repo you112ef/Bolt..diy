@@ -3,8 +3,17 @@ import { getEncoding } from 'istextorbinary';
 import { map, type MapStore } from 'nanostores';
 import { Buffer } from 'node:buffer';
 import { path } from '~/utils/path';
+import { Buffer } from 'buffer'; // Ensure Buffer is consistently imported if used for binary content
 import { bufferWatchEvents } from '~/utils/buffer';
 import { WORK_DIR } from '~/utils/constants';
+import {
+  openDatabase,
+  saveUserProject,
+  getUserProject,
+  type UserProject,
+  type ProjectFile,
+} from '~/lib/persistence/db';
+import type { IDBDatabase } from 'idb';
 import { computeFileModifications } from '~/utils/diff';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
@@ -46,6 +55,8 @@ export type FileMap = Record<string, Dirent | undefined>;
 
 export class FilesStore {
   #webcontainer: Promise<WebContainer>;
+  dbPromise: Promise<IDBDatabase | undefined>;
+  currentProjectId: string | null = null;
 
   /**
    * Tracks the number of files without folders.
@@ -75,6 +86,7 @@ export class FilesStore {
 
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
+    this.dbPromise = openDatabase();
 
     // Load deleted paths from localStorage if available
     try {
@@ -122,6 +134,105 @@ export class FilesStore {
     }
 
     this.#init();
+  }
+
+  async loadProject(projectId: string) {
+    logger.info(`Loading project: ${projectId}`);
+    const webcontainer = await this.#webcontainer;
+    const db = await this.dbPromise;
+
+    if (!db) {
+      logger.error('Failed to load project: Database not available.');
+      return;
+    }
+
+    this.currentProjectId = projectId;
+    const project = await getUserProject(db, projectId);
+
+    if (project) {
+      // Clear existing WebContainer FS and store state
+      logger.info('Clearing existing project state...');
+      const currentFiles = this.files.get();
+      for (const filePath in currentFiles) {
+        if (Object.prototype.hasOwnProperty.call(currentFiles, filePath)) {
+          const dirent = currentFiles[filePath];
+          const relativePath = path.relative(webcontainer.workdir, filePath);
+          if (relativePath) {
+            try {
+              await webcontainer.fs.rm(relativePath, { recursive: true });
+            } catch (e) {
+              // Ignore errors if file/dir doesn't exist (e.g. already removed by recursive rm)
+              logger.warn(`Error removing ${relativePath} during project load:`, e);
+            }
+          }
+        }
+      }
+      this.files.set({});
+      this.#modifiedFiles.clear();
+      this.#size = 0;
+      this.#deletedPaths.clear(); // Clear deleted paths as we are loading a new project state
+
+      logger.info('Populating project from IndexedDB...');
+      const newFileMap: FileMap = {};
+      for (const file of project.files) {
+        const dirPath = path.dirname(file.path);
+        if (dirPath !== '.' && dirPath !== webcontainer.workdir) {
+          try {
+            await webcontainer.fs.mkdir(path.relative(webcontainer.workdir, dirPath), { recursive: true });
+          } catch (e) {
+            logger.warn(`Error creating directory ${dirPath} during project load:`, e);
+          }
+        }
+
+        let contentToUse: string | Uint8Array;
+        if (typeof file.content === 'string') {
+          contentToUse = file.content;
+        } else if (file.content instanceof ArrayBuffer) {
+          contentToUse = new Uint8Array(file.content);
+        } else {
+          // Handle cases where content might be an object due to incorrect previous storage
+          // This is a fallback, ideally content is always string or ArrayBuffer
+          logger.warn(`File content for ${file.path} is of unexpected type, attempting to treat as empty string.`);
+          contentToUse = '';
+        }
+
+        await webcontainer.fs.writeFile(path.relative(webcontainer.workdir, file.path), contentToUse);
+
+        const isBinary = contentToUse instanceof Uint8Array;
+        newFileMap[file.path] = {
+          type: 'file',
+          content: isBinary ? Buffer.from(contentToUse).toString('base64') : (contentToUse as string),
+          isBinary,
+          // Locks should be re-applied by #loadLockedFiles if necessary after project load
+        };
+        if (!isBinary) {
+          this.#size++;
+        }
+      }
+      // Create folder entries
+      const folderPaths = new Set<string>();
+      project.files.forEach(f => {
+        let currentPath = path.dirname(f.path);
+        while (currentPath !== '.' && currentPath !== webcontainer.workdir && currentPath !== '/') {
+          folderPaths.add(currentPath);
+          currentPath = path.dirname(currentPath);
+        }
+      });
+      folderPaths.forEach(folderPath => {
+        newFileMap[folderPath] = { type: 'folder' };
+      });
+
+      this.files.set(newFileMap);
+      this.#loadLockedFiles(); // Re-apply locks for the current chat/project context
+      logger.info(`Project ${projectId} loaded successfully with ${project.files.length} files.`);
+    } else {
+      logger.warn(`Project with ID ${projectId} not found in IndexedDB. A new project will be created if files are modified.`);
+      // Clear current state if no project is found, to start fresh
+      this.files.set({});
+      this.#modifiedFiles.clear();
+      this.#size = 0;
+      this.currentProjectId = projectId; // Still set project ID for future saves
+    }
   }
 
   /**
@@ -582,6 +693,46 @@ export class FilesStore {
       });
 
       logger.info('File updated');
+
+      if (this.currentProjectId) {
+        const db = await this.dbPromise;
+        if (!db) {
+          logger.error('Cannot save file to DB: Database not available.');
+          return;
+        }
+        let project = await getUserProject(db, this.currentProjectId);
+        if (project) {
+          const fileIndex = project.files.findIndex(f => f.path === filePath);
+          const projectFile: ProjectFile = {
+            path: filePath,
+            content: content, // content is string here
+            lastModified: Date.now(),
+          };
+          if (fileIndex > -1) {
+            project.files[fileIndex] = projectFile;
+          } else {
+            project.files.push(projectFile);
+          }
+          project.lastModified = new Date().toISOString();
+          await saveUserProject(db, project);
+          logger.info(`File ${filePath} saved to project ${this.currentProjectId} in DB.`);
+        } else {
+          // Project not found, create a new one
+          const newProject: UserProject = {
+            id: this.currentProjectId,
+            name: this.currentProjectId, // Or a default name / derive from ID
+            files: [{
+              path: filePath,
+              content: content,
+              lastModified: Date.now(),
+            }],
+            createdAt: new Date().toISOString(),
+            lastModified: new Date().toISOString(),
+          };
+          await saveUserProject(db, newProject);
+          logger.info(`New project ${this.currentProjectId} created in DB with file ${filePath}.`);
+        }
+      }
     } catch (error) {
       logger.error('Failed to update file content\n\n', error);
 
@@ -809,6 +960,35 @@ export class FilesStore {
 
       logger.info(`File created: ${filePath}`);
 
+      if (this.currentProjectId) {
+        const db = await this.dbPromise;
+        if (!db) {
+          logger.error('Cannot save created file to DB: Database not available.');
+          return true; // File created in WC, but not saved to DB
+        }
+        let project = await getUserProject(db, this.currentProjectId);
+        const projectFile: ProjectFile = {
+          path: filePath,
+          content: isBinary ? Buffer.from(content).buffer : (content as string),
+          lastModified: Date.now(),
+        };
+
+        if (project) {
+          project.files.push(projectFile);
+          project.lastModified = new Date().toISOString();
+        } else {
+          project = {
+            id: this.currentProjectId,
+            name: this.currentProjectId, // Or derive a default name
+            files: [projectFile],
+            createdAt: new Date().toISOString(),
+            lastModified: new Date().toISOString(),
+          };
+        }
+        await saveUserProject(db, project);
+        logger.info(`File ${filePath} (isBinary: ${isBinary}) saved to project ${this.currentProjectId} in DB.`);
+      }
+
       return true;
     } catch (error) {
       logger.error('Failed to create file\n\n', error);
@@ -864,6 +1044,21 @@ export class FilesStore {
 
       logger.info(`File deleted: ${filePath}`);
 
+      if (this.currentProjectId) {
+        const db = await this.dbPromise;
+        if (!db) {
+          logger.error('Cannot update DB for deleted file: Database not available.');
+          return true;
+        }
+        const project = await getUserProject(db, this.currentProjectId);
+        if (project) {
+          project.files = project.files.filter(f => f.path !== filePath);
+          project.lastModified = new Date().toISOString();
+          await saveUserProject(db, project);
+          logger.info(`File ${filePath} removed from project ${this.currentProjectId} in DB.`);
+        }
+      }
+
       return true;
     } catch (error) {
       logger.error('Failed to delete file\n\n', error);
@@ -908,6 +1103,22 @@ export class FilesStore {
       this.#persistDeletedPaths();
 
       logger.info(`Folder deleted: ${folderPath}`);
+
+      if (this.currentProjectId) {
+        const db = await this.dbPromise;
+        if (!db) {
+          logger.error('Cannot update DB for deleted folder: Database not available.');
+          return true;
+        }
+        const project = await getUserProject(db, this.currentProjectId);
+        if (project) {
+          const folderPrefix = folderPath.endsWith('/') ? folderPath : `${folderPath}/`;
+          project.files = project.files.filter(f => f.path !== folderPath && !f.path.startsWith(folderPrefix));
+          project.lastModified = new Date().toISOString();
+          await saveUserProject(db, project);
+          logger.info(`Folder ${folderPath} and its contents removed from project ${this.currentProjectId} in DB.`);
+        }
+      }
 
       return true;
     } catch (error) {

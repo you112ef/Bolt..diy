@@ -38,6 +38,7 @@ import CloudProvidersTab from '~/components/@settings/tabs/providers/cloud/Cloud
 import ServiceStatusTab from '~/components/@settings/tabs/providers/status/ServiceStatusTab';
 import LocalProvidersTab from '~/components/@settings/tabs/providers/local/LocalProvidersTab';
 import TaskManagerTab from '~/components/@settings/tabs/task-manager/TaskManagerTab';
+import AiCustomizationTab from '~/components/@settings/tabs/ai/AiCustomizationTab';
 
 interface ControlPanelProps {
   open: boolean;
@@ -335,6 +336,8 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
         return <TaskManagerTab />;
       case 'service-status':
         return <ServiceStatusTab />;
+      case 'aiCustomization':
+        return <AiCustomizationTab />;
       default:
         return null;
     }
@@ -432,7 +435,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
           >
             <motion.div
               className={classNames(
-                'w-full sm:max-w-[430px] h-[85vh]', // Adjusted dimensions
+                'w-full lg:max-w-[600px] h-[85vh]', // Adjusted dimensions
                 'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
                 'rounded-2xl shadow-2xl',
                 'border border-[#E5E5E5] dark:border-[#1A1A1A]',
@@ -464,9 +467,9 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                     </DialogTitle>
                   </div>
 
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-6 flex-wrap sm:flex-nowrap justify-end"> {/* Allow wrapping on very small, ensure end alignment */}
                     {/* Mode Toggle */}
-                    <div className="flex items-center gap-2 min-w-[140px] border-r border-gray-200 dark:border-gray-800 pr-6">
+                    <div className="flex items-center gap-2 sm:min-w-[140px] sm:border-r sm:border-gray-200 sm:dark:border-gray-800 sm:pr-6"> {/* Responsive min-width & border/padding */}
                       <AnimatedSwitch
                         id="developer-mode"
                         checked={developerMode}
@@ -476,7 +479,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                     </div>
 
                     {/* Avatar and Dropdown */}
-                    <div className="border-l border-gray-200 dark:border-gray-800 pl-6">
+                    <div className="sm:border-l sm:border-gray-200 sm:dark:border-gray-800 sm:pl-6"> {/* Responsive border/padding */}
                       <AvatarDropdown onSelectTab={handleTabClick} />
                     </div>
 

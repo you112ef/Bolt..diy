@@ -40,6 +40,8 @@ export async function streamText(props: {
   messageSliceId?: number;
   chatMode?: 'discuss' | 'build';
   designScheme?: DesignScheme;
+  customPromptText?: string;
+  isCustomPromptEnabled?: boolean;
 }) {
   const {
     messages,
@@ -54,6 +56,8 @@ export async function streamText(props: {
     summary,
     chatMode,
     designScheme,
+    customPromptText,
+    isCustomPromptEnabled,
   } = props;
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
@@ -189,6 +193,10 @@ export async function streamText(props: {
   }
 
   logger.info(`Sending llm call to ${provider.name} with model ${modelDetails.name}`);
+
+  if (isCustomPromptEnabled && customPromptText && customPromptText.trim() !== '') {
+    systemPrompt += `\n\n--- Custom User Instructions ---\n${customPromptText}`;
+  }
 
   // console.log(systemPrompt, processedMessages);
 

@@ -25,12 +25,14 @@ async function getModelList(options: {
 const logger = createScopedLogger('api.llmcall');
 
 async function llmCallAction({ context, request }: ActionFunctionArgs) {
-  const { system, message, model, provider, streamOutput } = await request.json<{
+  const { system, message, model, provider, streamOutput, customPromptText, isCustomPromptEnabled } = await request.json<{
     system: string;
     message: string;
     model: string;
     provider: ProviderInfo;
     streamOutput?: boolean;
+    customPromptText?: string;
+    isCustomPromptEnabled?: boolean;
   }>();
 
   const { name: providerName } = provider;
@@ -69,6 +71,8 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
         env: context.cloudflare?.env as any,
         apiKeys,
         providerSettings,
+        customPromptText,
+        isCustomPromptEnabled,
       });
 
       return new Response(result.textStream, {
@@ -111,8 +115,13 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
 
       logger.info(`Generating response Provider: ${provider.name}, Model: ${modelDetails.name}`);
 
+      let systemPrompt = system;
+      if (isCustomPromptEnabled && customPromptText && customPromptText.trim() !== '') {
+        systemPrompt += `\n\n--- Custom User Instructions ---\n${customPromptText}`;
+      }
+
       const result = await generateText({
-        system,
+        system: systemPrompt,
         messages: [
           {
             role: 'user',

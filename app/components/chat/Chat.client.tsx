@@ -178,6 +178,9 @@ export const ChatImpl = memo(
             anonKey: supabaseConn?.credentials?.anonKey,
           },
         },
+        // Add custom prompt data from localStorage
+        customPromptText: typeof window !== 'undefined' ? localStorage.getItem('bolt_custom_ai_prompt') || '' : '',
+        isCustomPromptEnabled: typeof window !== 'undefined' ? localStorage.getItem('bolt_custom_ai_prompt_enabled') === 'true' : false,
       },
       sendExtraMessageFields: true,
       onError: (e) => {

@@ -33,6 +33,7 @@ import { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
 import { ChatBox } from './ChatBox';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ElementInfo } from '~/components/workbench/Inspector';
+import { ChatMessageSkeleton } from './ChatMessageSkeleton'; // Import the skeleton
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -362,18 +363,23 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               <StickToBottom.Content className="flex flex-col gap-4 relative ">
                 <ClientOnly>
                   {() => {
-                    return chatStarted ? (
-                      <Messages
-                        className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
-                        messages={messages}
-                        isStreaming={isStreaming}
-                        append={append}
-                        chatMode={chatMode}
-                        setChatMode={setChatMode}
-                        provider={provider}
-                        model={model}
-                      />
-                    ) : null;
+                    if (chatStarted && messages && messages.length === 0 && isStreaming) {
+                      return <ChatMessageSkeleton />;
+                    } else if (chatStarted) {
+                      return (
+                        <Messages
+                          className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
+                          messages={messages}
+                          isStreaming={isStreaming}
+                          append={append}
+                          chatMode={chatMode}
+                          setChatMode={setChatMode}
+                          provider={provider}
+                          model={model}
+                        />
+                      );
+                    }
+                    return null;
                   }}
                 </ClientOnly>
                 <ScrollToBottom />

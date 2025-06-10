@@ -29,6 +29,7 @@ import { filesToArtifacts } from '~/utils/fileUtils';
 import { supabaseConnection } from '~/lib/stores/supabase';
 import { defaultDesignScheme, type DesignScheme } from '~/types/design-scheme';
 import type { ElementInfo } from '~/components/workbench/Inspector';
+import { generateId } from 'ai'; // For temporary message IDs
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -118,6 +119,44 @@ interface ChatProps {
 export const ChatImpl = memo(
   ({ description, initialMessages, storeMessageHistory, importChat, exportChat }: ChatProps) => {
     useShortcuts();
+
+    // --- IndexedDB for Offline Message Queue ---
+    const DB_NAME = 'bolt-offline-queue-db';
+    const STORE_NAME = 'queuedMessages';
+    const DB_VERSION = 1;
+
+    const openQueuedMessagesDB = (): Promise<IDBDatabase> => {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onerror = () => reject("Error opening IndexedDB for queued messages.");
+        request.onsuccess = () => resolve(request.result);
+        request.onupgradeneeded = (event) => {
+          const db = (event.target as IDBOpenDBRequest).result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: false });
+            // Using generated temp ID as keyPath, not autoIncrementing here
+            // to potentially allow SW to use this ID later for ACK.
+          }
+        };
+      });
+    };
+
+    const addMessageToQueue = async (messagePayload: any) => {
+      try {
+        const db = await openQueuedMessagesDB();
+        const transaction = db.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        store.add(messagePayload);
+        return new Promise<void>((resolve, reject) => {
+          transaction.oncomplete = () => resolve();
+          transaction.onerror = () => reject("Error adding message to queue.");
+        });
+      } catch (error) {
+        console.error('Failed to add message to IndexedDB queue:', error);
+        throw error; // Re-throw to be caught by sendMessage
+      }
+    };
+    // --- End IndexedDB ---
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
@@ -314,6 +353,66 @@ export const ChatImpl = memo(
         abort();
         return;
       }
+
+      // --- Offline Message Queuing Logic ---
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        console.log('Offline: Queuing message.');
+        const tempId = generateId(); // Generate a temporary ID for the message
+        const messagePayload = {
+          id: tempId, // Temporary ID for IDB
+          content: messageContent, // Use the original messageContent before metadata
+          role: 'user',
+          createdAt: new Date().toISOString(),
+          model, // Capture current model
+          providerName: provider.name, // Capture current provider name
+          uploadedFilesData: imageDataList, // Capture image data if any
+          // Note: actual File objects from uploadedFiles cannot be directly stored in IDB easily.
+          // Storing imageDataList (base64 strings) is more straightforward.
+          // The SW will need to handle how to reconstruct this for sending.
+          // For simplicity, we're queuing text and associated image data.
+        };
+
+        try {
+          await addMessageToQueue(messagePayload);
+
+          // Optionally, add to UI with "pending" state
+          // This is a simplified version without complex state management for individual message status
+          append({
+            id: tempId,
+            role: 'user',
+            content: messageContent,
+            annotations: [{ type: 'status', value: 'queued' }] // Custom annotation for UI
+          });
+
+
+          if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            navigator.serviceWorker.ready.then(registration => {
+              return registration.sync.register('send-queued-chat-messages');
+            }).then(() => {
+              console.log('Sync for queued chat messages registered.');
+              toast.info('Message queued and will be sent when online.');
+            }).catch(err => {
+              console.error('Sync registration failed:', err);
+              toast.error('Could not queue message for offline sending. It is saved locally.');
+            });
+          } else {
+            toast.warn('Offline sending via background sync not fully supported. Message saved locally.');
+          }
+        } catch (idbError) {
+          console.error('Error queuing message to IndexedDB:', idbError);
+          toast.error('Failed to save message for offline sending.');
+        } finally {
+          // Clear input and related state regardless of queuing success, as we've "accepted" the message
+          setInput('');
+          Cookies.remove(PROMPT_COOKIE_KEY);
+          setUploadedFiles([]);
+          setImageDataList([]);
+          resetEnhancer();
+          textareaRef.current?.blur();
+        }
+        return; // Prevent normal online sending flow
+      }
+      // --- End Offline Message Queuing Logic ---
 
       let finalMessageContent = messageContent;
 

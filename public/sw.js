@@ -1,115 +1,201 @@
-const CACHE_NAME = 'bolt-app-cache-v1';
-const assetsToPrecache = [
-  '/',
-  '/offline.html',
-  '/favicon.svg',
-  '/logo.svg' // Assuming this exists and is a key UI asset
-  // Note: Main CSS/JS are typically hashed, so runtime caching is more effective for them.
-  // If there are unhashed, consistently named global assets (e.g., fonts, specific images), add them here.
-];
+// Attempt ES6 module style, assuming a modern build process for sw.js
+import { precacheAndRoute, cleanupOutdatedCaches, getCacheKeyForURL } from 'workbox-precaching';
+import { registerRoute, NavigationRoute } from 'workbox-routing';
+import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
+import { ExpirationPlugin } from 'workbox-expiration';
+import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 
-console.log('Service Worker: Registered. Cache Name:', CACHE_NAME, 'Assets to precache:', assetsToPrecache);
+console.log('Service Worker (Workbox): Registered');
 
+// --- Event Listeners ---
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...');
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Service Worker: Caching core assets...');
-        return cache.addAll(assetsToPrecache);
-      })
-      .then(() => {
-        console.log('Service Worker: Core assets cached successfully.');
-      })
-      .catch((error) => {
-        console.error('Service Worker: Failed to cache core assets:', error);
-      })
-  );
+  console.log('Service Worker (Workbox): Installing...');
+  self.skipWaiting(); // Force the waiting service worker to become the active service worker.
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...');
+  console.log('Service Worker (Workbox): Activating...');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker: Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      console.log('Service Worker: Old caches cleaned up.');
-      return self.clients.claim(); // Take control of uncontrolled clients
-    }).then(() => {
-      console.log('Service Worker: Claimed clients. Notifying about new version.');
-      return self.clients.matchAll({ type: 'window' });
-    }).then(clients => {
+    (async () => {
+      // Calling cleanupOutdatedCaches will remove any old Workbox caches that are no longer used.
+      cleanupOutdatedCaches();
+      console.log('Service Worker (Workbox): Old Workbox caches cleaned up.');
+
+      // Take control of uncontrolled clients
+      await self.clients.claim();
+      console.log('Service Worker (Workbox): Claimed clients.');
+
+      // Notify clients about the new version.
+      const clients = await self.clients.matchAll({ type: 'window' });
       clients.forEach(client => {
         client.postMessage({ type: 'NEW_VERSION_AVAILABLE' });
       });
-    }).catch(error => {
-      console.error('Service Worker: Cache cleanup or client notification failed:', error);
+      console.log('Service Worker (Workbox): Notified clients about new version.');
+    })().catch(error => {
+      console.error('Service Worker (Workbox): Activation phase failed:', error);
     })
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  // console.log('Service Worker: Fetching', event.request.url, 'Mode:', event.request.mode);
+// --- Precaching ---
+// self.__WB_MANIFEST is injected by Workbox build tools.
+// Using a manual list as a fallback for this exercise.
+const assetsToPrecache = self.__WB_MANIFEST || [
+  { url: '/', revision: null },
+  { url: '/offline.html', revision: null },
+  { url: '/favicon.svg', revision: null },
+  { url: '/logo.svg', revision: 'v1' }, // Assuming v1, or null if unversioned
+  { url: '/manifest.json', revision: null }
+];
+console.log('Service Worker (Workbox): Assets to precache:', assetsToPrecache);
+precacheAndRoute(assetsToPrecache);
 
-  // Handle navigation requests (HTML documents)
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          console.log('Service Worker: Network fetch failed for navigation, serving offline page.');
-          return caches.match('/offline.html');
-        })
-    );
-    return; // Important to return here to not process further for navigate requests
+
+// --- Runtime Caching Strategies ---
+
+// Navigation Route (Offline Fallback)
+const offlineFallbackPage = '/offline.html';
+// Ensure offline.html is also precached so getCacheKeyForURL works as expected.
+// It is already in assetsToPrecache.
+
+registerRoute(
+  ({ request }) => request.mode === 'navigate',
+  async (args) => {
+    try {
+      // Use NetworkFirst for navigation requests
+      const networkFirst = new NetworkFirst({
+        cacheName: 'navigations',
+        plugins: [
+          new CacheableResponsePlugin({ statuses: [0, 200] }) // Cache opaque responses for navigations if needed, or just 200
+        ]
+      });
+      const networkResponse = await networkFirst.handle(args);
+      return networkResponse;
+    } catch (error) {
+      console.warn('Service Worker (Workbox): Navigation failed, serving offline fallback.', error);
+      // Try to get the offline page from the precache.
+      // Ensure the offline page URL exactly matches what's in the precache manifest.
+      const cache = await self.caches.open(getCacheKeyForURL(offlineFallbackPage).split('?')[0].split('#')[0]); // getCacheKeyForURL might include revision, split it
+      let offlinePageResponse = await cache.match(offlineFallbackPage);
+
+      if (!offlinePageResponse) {
+        // Fallback if somehow not in the specific precache (e.g. different revision or name)
+        // This is a safeguard; it should ideally be found via getCacheKeyForURL.
+        offlinePageResponse = await caches.match(offlineFallbackPage);
+      }
+      return offlinePageResponse || new Response("Offline fallback page not found in cache.", { status: 404 });
+    }
+  }
+);
+
+// Static Assets (CSS, JS - StaleWhileRevalidate)
+registerRoute(
+  ({ request }) => request.destination === 'style' || request.destination === 'script' || request.destination === 'worker',
+  new StaleWhileRevalidate({
+    cacheName: 'static-resources',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }), // Cache opaque responses if from CDN
+      new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 30 * 24 * 60 * 60 }), // 30 Days
+    ],
+  })
+);
+
+// Images (CacheFirst or StaleWhileRevalidate - CacheFirst is often good for images that don't change often)
+registerRoute(
+  ({ request }) => request.destination === 'image',
+  new CacheFirst({
+    cacheName: 'images',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 60, maxAgeSeconds: 30 * 24 * 60 * 60 }), // 30 Days
+    ],
+  })
+);
+
+// Fonts (CacheFirst)
+registerRoute(
+  ({ request }) => request.destination === 'font',
+  new CacheFirst({
+    cacheName: 'fonts',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 30, maxAgeSeconds: 60 * 24 * 60 * 60 }), // 60 Days
+    ],
+  })
+);
+
+// Example: Caching API calls with a StaleWhileRevalidate strategy (if applicable)
+// registerRoute(
+//   ({url}) => url.pathname.startsWith('/api/'),
+//   new StaleWhileRevalidate({
+//     cacheName: 'api-cache',
+//     plugins: [
+//       new CacheableResponsePlugin({statuses: [0, 200]}),
+//       new ExpirationPlugin({maxEntries: 50, maxAgeSeconds: 5 * 60}), // Cache for 5 minutes
+//     ]
+//   })
+// );
+
+console.log('Service Worker (Workbox): Event listeners and routes configured.');
+
+// --- Push Event Handler ---
+self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Push Received.');
+
+  let pushData = {
+    title: 'Bolt App Notification',
+    body: 'You have a new update or message!',
+    icon: '/favicon.svg', // Default icon
+    badge: '/favicon.svg', // Default badge
+    data: { url: '/' } // Default URL to open on click
+  };
+
+  if (event.data) {
+    try {
+      const data = event.data.json(); // Assuming JSON payload
+      pushData.title = data.title || pushData.title;
+      pushData.body = data.body || pushData.body;
+      pushData.icon = data.icon || pushData.icon;
+      pushData.badge = data.badge || pushData.badge;
+      pushData.data = data.data || pushData.data; // e.g., { url: '/some-path' }
+      console.log('[Service Worker] Push data parsed:', data);
+    } catch (e) {
+      // If data is not JSON, try to parse as text.
+      // This is useful if the push service sends a simple string.
+      try {
+        const textData = event.data.text();
+        if (textData) {
+          pushData.body = textData;
+          console.log('[Service Worker] Push data parsed as text:', textData);
+        }
+      } catch (textErr) {
+        console.error('[Service Worker] Push event data parsing error (JSON and text):', e, textErr);
+      }
+    }
+  } else {
+    console.log('[Service Worker] Push event contained no data.');
   }
 
-  // Handle other requests (static assets like CSS, JS, images) - Cache-first strategy
-  event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          // console.log('Service Worker: Serving from cache:', event.request.url);
-          return cachedResponse;
-        }
+  const notificationOptions = {
+    body: pushData.body,
+    icon: pushData.icon,
+    badge: pushData.badge,
+    data: pushData.data, // Store data to be used when notification is clicked
+    // common actions:
+    // actions: [
+    //   { action: 'explore', title: 'Explore now' },
+    //   { action: 'close', title: 'Close' }
+    // ]
+  };
 
-        // console.log('Service Worker: Not in cache, fetching from network:', event.request.url);
-        return fetch(event.request).then((networkResponse) => {
-          // Check if we received a valid response
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            // For 'basic' type, it means same-origin requests.
-            // Non-basic types (e.g., 'cors', 'opaque') might not be cacheable or might behave unexpectedly.
-            // console.log('Service Worker: Not caching non-basic or error response:', event.request.url, networkResponse && networkResponse.type);
-            return networkResponse;
-          }
-
-          // Clone the response to put it in the cache and to be served
-          const responseToCache = networkResponse.clone();
-
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              // console.log('Service Worker: Caching new asset:', event.request.url);
-              cache.put(event.request, responseToCache);
-            })
-            .catch(err => {
-                console.error('Service Worker: Failed to cache asset:', event.request.url, err);
-            });
-
-          return networkResponse;
-        }).catch(error => {
-          console.error('Service Worker: Network fetch failed for asset:', event.request.url, error);
-          // Optionally, you could return a generic placeholder for failed assets,
-          // but for non-navigation requests, failing might be better than showing a wrong placeholder.
-          // For images, a placeholder image could be returned: return caches.match('/placeholder-image.png');
-          // For now, just let the browser handle the error (e.g. broken image icon).
-          throw error; // Re-throw to indicate the fetch failed
-        });
-      })
+  event.waitUntil(
+    self.registration.showNotification(pushData.title, notificationOptions)
+      .then(() => console.log('[Service Worker] Notification shown.'))
+      .catch(err => console.error('[Service Worker] Showing notification failed:', err))
   );
 });
+
+
+// Remove old vanilla SW fetch listener if it was separate
+// self.removeEventListener('fetch', oldFetchHandler); // Assuming oldFetchHandler was the name
+// For this task, overwriting the file effectively removes the old logic.

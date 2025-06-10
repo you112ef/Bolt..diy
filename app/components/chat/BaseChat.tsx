@@ -353,7 +353,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </div>
             )}
             <StickToBottom
-              className={classNames('pt-4 px-2 sm:px-6 relative', { // Changed pt-6 to pt-4
+              className={classNames('pt-4 px-2 sm:px-6 relative messages-container-custom-class', { // Changed pt-6 to pt-4
                 'h-full flex flex-col modern-scrollbar': chatStarted,
               })}
               resize="smooth"

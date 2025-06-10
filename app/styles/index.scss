@@ -183,4 +183,49 @@ header.flex.items-center { // Targeting the header with its existing Tailwind cl
   // section[class*="Workbench_Workbench__"] { // Example for Workbench
   //   width: 100%;
   // }
+
+  // Prevent accidental horizontal scrolling on smaller viewports
+  html, body {
+    overflow-x: hidden;
+  }
+}
+
+// Global touch action for common interactive elements to eliminate 300ms delay
+button,
+a[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[role="button"] {
+  touch-action: manipulation;
+}
+
+// Media query for very small screens (e.g., 360px-420px)
+@media (max-width: 420px) {
+  // Header adjustments for very small screens
+  header.flex.items-center {
+    padding: 8px; // Reduce overall header padding
+
+    img { // Target logo image specifically
+      max-width: 60px; // Reduce logo size
+    }
+
+    // Reduce margin between stacked header items
+    & > div, & > span, & > ClientOnly > div {
+      margin-bottom: 4px;
+    }
+  }
+
+  // Reduce padding for the main messages container
+  // Note: This class '.messages-container-custom-class' would need to be added to the
+  // StickToBottom component in app/components/chat/BaseChat.tsx for this rule to apply.
+  .messages-container-custom-class {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  // Further reduce .content-padding for very small screens
+  .content-padding {
+    padding: 6px;
+  }
 }

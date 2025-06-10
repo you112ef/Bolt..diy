@@ -257,3 +257,103 @@ async function notifyClientOfMessageStatus(messageId, status, errorDetails = '')
         });
     });
 }
+
+// --- Push Event Handler ---
+self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Push Received.');
+
+  let pushData = {
+    title: 'Bolt App Notification',
+    body: 'You have a new update or message!',
+    icon: '/favicon.svg', // Default icon
+    badge: '/favicon.svg', // Default badge
+    url: '/' // Default URL to open on click
+  };
+
+  if (event.data) {
+    try {
+      const data = event.data.json(); // Assuming JSON payload
+      pushData.title = data.title || pushData.title;
+      pushData.body = data.body || pushData.body;
+      pushData.icon = data.icon || pushData.icon;
+      pushData.badge = data.badge || pushData.badge;
+      // Ensure data.url is correctly passed for the notification's data field
+      pushData.url = data.data && data.data.url ? data.data.url : pushData.url;
+      console.log('[Service Worker] Push data parsed:', data);
+    } catch (e) {
+      try {
+        const textData = event.data.text();
+        if (textData) {
+          pushData.body = textData;
+          console.log('[Service Worker] Push data parsed as text:', textData);
+        }
+      } catch (textErr) {
+        console.error('[Service Worker] Push event data parsing error (JSON and text):', e, textErr);
+      }
+    }
+  } else {
+    console.log('[Service Worker] Push event contained no data.');
+  }
+
+  const notificationOptions = {
+    body: pushData.body,
+    icon: pushData.icon,
+    badge: pushData.badge,
+    data: {
+        url: pushData.url // Pass the URL in the data payload for click handling
+    },
+    actions: [
+      { action: 'explore', title: 'Explore Now' },
+      { action: 'dismiss', title: 'Dismiss' }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(pushData.title, notificationOptions)
+      .then(() => console.log('[Service Worker] Notification shown.'))
+      .catch(err => console.error('[Service Worker] Showing notification failed:', err))
+  );
+});
+
+// --- Notification Click Handler ---
+self.addEventListener('notificationclick', (event) => {
+  console.log('[Service Worker] Notification click Received.', event.action, event.notification.data);
+  event.notification.close(); // Close the notification
+
+  event.waitUntil(
+    (async () => {
+      if (!self.clients) {
+        console.error('[Service Worker] Clients API is not available.');
+        return;
+      }
+
+      const urlToOpen = event.notification.data && event.notification.data.url ? event.notification.data.url : '/';
+
+      if (event.action === 'explore' || !event.action ) { // Default click (no action) also explores
+        console.log('[Service Worker] Performing explore/default action for URL:', urlToOpen);
+        // Attempt to focus an existing window or open a new one.
+        const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        for (const client of clientList) {
+          if (client.url === urlToOpen && 'focus' in client) {
+             try {
+                await client.focus();
+                console.log('[Service Worker] Focused existing client for URL:', urlToOpen);
+                return;
+             } catch (err) {
+                console.error('[Service Worker] Failed to focus existing client:', err);
+             }
+          }
+        }
+        // If no existing client is focused or found, open a new window.
+        console.log('[Service Worker] Opening new window for URL:', urlToOpen);
+        const newClient = await self.clients.openWindow(urlToOpen);
+        if (!newClient) {
+            console.error('[Service Worker] Failed to open new window for URL:', urlToOpen);
+        }
+      } else if (event.action === 'dismiss') {
+        console.log('[Service Worker] Performing dismiss action. Notification closed.');
+        // Notification is already closed. No further action needed here.
+      }
+    })()
+  );
+});

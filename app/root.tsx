@@ -60,7 +60,7 @@ export const Head = createHead(() => (
   <>
     <meta charSet="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-PLACEHOLDER_HASH_MUST_BE_RECALCULATED_FOR_PROD'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
+    <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-qLtLhGVAwwk3hJBAVBCgPSZjsNZ8p2oCHY2F4zU6JZk='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
     <meta name="theme-color" content="#8B5CF6" />
     <Meta />
     <Links />

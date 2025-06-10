@@ -7,6 +7,10 @@
 @use 'components/editor.scss';
 @use 'components/toast.scss';
 
+html {
+  font-size: 0.875rem; // Equivalent to Tailwind's text-sm (14px)
+}
+
 html,
 body {
   height: 100%;

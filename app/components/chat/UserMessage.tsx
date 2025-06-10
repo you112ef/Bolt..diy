@@ -19,7 +19,7 @@ export function UserMessage({ content }: UserMessageProps) {
     const profile = useStore(profileStore);
 
     return (
-      <div className="overflow-hidden flex flex-col gap-3 items-center ">
+      <div className="overflow-hidden flex flex-col gap-2 items-center ">
         <div className="flex flex-row items-start justify-center overflow-hidden shrink-0 self-start">
           {profile?.avatar || profile?.username ? (
             <div className="flex items-end gap-2">
@@ -35,10 +35,10 @@ export function UserMessage({ content }: UserMessageProps) {
               </span>
             </div>
           ) : (
-            <div className="i-ph:user-fill text-accent-500 text-2xl" />
+            <div className="i-ph:user-fill text-accent-500 text-lg" />
           )}
         </div>
-        <div className="flex flex-col gap-4 bg-accent-500/10 backdrop-blur-sm p-3 py-3 w-auto rounded-lg mr-auto">
+        <div className="flex flex-col gap-2 bg-accent-500/10 backdrop-blur-sm p-2 w-auto rounded-lg mr-auto break-words">
           {textContent && <Markdown html>{textContent}</Markdown>}
           {images.map((item, index) => (
             <img
@@ -57,7 +57,7 @@ export function UserMessage({ content }: UserMessageProps) {
   const textContent = stripMetadata(content);
 
   return (
-    <div className="overflow-hidden pt-[4px]">
+    <div className="overflow-hidden pt-[4px] break-words">
       <Markdown html>{textContent}</Markdown>
     </div>
   );

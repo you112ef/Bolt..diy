@@ -245,6 +245,16 @@ export default defineConfig({
       unit: 'em',
     }),
   ],
+  preflights: [
+    {
+      getCSS: () => `
+        body {
+          max-width: 430px !important;
+          margin: 0 auto !important;
+        }
+      `,
+    },
+  ],
 });
 
 /**

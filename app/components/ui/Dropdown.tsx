@@ -18,7 +18,7 @@ interface DropdownItemProps {
 export const DropdownItem = ({ children, onSelect, className }: DropdownItemProps) => (
   <DropdownMenu.Item
     className={classNames(
-      'relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm',
+      'relative flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm', // Adjusted padding
       'text-bolt-elements-textPrimary hover:text-bolt-elements-textPrimary',
       'hover:bg-bolt-elements-background-depth-3',
       'transition-colors cursor-pointer',

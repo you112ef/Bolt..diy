@@ -11,7 +11,7 @@ const NetlifyConnection = React.lazy(() => import('./NetlifyConnection'));
 
 // Loading fallback component
 const LoadingFallback = () => (
-  <div className="p-4 bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 rounded-lg border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor">
+  <div className="p-2 bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 rounded-lg border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor">
     <div className="flex items-center justify-center gap-2 text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary">
       <div className="i-ph:spinner-gap w-4 h-4 animate-spin" />
       <span>Loading connection...</span>
@@ -24,7 +24,7 @@ export default function ConnectionsTab() {
   const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <motion.div
         className="flex items-center justify-between gap-2"
@@ -70,7 +70,7 @@ export default function ConnectionsTab() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="p-6">
+        <div className="p-4">
           <button
             onClick={() => setIsEnvVarsExpanded(!isEnvVarsExpanded)}
             className={classNames(
@@ -82,7 +82,7 @@ export default function ConnectionsTab() {
           >
             <div className="flex items-center gap-2">
               <div className="i-ph:info w-5 h-5 text-bolt-elements-item-contentAccent dark:text-bolt-elements-item-contentAccent" />
-              <h3 className="text-base font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
+              <h3 className="text-sm font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
                 Environment Variables
               </h3>
             </div>
@@ -103,7 +103,7 @@ export default function ConnectionsTab() {
                 </code>{' '}
                 file:
               </p>
-              <div className="bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 p-3 rounded-md text-xs font-mono overflow-x-auto">
+              <div className="bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 p-2 rounded-md text-xs font-mono overflow-x-auto">
                 <div className="text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary">
                   # GitHub Authentication
                 </div>
@@ -149,7 +149,7 @@ export default function ConnectionsTab() {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-4">
         <Suspense fallback={<LoadingFallback />}>
           <GitHubConnection />
         </Suspense>
@@ -162,7 +162,7 @@ export default function ConnectionsTab() {
       </div>
 
       {/* Additional help text */}
-      <div className="text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 p-4 rounded-lg">
+      <div className="text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 p-3 rounded-lg">
         <p className="flex items-center gap-1 mb-2">
           <span className="i-ph:lightbulb w-4 h-4 text-bolt-elements-icon-success dark:text-bolt-elements-icon-success" />
           <span className="font-medium">Troubleshooting Tip:</span>

@@ -82,23 +82,23 @@ export const AssistantMessage = memo(
     } = filteredAnnotations.find((annotation) => annotation.type === 'usage')?.value;
 
     return (
-      <div className="overflow-hidden w-full">
+      <div className="overflow-hidden w-full break-words">
         <>
           <div className=" flex gap-2 items-center text-sm text-bolt-elements-textSecondary mb-2">
             {(codeContext || chatSummary) && (
-              <Popover side="right" align="start" trigger={<div className="i-ph:info" />}>
+              <Popover side="right" align="start" trigger={<div className="i-ph:info text-base" />}>
                 {chatSummary && (
                   <div className="max-w-chat">
                     <div className="summary max-h-96 flex flex-col">
-                      <h2 className="border border-bolt-elements-borderColor rounded-md p4">Summary</h2>
-                      <div style={{ zoom: 0.7 }} className="overflow-y-auto m4">
+                      <h2 className="border border-bolt-elements-borderColor rounded-md p-2">Summary</h2>
+                      <div style={{ zoom: 0.7 }} className="overflow-y-auto m-2">
                         <Markdown>{chatSummary}</Markdown>
                       </div>
                     </div>
                     {codeContext && (
-                      <div className="code-context flex flex-col p4 border border-bolt-elements-borderColor rounded-md">
+                      <div className="code-context flex flex-col p-2 border border-bolt-elements-borderColor rounded-md">
                         <h2>Context</h2>
-                        <div className="flex gap-4 mt-4 bolt" style={{ zoom: 0.6 }}>
+                        <div className="flex gap-2 mt-2 bolt" style={{ zoom: 0.6 }}>
                           {codeContext.map((x) => {
                             const normalized = normalizedFilePath(x);
                             return (
@@ -137,7 +137,7 @@ export const AssistantMessage = memo(
                       <button
                         onClick={() => onRewind(messageId)}
                         key="i-ph:arrow-u-up-left"
-                        className="i-ph:arrow-u-up-left text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
+                        className="i-ph:arrow-u-up-left text-lg text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
                       />
                     </WithTooltip>
                   )}
@@ -146,7 +146,7 @@ export const AssistantMessage = memo(
                       <button
                         onClick={() => onFork(messageId)}
                         key="i-ph:git-fork"
-                        className="i-ph:git-fork text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
+                        className="i-ph:git-fork text-lg text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
                       />
                     </WithTooltip>
                   )}

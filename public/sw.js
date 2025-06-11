@@ -143,3 +143,65 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+
+// At the end of public/sw.js
+
+self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Push Received.');
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      console.warn('[Service Worker] Push event data is not JSON, treating as text.');
+      data = { title: 'Push Notification', body: event.data.text() };
+    }
+  } else {
+    data = { title: 'Push Notification', body: 'You received a new message.' };
+  }
+
+  const title = data.title || 'Bolt AI Notification';
+  const options = {
+    body: data.body || 'You have a new update.',
+    icon: '/icons/android-launcher-192x192.png', // Ensure this icon exists
+    badge: '/icons/android-launcher-192x192.png', // Ensure this icon exists (for notification bar)
+    // tag: 'bolt-notification-tag', // Optional: use a tag to group or replace notifications
+    // actions: [ // Optional: add actions to the notification
+    //   { action: 'explore', title: 'Explore', icon: '/icons/explore.png' },
+    //   { action: 'close', title: 'Close', icon: '/icons/close.png' },
+    // ]
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Optional: Handle notification click
+self.addEventListener('notificationclick', (event) => {
+  console.log('[Service Worker] Notification click Received.', event.notification.tag);
+  event.notification.close(); // Close the notification
+
+  // Example: Focus or open a window
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // If a window for this PWA is already open, focus it.
+      for (const client of clientList) {
+        // You might need a more specific URL or way to identify the correct client
+        if (client.url === '/' && 'focus' in client) { // Check if root is open
+          return client.focus();
+        }
+      }
+      // If no window is open, open a new one.
+      if (clients.openWindow) {
+        return clients.openWindow('/'); // Open the root of the app
+      }
+    })
+  );
+
+  // Example: Handle notification actions
+  // if (event.action === 'explore') {
+  //   console.log('Explore action clicked');
+  //   clients.openWindow('/explore-page'); // Open a specific page
+  // } else if (event.action === 'close') {
+  //   console.log('Close action clicked');
+  // }
+});

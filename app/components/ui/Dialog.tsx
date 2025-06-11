@@ -217,7 +217,12 @@ export function ConfirmationDialog({
             </Button>
             <Button
               variant={variant}
-              onClick={onConfirm}
+              onClick={() => {
+                if (navigator.vibrate) {
+                  navigator.vibrate(50); // Vibrate for 50ms
+                }
+                onConfirm();
+              }}
               disabled={isLoading}
               className={
                 variant === 'destructive'
@@ -328,6 +333,9 @@ export function SelectionDialog({
   };
 
   const handleConfirm = () => {
+    if (navigator.vibrate) {
+      navigator.vibrate(50); // Vibrate for 50ms
+    }
     onConfirm(selectedItems);
     onClose();
   };

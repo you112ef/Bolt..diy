@@ -31,12 +31,14 @@ export const TabTile: React.FC<TabTileProps> = ({
     <Tooltip.Provider delayDuration={200}>
       <Tooltip.Root>
         <Tooltip.Trigger asChild>
-          <motion.div
+          <motion.button
+            type="button"
             onClick={onClick}
             className={classNames(
               'relative flex flex-col items-center p-3 rounded-xl', // Adjusted padding
               'w-full h-full min-h-[120px]', // Adjusted min-height
               'bg-white dark:bg-[#141414]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-bolt-elements-background-depth-1', // Focus styling
               'border border-[#E5E5E5] dark:border-[#333333]',
               'group',
               'hover:bg-purple-50 dark:hover:bg-[#1a1a1a]',
@@ -127,7 +129,7 @@ export const TabTile: React.FC<TabTileProps> = ({
 
             {/* Children (e.g. Beta Label) */}
             {children}
-          </motion.div>
+          </motion.button>
         </Tooltip.Trigger>
       </Tooltip.Root>
     </Tooltip.Provider>

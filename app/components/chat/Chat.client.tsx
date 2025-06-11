@@ -370,6 +370,8 @@ export const ChatImpl = memo(
           // Storing imageDataList (base64 strings) is more straightforward.
           // The SW will need to handle how to reconstruct this for sending.
           // For simplicity, we're queuing text and associated image data.
+          customPromptText: localStorage.getItem('bolt_custom_ai_prompt') || '',
+          isCustomPromptEnabled: localStorage.getItem('bolt_custom_ai_prompt_enabled') === 'true',
         };
 
         try {

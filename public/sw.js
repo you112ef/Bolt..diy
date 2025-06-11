@@ -202,10 +202,12 @@ async function handleSyncEvent() {
           }],
           model: queuedMessage.model,
           provider: { name: queuedMessage.providerName }, // Assuming API expects this structure
+          customPromptText: queuedMessage.customPromptText,
+          isCustomPromptEnabled: queuedMessage.isCustomPromptEnabled,
           // TODO: Retrieve and include other necessary fields for /api/chat if required:
           // apiKeys, files (might be complex from IDB), promptId, contextOptimization,
-          // chatMode, designScheme, supabase credentials, customPromptText, isCustomPromptEnabled
-          // For now, this is a simplified body.
+          // chatMode, designScheme, supabase credentials
+          // For now, this is a simplified body, with AI customization context added.
         };
 
         console.log('[Service Worker] Sending message to /api/chat:', JSON.stringify(requestBody));

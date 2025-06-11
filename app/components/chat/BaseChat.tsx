@@ -363,7 +363,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               <StickToBottom.Content className="flex flex-col gap-4 relative ">
                 <ClientOnly>
                   {() => {
-                    if (chatStarted && messages && messages.length === 0 && isStreaming) {
+                    if (chatStarted && messages && messages.length === 1 && messages[0].role === 'user' && isStreaming) {
                       return <ChatMessageSkeleton />;
                     } else if (chatStarted) {
                       return (

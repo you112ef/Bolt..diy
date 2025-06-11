@@ -199,6 +199,13 @@
     "vite-plugin-optimize-css-modules": "^1.1.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.1.7",
+    "workbox-build": "^7.3.0",
+    "workbox-cli": "^7.3.0",
+    "workbox-core": "^7.3.0",
+    "workbox-precaching": "^7.3.0",
+    "workbox-routing": "^7.3.0",
+    "workbox-strategies": "^7.3.0",
+    "workbox-sw": "^7.3.0",
     "wrangler": "^4.5.1"
   },
   "resolutions": {

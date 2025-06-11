@@ -7,7 +7,9 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import * as dotenv from 'dotenv';
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, resolve as pathResolve } from 'path'; // Modified: import resolve as pathResolve and use it
+import { injectManifest } from 'workbox-build'; // Added
+import type { Plugin } from 'vite'; // Added for type safety
 
 dotenv.config();
 
@@ -131,6 +133,7 @@ export default defineConfig((config) => {
       tsconfigPaths(),
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
+      workboxPlugin(), // Added Workbox plugin
     ],
     envPrefix: [
       'VITE_',
@@ -171,6 +174,67 @@ function chrome129IssuePlugin() {
 
         next();
       });
+    },
+  };
+}
+
+// Workbox Plugin Definition
+function workboxPlugin(): Plugin {
+  return {
+    name: 'workbox-inject-manifest',
+    apply: 'build',
+    enforce: 'post',
+    async closeBundle() {
+      if (process.env.NODE_ENV === 'production') {
+        const buildDir = pathResolve(__dirname, 'dist');
+        // swSrc is tricky because the SW file might be in public and copied to dist,
+        // or it might be in buildDir directly if it's processed by Vite.
+        // Assuming sw.js is in public and will be copied to dist by Vite's publicDir handling.
+        // Vite places files from `public` directory into the root of `buildDir`.
+        const swSrc = pathResolve(buildDir, 'sw.js');
+
+        console.log(`[Workbox] Using swSrc: ${swSrc}`);
+        console.log(`[Workbox] Using buildDir: ${buildDir}`);
+
+        try {
+          const { count, size, warnings } = await injectManifest({
+            swSrc: swSrc,
+            swDest: swSrc, // Overwrite the source service worker file with the precache manifest injected
+            globDirectory: buildDir,
+            globPatterns: [
+              // Match common static assets
+              '**/*.{js,css,html,png,svg,jpg,jpeg,gif,webp,woff,woff2,ttf,eot,otf,ico}',
+              // Explicitly include key files if they might not match above patterns
+              'index.html',
+              'offline.html', // Assuming you have this for offline fallback
+              'manifest.json', // Your PWA manifest
+              // Add patterns for any other critical assets, like icons in specific folders
+              'assets/icons/*.png',
+              'favicon.svg',
+            ],
+            globIgnores: [
+              'node_modules/**/*', // Ignore node_modules
+              'sw.js',             // Don't let sw.js precache itself directly via globPatterns
+              '**/*.map',          // Ignore sourcemaps
+              // Add any other files/patterns to ignore during precaching
+            ],
+            // Modify URL prefix if assets are served from a subdirectory
+            // modifyURLPrefix: {
+            //   'assets/': '/static/assets/'
+            // },
+            maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit per file
+          });
+
+          if (warnings.length > 0) {
+            console.warn('[Workbox] Warnings during manifest injection:', warnings);
+          }
+          console.log(`[Workbox] Manifest injected: ${count} files, ${size / (1024 * 1024).toFixed(2)} MB precached.`);
+        } catch (error) {
+          console.error('[Workbox] Error during manifest injection:', error);
+          // Optionally re-throw or handle to fail the build
+          // throw error;
+        }
+      }
     },
   };
 }

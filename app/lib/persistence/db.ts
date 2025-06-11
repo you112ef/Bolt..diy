@@ -19,7 +19,7 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
   }
 
   return new Promise((resolve) => {
-    const request = indexedDB.open('boltHistory', 2);
+    const request = indexedDB.open('boltHistory', 4);
 
     request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
       const db = (event.target as IDBOpenDBRequest).result;
@@ -38,6 +38,19 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
           db.createObjectStore('snapshots', { keyPath: 'chatId' });
         }
       }
+      // Check for version 3 for offlineRequests store
+      if (oldVersion < 3) {
+        if (!db.objectStoreNames.contains('offlineRequests')) {
+          const store = db.createObjectStore('offlineRequests', { keyPath: 'id', autoIncrement: true });
+          store.createIndex('timestamp', 'timestamp', { unique: false });
+        }
+      }
+      // Check for version 4 for userSettings store
+      if (oldVersion < 4) {
+        if (!db.objectStoreNames.contains('userSettings')) {
+          db.createObjectStore('userSettings', { keyPath: 'key' });
+        }
+      }
     };
 
     request.onsuccess = (event: Event) => {
@@ -48,6 +61,114 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
       resolve(undefined);
       logger.error((event.target as IDBOpenDBRequest).error);
     };
+  });
+}
+
+// --- User Settings Functions ---
+
+export async function getUserSetting(db: IDBDatabase, key: string): Promise<any | undefined> {
+  return new Promise((resolve, reject) => {
+    if (!db.objectStoreNames.contains('userSettings')) {
+      // This can happen if DB is not fully upgraded yet or if called too early.
+      console.warn('userSettings store not found, returning undefined for key:', key);
+      resolve(undefined);
+      return;
+    }
+    const transaction = db.transaction('userSettings', 'readonly');
+    const store = transaction.objectStore('userSettings');
+    const request = store.get(key);
+
+    request.onsuccess = () => {
+      resolve(request.result?.value); // Assuming value is stored in a 'value' property of the stored object
+    };
+    request.onerror = (event) => reject('Failed to get user setting: ' + (event.target as IDBRequest).error);
+  });
+}
+
+export async function setUserSetting(db: IDBDatabase, key: string, value: any): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!db.objectStoreNames.contains('userSettings')) {
+       console.error('userSettings store not found. Cannot set key:', key);
+       reject(new Error('userSettings store not found'));
+       return;
+    }
+    const transaction = db.transaction('userSettings', 'readwrite');
+    const store = transaction.objectStore('userSettings');
+    // The object store uses 'key' as keyPath, so we store { key: key, value: value }
+    const request = store.put({ key, value });
+
+    request.onsuccess = () => resolve();
+    request.onerror = (event) => reject('Failed to set user setting: ' + (event.target as IDBRequest).error);
+  });
+}
+
+export async function deleteUserSetting(db: IDBDatabase, key: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!db.objectStoreNames.contains('userSettings')) {
+      console.warn('userSettings store not found. Cannot delete key:', key);
+      resolve(); // Resolve without error if store doesn't exist, as the goal is to remove the setting.
+      return;
+    }
+    const transaction = db.transaction('userSettings', 'readwrite');
+    const store = transaction.objectStore('userSettings');
+    const request = store.delete(key);
+
+    request.onsuccess = () => resolve();
+    request.onerror = (event) => reject('Failed to delete user setting: ' + (event.target as IDBRequest).error);
+  });
+}
+
+// --- Offline Request Queue Functions ---
+
+export async function addOfflineRequest(
+  db: IDBDatabase,
+  requestData: { url: string; method: string; headers: object; body: any; timestamp: number }
+): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('offlineRequests', 'readwrite');
+    const store = transaction.objectStore('offlineRequests');
+    const request = store.add(requestData);
+    request.onsuccess = () => resolve(request.result as number);
+    request.onerror = (event) => reject('Failed to add offline request: ' + (event.target as IDBRequest).error);
+  });
+}
+
+export async function getOldestOfflineRequest(db: IDBDatabase): Promise<any | undefined> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('offlineRequests', 'readonly');
+    const store = transaction.objectStore('offlineRequests');
+    const index = store.index('timestamp'); // Get oldest by timestamp
+    const request = index.openCursor(null, 'next'); // 'next' gives ascending order
+
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (cursor) {
+        resolve(cursor.value);
+      } else {
+        resolve(undefined); // No requests in store
+      }
+    };
+    request.onerror = (event) => reject('Failed to get oldest offline request: ' + (event.target as IDBRequest).error);
+  });
+}
+
+export async function getAllOfflineRequests(db: IDBDatabase): Promise<any[]> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('offlineRequests', 'readonly');
+    const store = transaction.objectStore('offlineRequests');
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = (event) => reject('Failed to get all offline requests: ' + (event.target as IDBRequest).error);
+  });
+}
+
+export async function deleteOfflineRequest(db: IDBDatabase, id: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('offlineRequests', 'readwrite');
+    const store = transaction.objectStore('offlineRequests');
+    const request = store.delete(id);
+    request.onsuccess = () => resolve();
+    request.onerror = (event) => reject('Failed to delete offline request: ' + (event.target as IDBRequest).error);
   });
 }
 

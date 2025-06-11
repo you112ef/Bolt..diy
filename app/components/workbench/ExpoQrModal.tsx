@@ -15,7 +15,7 @@ export const ExpoQrModal: React.FC<ExpoQrModalProps> = ({ open, onClose }) => {
   return (
     <DialogRoot open={open} onOpenChange={(v) => !v && onClose()}>
       <Dialog
-        className="text-center !flex-col !mx-auto !text-center !max-w-md"
+        className="w-full text-center !flex-col !mx-auto !text-center !max-w-md"
         showCloseButton={true}
         onClose={onClose}
       >

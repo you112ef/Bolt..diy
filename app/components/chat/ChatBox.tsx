@@ -1,6 +1,7 @@
 import React from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '~/utils/classNames';
+import { isMac } from '~/utils/os'; // Ensure isMac is imported
 import { PROVIDER_LIST } from '~/utils/constants';
 import { ModelSelector } from '~/components/chat/ModelSelector';
 import { APIKeyManager } from './APIKeyManager';
@@ -208,23 +209,35 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
               if (event.shiftKey) {
+                // Allow Shift+Enter for new lines
                 return;
               }
 
-              event.preventDefault();
-
-              if (props.isStreaming) {
-                props.handleStop?.();
+              // Ctrl+Enter or Cmd+Enter to send message
+              const modifierPressed = isMac ? event.metaKey : event.ctrlKey;
+              if (modifierPressed) {
+                event.preventDefault();
+                if (props.isStreaming) {
+                  props.handleStop?.();
+                } else {
+                  props.handleSendMessage?.(event);
+                }
                 return;
               }
 
-              // ignore if using input method engine
-              if (event.nativeEvent.isComposing) {
-                return;
+              // Default Enter key behavior (if no modifier is pressed)
+              if (!event.nativeEvent.isComposing) {
+                 event.preventDefault();
+                 if (props.isStreaming) {
+                   props.handleStop?.();
+                 } else {
+                   props.handleSendMessage?.(event);
+                 }
               }
-
-              props.handleSendMessage?.(event);
+              return; // Return after handling Enter key
             }
+
+            // You can add other keyboard shortcuts here if needed for the textarea
           }}
           value={props.input}
           onChange={(event) => {

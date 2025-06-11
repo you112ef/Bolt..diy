@@ -1,4 +1,5 @@
 import { memo, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { bundledLanguages, codeToHtml, isSpecialLang, type BundledLanguage, type SpecialLanguage } from 'shiki';
 import { classNames } from '~/utils/classNames';
 import { createScopedLogger } from '~/utils/logger';
@@ -25,13 +26,15 @@ export const CodeBlock = memo(
         return;
       }
 
-      navigator.clipboard.writeText(code);
-
-      setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      try {
+        await navigator.clipboard.writeText(code);
+        setCopied(true);
+        toast.success('Copied to clipboard!');
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        logger.error('Failed to copy text: ', err);
+        toast.error('Failed to copy to clipboard.');
+      }
     };
 
     useEffect(() => {
@@ -72,9 +75,10 @@ export const CodeBlock = memo(
                 },
               )}
               title="Copy Code"
-              onClick={() => copyToClipboard()}
+              onClick={copyToClipboard}
+              aria-label={copied ? 'Copied' : 'Copy code to clipboard'}
             >
-              <div className="i-ph:clipboard-text-duotone"></div>
+              {copied ? <div className="i-ph:check-circle-duotone" /> : <div className="i-ph:clipboard-text-duotone" />}
             </button>
           )}
         </div>

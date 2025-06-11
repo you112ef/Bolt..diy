@@ -117,6 +117,8 @@ export function SupabaseConnection() {
                   <label className="block text-sm text-bolt-elements-textSecondary mb-2">Access Token</label>
                   <input
                     type="password"
+                    autoFocus
+                    aria-label="Supabase Access Token"
                     value={supabaseConn.token}
                     onChange={(e) => updateToken(e.target.value)}
                     disabled={connecting}

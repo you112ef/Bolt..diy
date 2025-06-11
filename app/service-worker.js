@@ -2,6 +2,7 @@ const CACHE_NAME = 'bolt-ai-cache-v1'; // Consider versioning this for updates
 const urlsToCache = [
   '/',
   '/favicon.svg',
+  '/offline.html', // Add this line
   // Add other important static assets here
   // Note: these paths should be relative to the public folder after build
 ];
@@ -15,7 +16,7 @@ self.addEventListener('install', (event) => {
         return cache.addAll(urlsToCache);
       })
       .then(() => {
-        console.log('Service Worker: Core assets cached');
+        console.log('Service Worker: Core assets cached, including offline page.');
         return self.skipWaiting(); // Force activation of new service worker
       })
   );
@@ -43,12 +44,24 @@ self.addEventListener('activate', (event) => {
 
 // Fetch: Serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests and specific paths like API calls
-  if (event.request.method !== 'GET' || event.request.url.includes('/api/')) {
+  if (event.request.method !== 'GET') {
     event.respondWith(fetch(event.request));
     return;
   }
 
+  // For navigation requests, try network first, then cache, then offline page
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match(event.request).then((response) => {
+          return response || caches.match('/offline.html');
+        });
+      })
+    );
+    return;
+  }
+
+  // For other GET requests (assets, etc.), serve from cache first, then network
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -68,10 +81,11 @@ self.addEventListener('fetch', (event) => {
           //   });
           // }
           return networkResponse;
-        }).catch((error) => {
-          console.error('Service Worker: Fetch failed, serving offline fallback (if any)', error);
-          // Optionally, return a generic offline page here
-          // return caches.match('/offline.html');
+        }).catch(() => {
+          // If an asset fetch fails (e.g. image not cached and offline)
+          // you might return a placeholder, but for now, just let it fail
+          // or return offline.html if it's critical for the page structure.
+          // For non-critical assets, failing might be better than showing the whole offline page.
         });
       }
     )

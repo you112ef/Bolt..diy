@@ -64,6 +64,21 @@ interface ChatBoxProps {
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
+  const triggerSendAndVibrate = (event: React.UIEvent, messageInput?: string) => {
+    props.handleSendMessage?.(event, messageInput); // Call the original function
+
+    // After message is sent (or attempted to be sent)
+    if (navigator.vibrate) {
+      try {
+        navigator.vibrate(100); // Vibrate for 100ms
+        // console.log('Vibrated for message sent');
+      } catch (e) {
+        // Could be due to user settings denying vibration
+        console.warn("Vibration failed. User may have disabled it in settings.", e);
+      }
+    }
+  };
+
   return (
     <div
       className={classNames(
@@ -220,7 +235,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 if (props.isStreaming) {
                   props.handleStop?.();
                 } else {
-                  props.handleSendMessage?.(event);
+                  triggerSendAndVibrate(event);
                 }
                 return;
               }
@@ -231,7 +246,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                  if (props.isStreaming) {
                    props.handleStop?.();
                  } else {
-                   props.handleSendMessage?.(event);
+                   triggerSendAndVibrate(event);
                  }
               }
               return; // Return after handling Enter key
@@ -264,7 +279,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 }
 
                 if (props.input.length > 0 || props.uploadedFiles.length > 0) {
-                  props.handleSendMessage?.(event);
+                  triggerSendAndVibrate(event);
                 }
               }}
             />

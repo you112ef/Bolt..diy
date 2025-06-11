@@ -21,7 +21,7 @@ export const CodeBlock = memo(
     const [html, setHTML] = useState<string | undefined>(undefined);
     const [copied, setCopied] = useState(false);
 
-    const copyToClipboard = () => {
+    const copyToClipboard = async () => {
       if (copied) {
         return;
       }

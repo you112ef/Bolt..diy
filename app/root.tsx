@@ -161,8 +161,22 @@ export default function App() {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
+    // Page Visibility API
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        console.log('Page is hidden');
+        // Future: Pause resource-intensive operations
+      } else {
+        console.log('Page is visible');
+        // Future: Resume operations
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
 
   }, [theme]); // Add hasUnsavedChanges to dependency array if it's used directly

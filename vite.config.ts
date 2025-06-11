@@ -8,6 +8,7 @@ import * as dotenv from 'dotenv';
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { copy } from 'vite-plugin-copy'; // Add this import
 
 dotenv.config();
 
@@ -131,6 +132,15 @@ export default defineConfig((config) => {
       tsconfigPaths(),
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
+      copy({ // Add this section
+        targets: [
+          {
+            src: 'app/service-worker.js',
+            dest: 'public',
+          },
+        ],
+        hook: 'writeBundle' // Run after the bundle is written
+      })
     ],
     envPrefix: [
       'VITE_',

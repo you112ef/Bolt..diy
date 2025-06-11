@@ -185,8 +185,11 @@ export const Markdown = memo(
 
           return <button {...props}>{children}</button>;
         },
+        img: (props) => { // Add this custom img component
+          return <img {...props} loading="lazy" />;
+        }
       } satisfies Components;
-    }, []);
+    }, []); // Add dependencies to useMemo if any of its inputs change, e.g. [append, setChatMode, model, provider] if they are used inside component definitions. For just adding loading="lazy", no new deps are needed.
 
     return (
       <ReactMarkdown

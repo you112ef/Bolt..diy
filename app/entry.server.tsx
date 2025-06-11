@@ -70,8 +70,30 @@ export default async function handleRequest(
 
   responseHeaders.set('Content-Type', 'text/html');
 
+  // Existing COOP/COEP headers
   responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
   responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
+
+  // Add Content-Security-Policy
+  const cspDirectives = [
+    "default-src 'self'",
+    // Vite's dev server and some Remix patterns might use inline scripts/styles.
+    // For production, it's better to use hashes or nonces if possible, but 'unsafe-inline' is a common starting point.
+    // The ?url imports for styles might also need to be considered for stricter policies.
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", // Allow Google Fonts styles
+    "font-src 'self' https://fonts.gstatic.com", // Allow Google Fonts
+    "img-src 'self' data: https:", // Allow self, data URIs, and any HTTPS images (adjust if too broad)
+    "object-src 'none'",
+    "upgrade-insecure-requests",
+    "block-all-mixed-content",
+    // Add other directives as needed, e.g., connect-src for APIs
+    // "connect-src 'self' https://api.example.com",
+  ];
+  // responseHeaders.set('Content-Security-Policy', cspDirectives.join('; ')); // Commented out to debug worker exception
+
+  // Optional: Add HSTS if the site is confirmed to be fully HTTPS
+  // responseHeaders.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
   return new Response(body, {
     headers: responseHeaders,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '~/utils/classNames';
+import { isMac } from '~/utils/os'; // Ensure isMac is imported
 import { PROVIDER_LIST } from '~/utils/constants';
 import { ModelSelector } from '~/components/chat/ModelSelector';
 import { APIKeyManager } from './APIKeyManager';
@@ -63,6 +64,21 @@ interface ChatBoxProps {
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
+  const triggerSendAndVibrate = (event: React.UIEvent, messageInput?: string) => {
+    props.handleSendMessage?.(event, messageInput); // Call the original function
+
+    // After message is sent (or attempted to be sent)
+    if (navigator.vibrate) {
+      try {
+        navigator.vibrate(100); // Vibrate for 100ms
+        // console.log('Vibrated for message sent');
+      } catch (e) {
+        // Could be due to user settings denying vibration
+        console.warn("Vibration failed. User may have disabled it in settings.", e);
+      }
+    }
+  };
+
   return (
     <div
       className={classNames(
@@ -170,6 +186,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
       >
         <textarea
           ref={props.textareaRef}
+          autoFocus
           className={classNames(
             'w-full pl-3 pt-3 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm', // Adjusted padding
             'transition-all duration-200',
@@ -208,23 +225,35 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
               if (event.shiftKey) {
+                // Allow Shift+Enter for new lines
                 return;
               }
 
-              event.preventDefault();
-
-              if (props.isStreaming) {
-                props.handleStop?.();
+              // Ctrl+Enter or Cmd+Enter to send message
+              const modifierPressed = isMac ? event.metaKey : event.ctrlKey;
+              if (modifierPressed) {
+                event.preventDefault();
+                if (props.isStreaming) {
+                  props.handleStop?.();
+                } else {
+                  triggerSendAndVibrate(event);
+                }
                 return;
               }
 
-              // ignore if using input method engine
-              if (event.nativeEvent.isComposing) {
-                return;
+              // Default Enter key behavior (if no modifier is pressed)
+              if (!event.nativeEvent.isComposing) {
+                 event.preventDefault();
+                 if (props.isStreaming) {
+                   props.handleStop?.();
+                 } else {
+                   triggerSendAndVibrate(event);
+                 }
               }
-
-              props.handleSendMessage?.(event);
+              return; // Return after handling Enter key
             }
+
+            // You can add other keyboard shortcuts here if needed for the textarea
           }}
           value={props.input}
           onChange={(event) => {
@@ -251,7 +280,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 }
 
                 if (props.input.length > 0 || props.uploadedFiles.length > 0) {
-                  props.handleSendMessage?.(event);
+                  triggerSendAndVibrate(event);
                 }
               }}
             />

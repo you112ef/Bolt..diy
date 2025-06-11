@@ -1,8 +1,9 @@
 import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@remix-run/cloudflare';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useBlocker } from '@remix-run/react'; // Added useBlocker
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
+import { useUnsavedChangesStore } from '~/lib/stores/unsavedChanges'; // Added
 import { stripIndents } from './utils/stripIndent';
 import { createHead } from 'remix-island';
 import { useEffect } from 'react';
@@ -87,11 +88,48 @@ export function Layout({ children }: { children: React.ReactNode }) {
 import { logStore } from './lib/stores/logs';
 
 export default function App() {
-  const theme = useStore(themeStore);
+  const theme = useStore(themeStore); // Existing
+  const { isDirty, resetDirtyState } = useUnsavedChangesStore(state => ({ isDirty: state.isDirty, resetDirtyState: state.resetDirtyState }));
+
+  // Effect for window.onbeforeunload
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isDirty) {
+        event.preventDefault();
+        event.returnValue = 'You have unsaved changes. Are you sure you want to leave?'; // Standard message, browser may override
+      }
+    };
+
+    if (isDirty) {
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    } else {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isDirty]);
+
+  // React Router Blocker for client-side navigation
+  const blocker = useBlocker(isDirty);
 
   useEffect(() => {
+    if (blocker && blocker.state === 'blocked') {
+      // Using window.confirm for simplicity. A custom modal could replace this.
+      if (window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
+        resetDirtyState(); // Reset dirty state before proceeding
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker, resetDirtyState]);
+
+  // Existing useEffect for logging and service worker controller change
+  useEffect(() => {
     logStore.logSystem('Application initialized', {
-      theme,
+      theme, // theme is used here from outer scope
       platform: navigator.platform,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),
@@ -112,7 +150,9 @@ export default function App() {
         });
       });
     }
-  }, []); // Keep dependency array empty for this effect to run once on mount
+  // The original dependency array was [], if theme should re-trigger this, it should be [theme]
+  // For this change, I'll keep the original dependency array for this specific existing useEffect.
+  }, []);
 
   return (
     <Layout>

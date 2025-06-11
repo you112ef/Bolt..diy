@@ -29,6 +29,10 @@ export const Markdown = memo(
 
     const components = useMemo(() => {
       return {
+        img: ({node, ...imgProps}: any) => {
+            // ReactMarkdown passes the alt attribute from markdown.
+            return <img loading="lazy" {...imgProps} />;
+         },
         div: ({ className, children, node, ...props }) => {
           const dataProps = node?.properties as Record<string, unknown>;
 
@@ -186,7 +190,7 @@ export const Markdown = memo(
           return <button {...props}>{children}</button>;
         },
       } satisfies Components;
-    }, []);
+    }, [append, model, provider, setChatMode]); // Corrected dependency array
 
     return (
       <ReactMarkdown

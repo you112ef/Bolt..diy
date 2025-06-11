@@ -25,6 +25,7 @@ import { createSampler } from '~/utils/sampler';
 import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
 import { logStore } from '~/lib/stores/logs';
 import { streamingState } from '~/lib/stores/streaming';
+import { useUnsavedChangesStore } from '~/lib/stores/unsavedChanges'; // Added
 import { filesToArtifacts } from '~/utils/fileUtils';
 import { supabaseConnection } from '~/lib/stores/supabase';
 import { defaultDesignScheme, type DesignScheme } from '~/types/design-scheme';
@@ -118,6 +119,7 @@ interface ChatProps {
 export const ChatImpl = memo(
   ({ description, initialMessages, storeMessageHistory, importChat, exportChat }: ChatProps) => {
     useShortcuts();
+    const setUnsavedChangesDirty = useUnsavedChangesStore(state => state.setDirty); // Added
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
@@ -375,6 +377,7 @@ export const ChatImpl = memo(
               ]);
               reload();
               setInput('');
+      setUnsavedChangesDirty('chatInput', false); // Added
               Cookies.remove(PROMPT_COOKIE_KEY);
 
               setUploadedFiles([]);
@@ -410,6 +413,7 @@ export const ChatImpl = memo(
         reload();
         setFakeLoading(false);
         setInput('');
+        setUnsavedChangesDirty('chatInput', false); // Added
         Cookies.remove(PROMPT_COOKIE_KEY);
 
         setUploadedFiles([]);
@@ -464,6 +468,7 @@ export const ChatImpl = memo(
       }
 
       setInput('');
+      setUnsavedChangesDirty('chatInput', false); // Added
       Cookies.remove(PROMPT_COOKIE_KEY);
 
       setUploadedFiles([]);
@@ -479,7 +484,9 @@ export const ChatImpl = memo(
      * @param event - The change event from the textarea.
      */
     const onTextareaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      handleInputChange(event);
+      handleInputChange(event); // Original handler from useChat
+      const currentVal = event.target.value;
+      setUnsavedChangesDirty('chatInput', currentVal.trim() !== '');
     };
 
     /**

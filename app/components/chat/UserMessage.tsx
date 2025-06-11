@@ -43,6 +43,7 @@ export function UserMessage({ content }: UserMessageProps) {
           {images.map((item, index) => (
             <img
               key={index}
+              loading="lazy"
               src={item.image}
               alt={`Image ${index + 1}`}
               className="max-w-full h-auto rounded-lg"

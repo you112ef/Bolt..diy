@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react'; // Removed useCallback, useTranslation
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next'; // Added for i18n
-import { Button } from '~/components/ui/Button'; // Added Button import
+// Removed Button import
 import { classNames } from '~/utils/classNames';
 import { Switch } from '~/components/ui/Switch';
 import type { UserProfile } from '~/components/@settings/core/types';
@@ -108,33 +107,7 @@ export default function SettingsTab() {
           </select>
         </div>
 
-        {/* New Language Switcher Section */}
-        <div className="pt-4">
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="i-ph:translate-bold w-4 h-4 text-bolt-elements-textSecondary" /> {/* Changed icon for distinction */}
-            <label className="block text-sm text-bolt-elements-textSecondary">Switch Application Language</label>
-          </div>
-          <div className="flex space-x-2 mt-1">
-            <Button
-              variant={i18n.language === 'en' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => i18n.changeLanguage('en')}
-            >
-              English
-            </Button>
-            <Button
-              variant={i18n.language === 'ar' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => i18n.changeLanguage('ar')}
-            >
-              العربية
-            </Button>
-          </div>
-          <p className="text-xs text-bolt-elements-textTertiary mt-2">
-            Current app language: {i18n.language}
-          </p>
-        </div>
-        {/* End New Language Switcher Section */}
+        {/* Removed New Language Switcher Section */}
 
         <div>
           <div className="flex items-center gap-2 mb-1.5">

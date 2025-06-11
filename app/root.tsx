@@ -85,8 +85,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
-import { I18nextProvider } from 'react-i18next';
-import i18n from './i18n';
 
 export default function App() {
   const theme = useStore(themeStore);
@@ -101,10 +99,8 @@ export default function App() {
   }, []);
 
   return (
-    <I18nextProvider i18n={i18n}>
-      <Layout>
-        <Outlet />
-      </Layout>
-    </I18nextProvider>
+    <Layout>
+      <Outlet />
+    </Layout>
   );
 }

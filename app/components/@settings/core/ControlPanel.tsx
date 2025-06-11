@@ -21,7 +21,7 @@ import { profileStore } from '~/lib/stores/profile';
 import type { TabType, TabVisibilityConfig, Profile } from './types';
 import { TAB_LABELS, DEFAULT_TAB_CONFIG } from './constants';
 import { DialogTitle } from '~/components/ui/Dialog';
-import { useTranslation } from 'react-i18next'; // Added for i18n
+// Removed useTranslation import
 import { AvatarDropdown } from './AvatarDropdown';
 import BackgroundRays from '~/components/ui/BackgroundRays';
 
@@ -155,7 +155,7 @@ const AnimatedSwitch = ({ checked, onCheckedChange, id, label }: AnimatedSwitchP
 };
 
 export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
-  const { t } = useTranslation(); // Added for i18n
+  // Removed useTranslation hook
   // State
   const [activeTab, setActiveTab] = useState<TabType | null>(null);
   const [loadingTab, setLoadingTab] = useState<TabType | null>(null);
@@ -465,7 +465,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                       </button>
                     )}
                     <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {showTabManagement ? t('tabManagement', 'Tab Management') : activeTab ? t(TAB_LABELS[activeTab] || activeTab, TAB_LABELS[activeTab] || activeTab) : t('controlPanelTitle')}
+                      {showTabManagement ? (TAB_LABELS['tab-management'] || 'Tab Management') : activeTab ? (TAB_LABELS[activeTab] || activeTab) : 'Control Panel'}
                     </DialogTitle>
                   </div>
 

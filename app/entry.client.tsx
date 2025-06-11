@@ -1,4 +1,3 @@
-import './i18n'; // Initialize i18next
 import { RemixBrowser } from '@remix-run/react';
 import { startTransition } from 'react';
 import { hydrateRoot } from 'react-dom/client';

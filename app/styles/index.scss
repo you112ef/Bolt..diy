@@ -1,3 +1,7 @@
+// Developer Resources:
+// MDN: Using Media Queries - https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_media_queries/Using_media_queries
+// CSS-Tricks: A Guide to Flexbox - https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+
 @use 'variables.scss';
 @use 'z-index.scss';
 @use 'animations.scss';
@@ -74,4 +78,154 @@ body {
 
   // Firefox support for inverted colors
   scrollbar-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%) transparent;
+}
+
+// --- Globals & Main Container ---
+// The main container is the div in _index.tsx (flex flex-col h-full w-full...)
+// Tailwind's h-full and w-full already manage viewport height/width.
+// We'll apply max-width and centering to the body for overall page constraint.
+body {
+  // width: 100vw; // This is implicitly handled by w-full on the main div
+  max-width: 1200px;
+  margin: 0 auto;
+  // overflow-x: hidden; // Prevent horizontal scroll if 1200px is too wide for some content
+}
+
+// --- General Styling ---
+// For padding on internal content blocks (e.g., within chat messages, workbench sections)
+// This is a general class, specific components might need more targeted styles.
+.content-padding {
+  padding: 10px; // As per requirement
+}
+
+// Styles for dropdown menus - assuming a common class like 'dropdown-menu-custom'
+// if Tailwind's 'overflow-auto' is not sufficient or specific styling is needed.
+.dropdown-menu-custom {
+  overflow: auto; // As per requirement
+}
+
+// Global word wrap for text elements - apply to common text containers
+// Tailwind's `break-words` utility can also be used directly in components.
+p, span, .prose div { // .prose is often used by Tailwind for typography
+  word-wrap: break-word; // As per requirement
+  // overflow-wrap: break-word; // More modern equivalent
+}
+
+
+// --- Component Specific Adjustments ---
+
+// Header component adjustments
+// Located in app/components/header/Header.tsx
+header.flex.items-center { // Targeting the header with its existing Tailwind classes
+  // On smaller screens, if navigation items need to stack, we'll handle it here.
+  // For now, Tailwind's flex utilities on children should manage wrapping or layout.
+  // Adding some padding as per "padding: 10px to internal blocks"
+  padding: 10px; // General padding for the header itself
+}
+
+// Main content wrapper in BaseChat.tsx
+// This div has classes "flex flex-col lg:flex-row overflow-y-auto w-full h-full"
+// We need to ensure it stacks vertically on tablets (max-width: 768px)
+// Tailwind's `lg:flex-row` makes it horizontal on screens >= 1024px.
+// It's `flex-col` by default, which covers smaller screens.
+
+// --- Media Queries ---
+
+@media (max-width: 992px) { // Desktop screens adjustments
+  // Adjust spacing, preserve layout.
+  // Example: Reduce padding on content blocks if needed.
+  .content-padding {
+    padding: 8px;
+  }
+
+  // Specific adjustments for header elements if they feel too cramped.
+  header.flex.items-center {
+    // e.g., target child elements for margin/padding adjustments
+    .text-2xl.font-semibold { // Logo text
+      font-size: 1.3rem; // Slightly smaller logo text
+    }
+  }
+}
+
+@media (max-width: 768px) { // Tablet screens - switch to vertical layout
+  // Main layout: The main div in _index.tsx is already flex-col.
+  // The content wrapper in BaseChat (flex flex-col lg:flex-row) is also flex-col by default.
+
+  // Header navigation stacking:
+  // If items inside the header (logo, ChatDescription, HeaderActionButtons) need to stack
+  // vertically or change alignment.
+  header.flex.items-center {
+    flex-direction: column; // Stack header items vertically
+    align-items: flex-start; // Align items to the start
+    height: auto; // Allow header to grow with content
+
+    & > div, & > span, & > ClientOnly > div { // Target direct children containers
+      width: 100%; // Make them full width to stack properly
+      margin-bottom: 8px; // Add some space between stacked items
+    }
+
+    .flex-1.px-2.truncate { // ChatDescription span
+      text-align: left; // Align text to left when stacked
+      margin-bottom: 8px;
+    }
+
+    // HeaderActionButtons container might need specific flex settings if its internal items also need to adjust
+    // For now, assuming they wrap or are managed internally.
+  }
+
+  // Example: If Chat and Workbench need to be explicitly 100% width when stacked
+  // The parent is already flex-col, so they should stack.
+  // Targeting styles.Chat from BaseChat.module.scss might be tricky without `composes`
+  // or if not globally unique. For now, rely on parent flex-col.
+  // div[class*="BaseChat_Chat__"] { // Example if styles.Chat is BaseChat_Chat__xxxx
+  //   width: 100%;
+  // }
+  // section[class*="Workbench_Workbench__"] { // Example for Workbench
+  //   width: 100%;
+  // }
+
+  // Prevent accidental horizontal scrolling on smaller viewports
+  html, body {
+    overflow-x: hidden;
+  }
+}
+
+// Global touch action for common interactive elements to eliminate 300ms delay
+button,
+a[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[role="button"] {
+  touch-action: manipulation;
+}
+
+// Media query for very small screens (e.g., 360px-420px)
+@media (max-width: 420px) {
+  // Header adjustments for very small screens
+  header.flex.items-center {
+    padding: 8px; // Reduce overall header padding
+
+    img { // Target logo image specifically
+      max-width: 60px; // Reduce logo size
+    }
+
+    // Reduce margin between stacked header items
+    & > div, & > span, & > ClientOnly > div {
+      margin-bottom: 4px;
+    }
+  }
+
+  // Reduce padding for the main messages container
+  // Note: This class '.messages-container-custom-class' would need to be added to the
+  // StickToBottom component in app/components/chat/BaseChat.tsx for this rule to apply.
+  .messages-container-custom-class {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  // Further reduce .content-padding for very small screens
+  .content-padding {
+    padding: 6px;
+  }
 }

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // Removed useCallback, useTranslation
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
+// Removed Button import
 import { classNames } from '~/utils/classNames';
 import { Switch } from '~/components/ui/Switch';
 import type { UserProfile } from '~/components/@settings/core/types';
@@ -76,8 +77,11 @@ export default function SettingsTab() {
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <div className="i-ph:translate-fill w-4 h-4 text-bolt-elements-textSecondary" />
-            <label className="block text-sm text-bolt-elements-textSecondary">Language</label>
+            <label className="block text-sm text-bolt-elements-textSecondary">Preferred Content Language</label> {/* Clarified Label */}
           </div>
+          <p className="text-xs text-bolt-elements-textTertiary mb-1">
+            Select your preferred language for content or AI interactions (if supported).
+          </p>
           <select
             value={settings.language}
             onChange={(e) => setSettings((prev) => ({ ...prev, language: e.target.value }))}
@@ -102,6 +106,8 @@ export default function SettingsTab() {
             <option value="ko">한국어</option>
           </select>
         </div>
+
+        {/* Removed New Language Switcher Section */}
 
         <div>
           <div className="flex items-center gap-2 mb-1.5">

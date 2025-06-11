@@ -38,7 +38,7 @@ export function UserMessage({ content }: UserMessageProps) {
             <div className="i-ph:user-fill text-accent-500 text-lg" />
           )}
         </div>
-        <div className="flex flex-col gap-2 bg-accent-500/10 backdrop-blur-sm p-2 w-auto rounded-lg mr-auto break-words">
+        <div className="flex flex-col gap-2 bg-accent-500/10 backdrop-blur-sm p-2 w-auto rounded-lg mr-auto break-words content-padding">
           {textContent && <Markdown html>{textContent}</Markdown>}
           {images.map((item, index) => (
             <img
@@ -57,7 +57,7 @@ export function UserMessage({ content }: UserMessageProps) {
   const textContent = stripMetadata(content);
 
   return (
-    <div className="overflow-hidden pt-[4px] break-words">
+    <div className="overflow-hidden pt-[4px] break-words content-padding">
       <Markdown html>{textContent}</Markdown>
     </div>
   );

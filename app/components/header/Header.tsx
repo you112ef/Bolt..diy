@@ -19,7 +19,7 @@ export function Header() {
         <div className="i-ph:sidebar-simple-duotone text-3xl" />
         <a href="/" className="text-2xl font-semibold text-accent flex items-center">
           {/* <span className="i-bolt:logo-text?mask w-[46px] inline-block" /> */}
-          <img src="/logo.svg" alt="Bolt Logo" className="w-[80px] h-auto" />
+          <img src="/1748244922200.png" alt="Bolt Logo" className="w-[80px] h-auto" />
         </a>
       </div>
       {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.

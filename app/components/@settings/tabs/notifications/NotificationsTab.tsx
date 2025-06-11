@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // Added useCallback
 import { motion } from 'framer-motion';
 import { logStore } from '~/lib/stores/logs';
+import { Switch } from '~/components/ui/Switch'; // Added Switch
+import { db, getUserSetting, setUserSetting } from '~/lib/persistence/db'; // Added DB functions
+import { toast } from 'react-toastify'; // Added toast
 import { useStore } from '@nanostores/react';
 import { formatDistanceToNow } from 'date-fns';
 import { classNames } from '~/utils/classNames';
@@ -17,9 +20,125 @@ interface NotificationDetails {
 
 type FilterType = 'all' | 'system' | 'error' | 'warning' | 'update' | 'info' | 'provider' | 'network';
 
+// THIS IS A PLACEHOLDER KEY - REPLACE WITH YOUR ACTUAL VAPID PUBLIC KEY
+const VAPID_PUBLIC_KEY = 'BFzIp9FFVMSqN8IIyYmQxG-atLUt7FopguHl6BEV3hGf_A0wXmKj0aM0hIAUnQzW6S6eXft2uFCu2hM9zO7K90I';
+
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+const DB_KEY_PUSH_ENABLED = 'pushNotificationsEnabled';
+const DB_KEY_PUSH_PERMISSION_STORED = 'pushNotificationPermissionStored';
+
+
 const NotificationsTab = () => {
   const [filter, setFilter] = useState<FilterType>('all');
   const logs = useStore(logStore.logs);
+
+  const [isEnabledForPush, setIsEnabledForPush] = useState(false);
+  const [pushPermissionStatus, setPushPermissionStatus] = useState<NotificationPermission>(Notification.permission);
+  const [isPushSubscribing, setIsPushSubscribing] = useState(false);
+
+
+  // Effect for initial load of push notification settings
+  useEffect(() => {
+    const loadInitialPushSettings = async () => {
+      if (!db) {
+        console.warn('DB not available for loading push settings.');
+        return;
+      }
+      const storedEnabled = await getUserSetting(db, DB_KEY_PUSH_ENABLED);
+      const storedPermission = await getUserSetting(db, DB_KEY_PUSH_PERMISSION_STORED) as NotificationPermission | undefined;
+
+      setIsEnabledForPush(!!storedEnabled);
+      setPushPermissionStatus(Notification.permission); // Always get current browser permission status
+
+      // If a permission was stored and it's different from current, update current.
+      // This handles cases where permission might have been changed outside the app.
+      if (storedPermission && storedPermission !== Notification.permission) {
+         console.log("Stored permission differs from browser's current permission. Browser's current takes precedence.");
+      }
+      // If the user had previously enabled it, but permission is now 'default' or 'denied', reflect that.
+      if (storedEnabled && Notification.permission !== 'granted') {
+        setIsEnabledForPush(false);
+        await setUserSetting(db, DB_KEY_PUSH_ENABLED, false);
+      }
+    };
+    loadInitialPushSettings();
+  }, []);
+
+  const handleTogglePushNotifications = useCallback(async (checked: boolean) => {
+    if (!db || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      toast.error('Push notifications are not supported by your browser or service worker is not available.');
+      setIsEnabledForPush(false);
+      return;
+    }
+    setIsPushSubscribing(true);
+    const currentDb = db; // db is already awaited at module level
+
+    try {
+      if (checked) { // User wants to enable push notifications
+        let permission = Notification.permission;
+        if (permission === 'default') {
+          permission = await Notification.requestPermission();
+        }
+        setPushPermissionStatus(permission);
+        await setUserSetting(currentDb, DB_KEY_PUSH_PERMISSION_STORED, permission);
+
+        if (permission === 'granted') {
+          const registration = await navigator.serviceWorker.ready;
+          let subscription = await registration.pushManager.getSubscription();
+
+          if (!subscription) {
+            const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+            subscription = await registration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey,
+            });
+            console.log('Push subscribed:', subscription);
+            // TODO: Send this subscription to your backend server to store it
+            toast.success('Push notifications enabled!');
+          } else {
+            console.log('Already subscribed to push:', subscription);
+            toast.info('Push notifications already enabled.');
+          }
+          setIsEnabledForPush(true);
+          await setUserSetting(currentDb, DB_KEY_PUSH_ENABLED, true);
+        } else {
+          toast.warn('Push notification permission not granted.');
+          setIsEnabledForPush(false);
+          await setUserSetting(currentDb, DB_KEY_PUSH_ENABLED, false);
+        }
+      } else { // User wants to disable push notifications
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          await subscription.unsubscribe();
+          console.log('Push unsubscribed:', subscription);
+          // TODO: Notify your backend server to remove the subscription
+          toast.success('Push notifications disabled.');
+        }
+        setIsEnabledForPush(false);
+        await setUserSetting(currentDb, DB_KEY_PUSH_ENABLED, false);
+      }
+    } catch (error) {
+      console.error('Error handling push notification toggle:', error);
+      toast.error('Failed to update push notification settings.');
+      // Revert UI state on error if possible, or reload initial state
+      const storedEnabled = await getUserSetting(currentDb, DB_KEY_PUSH_ENABLED);
+      setIsEnabledForPush(!!storedEnabled);
+    } finally {
+      setIsPushSubscribing(false);
+    }
+  }, [db]); // db dependency might not be needed if it's stable module-level const
+
 
   useEffect(() => {
     const startTime = performance.now();
@@ -171,6 +290,31 @@ const NotificationsTab = () => {
 
   return (
     <div className="flex h-full flex-col gap-6">
+      {/* Push Notifications Settings Section */}
+      <div className="p-4 border border-bolt-elements-borderColor rounded-lg bg-bolt-elements-background-depth-1">
+        <h3 className="text-lg font-semibold text-bolt-elements-textPrimary mb-3">Browser Push Notifications</h3>
+        <div className="flex items-center justify-between">
+          <div>
+            <label htmlFor="push-notifications-toggle" className="block text-sm font-medium text-bolt-elements-textPrimary">
+              Enable Push Notifications
+            </label>
+            <p className="text-xs text-bolt-elements-textSecondary">
+              Receive updates and alerts from the application.
+              {pushPermissionStatus === 'denied' && <span className="text-red-500"> (Permission denied by browser)</span>}
+              {pushPermissionStatus === 'default' && isEnabledForPush && !isPushSubscribing && <span className="text-yellow-500"> (Allow permission in browser prompt)</span>}
+            </p>
+          </div>
+          <Switch
+            id="push-notifications-toggle"
+            checked={isEnabledForPush}
+            onCheckedChange={handleTogglePushNotifications}
+            disabled={pushPermissionStatus === 'denied' || isPushSubscribing}
+          />
+        </div>
+        {isPushSubscribing && <p className="text-xs text-bolt-elements-textSecondary mt-1">Processing...</p>}
+      </div>
+
+      {/* Existing Notifications Log UI */}
       <div className="flex items-center justify-between">
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>

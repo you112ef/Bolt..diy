@@ -30,8 +30,8 @@ export const Markdown = memo(
     const components = useMemo(() => {
       return {
         img: ({node, ...imgProps}: any) => {
-            // ReactMarkdown passes the alt attribute from markdown.
-            return <img loading="lazy" {...imgProps} />;
+            const altText = imgProps.alt || ""; // Default to empty string if alt is not provided
+            return <img loading="lazy" {...imgProps} alt={altText} />;
          },
         div: ({ className, children, node, ...props }) => {
           const dataProps = node?.properties as Record<string, unknown>;

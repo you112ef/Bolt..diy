@@ -1,14 +1,14 @@
 import { useStore } from '@nanostores/react';
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { computed } from 'nanostores';
-import { memo, useCallback, useEffect, useState, useMemo } from 'react';
+import { memo, useCallback, useEffect, useState, useMemo, lazy, Suspense } from 'react'; // Added lazy, Suspense
 import { toast } from 'react-toastify';
 import { Popover, Transition } from '@headlessui/react';
 import { diffLines, type Change } from 'diff';
 import { ActionRunner } from '~/lib/runtime/action-runner';
 import { getLanguageFromExtension } from '~/utils/getLanguageFromExtension';
 import type { FileHistory } from '~/types/actions';
-import { DiffView } from './DiffView';
+// import { DiffView } from './DiffView'; // Commented out for lazy loading
 import {
   type OnChangeCallback as OnEditorChange,
   type OnScrollCallback as OnEditorScroll,
@@ -20,14 +20,20 @@ import { workbenchStore, type WorkbenchViewType } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
 import { renderLogger } from '~/utils/logger';
-import { EditorPanel } from './EditorPanel';
-import { Preview } from './Preview';
+// import { EditorPanel } from './EditorPanel'; // Commented out for lazy loading
+// import { Preview } from './Preview'; // Commented out for lazy loading
 import useViewport from '~/lib/hooks';
-import { PushToGitHubDialog } from '~/components/@settings/tabs/connections/components/PushToGitHubDialog';
+// import { PushToGitHubDialog } from '~/components/@settings/tabs/connections/components/PushToGitHubDialog'; // Commented out for lazy loading
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { usePreviewStore } from '~/lib/stores/previews';
 import { chatStore } from '~/lib/stores/chat';
 import type { ElementInfo } from './Inspector';
+
+// Lazy load components
+const LazyEditorPanel = lazy(() => import('./EditorPanel').then(module => ({ default: module.EditorPanel })));
+const LazyDiffView = lazy(() => import('./DiffView').then(module => ({ default: module.DiffView })));
+const LazyPreview = lazy(() => import('./Preview').then(module => ({ default: module.Preview })));
+const LazyPushToGitHubDialog = lazy(() => import('~/components/@settings/tabs/connections/components/PushToGitHubDialog').then(module => ({ default: module.PushToGitHubDialog })));
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -468,10 +474,11 @@ export const Workbench = memo(
                 </div>
                 <div className="relative flex-1 overflow-hidden">
                   <View initial={{ x: '0%' }} animate={{ x: selectedView === 'code' ? '0%' : '-100%' }}>
-                    <EditorPanel
-                      editorDocument={currentDocument}
-                      isStreaming={isStreaming}
-                      selectedFile={selectedFile}
+                    <Suspense fallback={<div className="p-4">Loading Editor...</div>}>
+                      <LazyEditorPanel
+                        editorDocument={currentDocument}
+                        isStreaming={isStreaming}
+                        selectedFile={selectedFile}
                       files={files}
                       unsavedFiles={unsavedFiles}
                       fileHistory={fileHistory}
@@ -480,25 +487,31 @@ export const Workbench = memo(
                       onEditorChange={onEditorChange}
                       onFileSave={onFileSave}
                       onFileReset={onFileReset}
-                    />
+                      />
+                    </Suspense>
                   </View>
                   <View
                     initial={{ x: '100%' }}
                     animate={{ x: selectedView === 'diff' ? '0%' : selectedView === 'code' ? '100%' : '-100%' }}
                   >
-                    <DiffView fileHistory={fileHistory} setFileHistory={setFileHistory} actionRunner={actionRunner} />
+                    <Suspense fallback={<div className="p-4">Loading Diff...</div>}>
+                      <LazyDiffView fileHistory={fileHistory} setFileHistory={setFileHistory} actionRunner={actionRunner} />
+                    </Suspense>
                   </View>
                   <View initial={{ x: '100%' }} animate={{ x: selectedView === 'preview' ? '0%' : '100%' }}>
-                    <Preview setSelectedElement={setSelectedElement} />
+                    <Suspense fallback={<div className="p-4">Loading Preview...</div>}>
+                      <LazyPreview setSelectedElement={setSelectedElement} />
+                    </Suspense>
                   </View>
                 </div>
               </div>
             </div>
           </div>
-          <PushToGitHubDialog
-            isOpen={isPushDialogOpen}
-            onClose={() => setIsPushDialogOpen(false)}
-            onPush={async (repoName, username, token, isPrivate) => {
+          <Suspense fallback={<div className="p-4">Loading Dialog...</div>}>
+            <LazyPushToGitHubDialog
+              isOpen={isPushDialogOpen}
+              onClose={() => setIsPushDialogOpen(false)}
+              onPush={async (repoName, username, token, isPrivate) => {
               try {
                 console.log('Dialog onPush called with isPrivate =', isPrivate);
 
@@ -519,7 +532,8 @@ export const Workbench = memo(
                 throw error;
               }
             }}
-          />
+            />
+          </Suspense>
         </motion.div>
       )
     );
@@ -528,7 +542,7 @@ export const Workbench = memo(
 
 // View component for rendering content with motion transitions
 interface ViewProps extends HTMLMotionProps<'div'> {
-  children: JSX.Element;
+  children: React.ReactNode; // Changed to React.ReactNode to accommodate Suspense fallback
 }
 
 const View = memo(({ children, ...props }: ViewProps) => {

@@ -384,4 +384,63 @@ async function processRequestQueue() {
         if (db) db.close();
     }
 }
+
+// Push Notification Event Listener
+self.addEventListener('push', event => {
+    console.log('[Service Worker] Push Received.');
+    console.log(`[Service Worker] Push had this data: "${event.data ? event.data.text() : 'no payload'}"`);
+
+    let notificationTitle = 'Jules AI Web App';
+    let notificationOptions = {
+        body: 'You have a new notification.',
+        icon: '/icons/app_icon_192.png', // Ensure this path is correct from public root
+        badge: '/icons/app_icon_192.png', // Badge is often a monochrome version
+        // Example actions (require more handling in 'notificationclick'):
+        // actions: [
+        //   { action: 'explore', title: 'Explore now' },
+        //   { action: 'close', title: 'Close' }
+        // ],
+        // data: { url: '/' } // Custom data to pass to notificationclick
+    };
+
+    if (event.data) {
+        try {
+            const data = event.data.json(); // Assuming server sends JSON payload
+            notificationTitle = data.title || notificationTitle;
+            notificationOptions.body = data.body || notificationOptions.body;
+            if (data.icon) notificationOptions.icon = data.icon;
+            if (data.badge) notificationOptions.badge = data.badge;
+            // if (data.actions) notificationOptions.actions = data.actions;
+            // if (data.data) notificationOptions.data = data.data;
+        } catch (e) {
+            // If payload is not JSON, use text
+            notificationOptions.body = event.data.text();
+        }
+    }
+
+    event.waitUntil(
+        self.registration.showNotification(notificationTitle, notificationOptions)
+    );
+});
+
+// Optional: Add a 'notificationclick' listener to handle clicks on notifications
+self.addEventListener('notificationclick', event => {
+    console.log('[Service Worker] Notification click Received.');
+    event.notification.close(); // Close the notification
+
+    // Example: Open the app or a specific URL
+    // const urlToOpen = event.notification.data && event.notification.data.url ? event.notification.data.url : '/';
+    event.waitUntil(
+        clients.matchAll({ type: 'window' }).then(clientList => {
+            for (const client of clientList) {
+                if (client.url === '/' && 'focus' in client) { // Focus existing window if open
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) { // Open new window
+                return clients.openWindow('/');
+            }
+        })
+    );
+});
 // Ensure a newline at the end of the file

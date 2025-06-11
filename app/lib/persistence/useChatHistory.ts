@@ -373,12 +373,21 @@ ${value.content}
         }
       }
     },
-    exportChat: async (id = urlId) => {
-      if (!db || !id) {
+    exportChat: async (id = undefined) => {
+      // effectiveId logic will use hook's urlId or chatId.get() if id is undefined
+      const effectiveId = id || (typeof urlId !== 'undefined' ? urlId : chatId.get());
+
+      if (!db || !effectiveId) {
+        toast.warn('Cannot export: Database or Chat ID not available.');
         return;
       }
 
-      const chat = await getMessages(db, id);
+      const chat = await getMessages(db, effectiveId);
+      if (!chat) {
+        toast.error('Cannot export: Chat not found.');
+        return;
+      }
+
       const chatData = {
         messages: chat.messages,
         description: chat.description,
@@ -386,14 +395,46 @@ ${value.content}
       };
 
       const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
+
+      const safeDescription = chat.description ? chat.description.replace(/[^a-z0-9 _-]/gi, '_').substring(0, 50) : 'session';
+      const chatFileName = `chat-${safeDescription}-${new Date().toISOString().split('T')[0]}.json`;
+
+      if (navigator.share) {
+        const chatFile = new File([blob], chatFileName, { type: 'application/json' });
+
+        if (typeof navigator.canShare === 'function' && navigator.canShare({ files: [chatFile] })) {
+          try {
+            await navigator.share({
+              files: [chatFile],
+              title: `Chat Export: ${chat.description || 'Chat Session'}`,
+              text: `Chat session from Jules AI Web App, exported on ${new Date().toLocaleDateString()}.`
+            });
+            toast.success('Chat shared successfully!');
+            return;
+          } catch (error: any) { // Explicitly type error as any
+            if (error.name === 'AbortError') {
+              console.log('Web Share (files) aborted by user.');
+              return;
+            }
+            console.error('Error using Web Share API (files), falling back to download:', error);
+          }
+        } else {
+          console.log('Web Share API does not support file sharing or canShare is unavailable, falling back to download.');
+        }
+      } else {
+        console.log('Web Share API not supported, falling back to download.');
+      }
+
+      // Fallback to download logic
+      const downloadBlobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `chat-${new Date().toISOString()}.json`;
+      a.href = downloadBlobUrl;
+      a.download = chatFileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(downloadBlobUrl);
+      toast.info('Chat downloaded as JSON.');
     },
   };
 }

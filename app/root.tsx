@@ -58,9 +58,10 @@ const inlineThemeCode = stripIndents`
 export const Head = createHead(() => (
   <>
     <meta charSet="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <Meta />
     <Links />
+    <link rel="manifest" href="/manifest.json" />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
   </>
 ));

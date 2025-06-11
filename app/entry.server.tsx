@@ -90,7 +90,7 @@ export default async function handleRequest(
     // Add other directives as needed, e.g., connect-src for APIs
     // "connect-src 'self' https://api.example.com",
   ];
-  responseHeaders.set('Content-Security-Policy', cspDirectives.join('; '));
+  // responseHeaders.set('Content-Security-Policy', cspDirectives.join('; ')); // Commented out to debug worker exception
 
   // Optional: Add HSTS if the site is confirmed to be fully HTTPS
   // responseHeaders.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');

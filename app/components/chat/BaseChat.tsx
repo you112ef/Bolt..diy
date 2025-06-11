@@ -334,7 +334,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     };
 
     const baseChat = (
-      <div
+      <main
         ref={ref}
         className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
         data-chat-visible={showChat}
@@ -492,7 +492,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             )}
           </ClientOnly>
         </div>
-      </div>
+      </main>
     );
 
     return <Tooltip.Provider delayDuration={200}>{baseChat}</Tooltip.Provider>;

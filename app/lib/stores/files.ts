@@ -3,7 +3,7 @@ import { getEncoding } from 'istextorbinary';
 import { map, type MapStore } from 'nanostores';
 import { Buffer } from 'node:buffer';
 
-import { debounce } from '~/utils/buffer'; // Assuming this is a typo and should be from '~/utils/debounce' or similar for general purpose debounce
+import { debounce } from '~/utils/debounce';
 import { WORK_DIR } from '~/utils/constants';
 import { computeFileModifications } from '~/utils/diff';
 import { getCurrentChatId } from '~/utils/fileLocks';

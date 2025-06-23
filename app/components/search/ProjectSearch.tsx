@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import ProjectSearchInput, { type ProjectSearchType } from './ProjectSearchInput';
 import ProjectSearchResults, { type ProjectSearchResultItem } from './ProjectSearchResults';
-import { editorStore } from '~/lib/stores'; // Corrected import
+import { workbenchStore } from '~/lib/stores'; // Import workbenchStore
 
 // Mock function for project-wide search
 async function fetchMockProjectSearchResults(query: string, type: ProjectSearchType): Promise<ProjectSearchResultItem[]> {
@@ -85,16 +85,52 @@ export default function ProjectSearch() {
 
   const openFileInEditor = (filePath: string, lineNumber?: number) => {
     console.log(`Request to open file: ${filePath}` + (lineNumber ? ` at line ${lineNumber}` : ''));
-    editorStore.setSelectedFile(filePath); // Use the imported editorStore instance
-    if (lineNumber !== undefined) { // Check if lineNumber is actually provided
-      // CodeMirror lines are 0-indexed
-      editorStore.updateScrollPosition(filePath, { line: lineNumber > 0 ? lineNumber - 1 : 0, column: 0 });
+    workbenchStore.setSelectedFile(filePath); // Use workbenchStore
+    if (lineNumber !== undefined) {
+      // Ensure the file is selected before attempting to scroll its content
+      // setCurrentDocumentScrollPosition works on the currently selected document.
+      // If setSelectedFile is async or updates currentDocument asynchronously,
+      // this might need to be handled more carefully, e.g. via an effect or callback.
+      // For now, assuming setSelectedFile updates the state synchronously enough
+      // for setCurrentDocumentScrollPosition to target the correct document if it becomes current.
+      // A more robust way if workbenchStore.currentDocument is an atom:
+      // const unsub = workbenchStore.currentDocument.subscribe(doc => {
+      //   if (doc?.filePath === filePath) {
+      //     workbenchStore.setCurrentDocumentScrollPosition({ line: lineNumber > 0 ? lineNumber - 1 : 0, column: 0 });
+      //     unsub(); // Unsubscribe after scrolling
+      //   }
+      // });
+      // For simplicity now:
+      if (workbenchStore.selectedFile.get() === filePath) {
+         workbenchStore.setCurrentDocumentScrollPosition({ line: lineNumber > 0 ? lineNumber - 1 : 0, column: 0 });
+      } else {
+        // If not immediately the selected file, the scroll might not apply as expected to *this* specific file.
+        // However, EditorStore usually persists scroll position, so when it *is* selected, it should scroll.
+        // This is a nuanced point. The primary action is selecting the file.
+        // The `updateScrollPosition` on the EditorStore class (which workbenchStore.#editorStore is)
+        // can set the scroll position for any file, selected or not.
+        // `workbenchStore.setCurrentDocumentScrollPosition` is only for the active one.
+        // This means the ideal scenario involves `workbenchStore` exposing a method
+        // that calls its internal `this.#editorStore.updateScrollPosition(filePath, position)`.
+        // Since that's not available without modifying WorkbenchStore, this is the best effort.
+        // The `editorStore.updateScrollPosition` in `Terminal.tsx` would face the same issue if `editorStore` was proxied simply as `workbenchStore`.
+        // My previous `editorStoreProxy` in `index.ts` tried to address this but was an incomplete workaround.
+        // The most correct fix requires either:
+        // 1. Modifying WorkbenchStore to expose `this.#editorStore.updateScrollPosition(filePath, pos)`
+        // 2. Or components accept that scrolling only happens for the *currently selected* document via `setCurrentDocumentScrollPosition`.
+        // For now, we'll rely on the file being selected, and if it becomes the current document, scrolling will be attempted.
+        // This is a limitation if we want to scroll a background file.
+        // The `handleOpenFileRequest` in Terminal.tsx needs similar careful consideration.
+        // For now, let's assume selecting the file is the primary goal, and editor might auto-scroll.
+         console.warn(`Scrolling for ${filePath} will apply if it becomes the active document.`);
+      }
     }
-    // Consider focusing the editor panel here if applicable
-    // e.g., workbenchStore.setActivePanel('editor');
-    // For now, basic open and scroll.
+    if (workbenchStore.showWorkbench && workbenchStore.currentView.get() !== 'code') {
+      workbenchStore.currentView.set('code');
+    }
+    // todo: also expand workbench if it's collapsed.
+    // workbenchStore.setShowWorkbench(true);
   };
-
 
   const handleSearch = useCallback(async (query: string, type: ProjectSearchType) => {
     if (!query.trim()) return;

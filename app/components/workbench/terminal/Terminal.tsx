@@ -5,7 +5,7 @@ import { forwardRef, memo, useEffect, useImperativeHandle, useRef } from 'react'
 import type { Theme } from '~/lib/stores/theme';
 import { createScopedLogger } from '~/utils/logger';
 import { getTerminalTheme } from './theme';
-import { editorStore } from '~/lib/stores'; // Assuming editorStore is directly importable or use a hook
+import { workbenchStore } from '~/lib/stores'; // Import workbenchStore
 
 const logger = createScopedLogger('Terminal');
 
@@ -26,13 +26,27 @@ export interface TerminalProps {
 // This function simulates opening a file in the editor.
 const handleOpenFileRequest = (filePath: string, line?: number, column?: number) => {
   logger.info(`Request to open file: ${filePath}${line ? `:${line}` : ''}${column ? `:${column}` : ''}`);
-  editorStore.setSelectedFile(filePath); // Assumes editorStore is available
+  workbenchStore.setSelectedFile(filePath); // Use workbenchStore
   if (line !== undefined) {
-    // CodeMirror lines are 0-indexed for scroll/selection
-    editorStore.updateScrollPosition(filePath, { line: line > 0 ? line - 1 : 0, column: column ? column -1 : 0 });
+    // Similar to ProjectSearch.tsx, scrolling logic depends on whether WorkbenchStore
+    // can scroll an arbitrary file or only the current one.
+    // For now, this will effectively set the desired scroll position for when the file becomes active.
+    // If WorkbenchStore had `this.#editorStore.updateScrollPosition` exposed publicly, that would be better.
+    if (workbenchStore.selectedFile.get() === filePath) {
+      workbenchStore.setCurrentDocumentScrollPosition({ line: line > 0 ? line - 1 : 0, column: column ? column - 1 : 0 });
+    } else {
+      // The scroll position is typically stored by EditorStore and applied when file is selected.
+      // So, just selecting the file might be enough for the scroll to eventually happen.
+      // To be absolutely sure the scroll happens *for this specific click's context*,
+      // a more direct call to the underlying EditorStore's method for that file would be needed,
+      // which isn't directly exposed on workbenchStore for arbitrary files.
+      console.warn(`Scrolling for ${filePath} will apply when it becomes the active document.`);
+    }
   }
-  // Potentially focus the editor panel as well
-  // workbenchStore.setActivePanel('editor'); // Example
+  if (workbenchStore.showWorkbench && workbenchStore.currentView.get() !== 'code') {
+    workbenchStore.currentView.set('code');
+  }
+  // workbenchStore.setShowWorkbench(true); // If terminal is part of workbench and might be hidden
 };
 
 

@@ -77,6 +77,8 @@ interface Props {
   onChange?: OnChangeCallback;
   onScroll?: OnScrollCallback;
   onSave?: OnSaveCallback;
+  onDrop?: (event: React.DragEvent<HTMLDivElement>) => void; // Added for drag and drop
+  onDragOver?: (event: React.DragEvent<HTMLDivElement>) => void; // Added for drag and drop
   className?: string;
   settings?: EditorSettings;
 }
@@ -133,6 +135,8 @@ export const CodeMirrorEditor = memo(
     onScroll,
     onChange,
     onSave,
+    onDrop, // Added for drag and drop
+    onDragOver, // Added for drag and drop
     theme,
     settings,
     className = '',
@@ -311,7 +315,11 @@ export const CodeMirrorEditor = memo(
     }, [doc?.value, editable, doc?.filePath, autoFocusOnDocumentChange]);
 
     return (
-      <div className={classNames('relative h-full', className)}>
+      <div
+        className={classNames('relative h-full', className)}
+        onDrop={onDrop} // Added for drag and drop
+        onDragOver={onDragOver} // Added for drag and drop
+      >
         {doc?.isBinary && <BinaryContent />}
         <div className="h-full overflow-hidden" ref={containerRef} />
       </div>

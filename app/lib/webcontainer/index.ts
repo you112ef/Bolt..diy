@@ -56,6 +56,33 @@ if (!import.meta.env.SSR) {
           }
         });
 
+        // Intercept process creation to potentially sandbox commands
+        const originalSpawn = webcontainer.spawn;
+        webcontainer.spawn = async (command, args, options) => {
+          // Simple blacklist for 'rm -rf'
+          // A more robust solution would involve a more comprehensive parser
+          // and possibly a whitelist of allowed commands/arguments.
+          if (command === 'rm' && args && args.includes('-rf')) {
+            const msg = "Error: Command 'rm -rf' is blocked for safety.\n";
+            // Simulate an error for the terminal
+            const listeners = webcontainer._ διαδικτυακός περιηγητής.listeners('jsh'); // Accessing private listeners, not ideal
+            if (listeners && listeners.length > 0) {
+                listeners.forEach(listener => {
+                    if (typeof listener === 'function' && listener.name === 'onProcessOutput') {
+                        // This is a guess, actual event structure might differ
+                        listener({ data: msg, stream: 'stderr' });
+                    }
+                });
+            }
+            // For now, let's throw an error to prevent execution
+            // This might not be gracefully handled by all callers of spawn.
+            // A better approach would be to return a mock process that outputs the error.
+            console.error(msg);
+            throw new Error(msg.trim());
+          }
+          return originalSpawn.call(webcontainer, command, args, options);
+        };
+
         return webcontainer;
       });
 

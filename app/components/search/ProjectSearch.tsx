@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import ProjectSearchInput, { type ProjectSearchType } from './ProjectSearchInput';
 import ProjectSearchResults, { type ProjectSearchResultItem } from './ProjectSearchResults';
-import { useEditorStore } from '~/lib/stores'; // Assuming this hook provides editor actions
+import { editorStore } from '~/lib/stores'; // Corrected import
 
 // Mock function for project-wide search
 async function fetchMockProjectSearchResults(query: string, type: ProjectSearchType): Promise<ProjectSearchResultItem[]> {
@@ -83,15 +83,16 @@ export default function ProjectSearch() {
   const [error, setError] = useState<string | null>(null);
   const [lastQuery, setLastQuery] = useState<{query: string, type: ProjectSearchType} | null>(null);
 
-  // This would come from your Zustand/Nanostores store
-  // const editorStore = useEditorStore(); // Assuming a hook like this exists
   const openFileInEditor = (filePath: string, lineNumber?: number) => {
     console.log(`Request to open file: ${filePath}` + (lineNumber ? ` at line ${lineNumber}` : ''));
-    // Example: editorStore.setSelectedFile(filePath);
-    // if (lineNumber) {
-    //   // editorStore.updateScrollPosition(filePath, { line: lineNumber -1 , column: 0}); // Or however your editor handles scrolling
-    // }
-    alert(`Simulating opening: ${filePath}${lineNumber ? `:${lineNumber}` : ''}`);
+    editorStore.setSelectedFile(filePath); // Use the imported editorStore instance
+    if (lineNumber !== undefined) { // Check if lineNumber is actually provided
+      // CodeMirror lines are 0-indexed
+      editorStore.updateScrollPosition(filePath, { line: lineNumber > 0 ? lineNumber - 1 : 0, column: 0 });
+    }
+    // Consider focusing the editor panel here if applicable
+    // e.g., workbenchStore.setActivePanel('editor');
+    // For now, basic open and scroll.
   };
 
 

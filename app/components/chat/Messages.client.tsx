@@ -80,7 +80,8 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
                             onDragStart(e, content);
                           } else if (onDragStart && Array.isArray(content)) {
                             // Attempt to find a text part of the message for dragging
-                            const textContent = content.find(part => part.type === 'text');
+                            const textContent = content.find((part) => part.type === 'text');
+
                             if (textContent && typeof textContent.text === 'string') {
                               onDragStart(e, textContent.text);
                             }

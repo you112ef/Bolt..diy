@@ -48,8 +48,10 @@ export const Terminal = memo(
         terminal.loadAddon(fitAddon);
         terminal.loadAddon(webLinksAddon);
 
-        // --- Terminal Enhancements ---
-        // 1. Bell Sound and Visual Notification (Vibration can be added if context allows)
+        /*
+         * --- Terminal Enhancements ---
+         * 1. Bell Sound and Visual Notification (Vibration can be added if context allows)
+         */
         terminal.onBell(() => {
           // Simple visual bell: flash the terminal background
           const originalBg = terminal.options.theme?.background;
@@ -79,7 +81,6 @@ export const Terminal = memo(
         });
         // --- End Terminal Enhancements ---
 
-
         terminal.open(element);
 
         const resizeObserver = new ResizeObserver(() => {
@@ -102,9 +103,8 @@ export const Terminal = memo(
       useEffect(() => {
         const terminal = terminalRef.current!;
 
-        // we render a transparent cursor in case the terminal is readonly
+        // We render a transparent cursor in case the terminal is readonly
         terminal.options.theme = getTerminalTheme(readonly ? { cursor: '#00000000' } : {});
-
         terminal.options.disableStdin = readonly;
       }, [theme, readonly]);
 

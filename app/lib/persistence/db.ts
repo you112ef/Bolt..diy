@@ -1,5 +1,7 @@
 import type { Message } from 'ai';
+
 import { createScopedLogger } from '~/utils/logger';
+
 import type { ChatHistoryItem } from './useChatHistory';
 import type { Snapshot } from './types'; // Import Snapshot type
 
@@ -15,6 +17,7 @@ const logger = createScopedLogger('ChatHistory');
 export async function openDatabase(): Promise<IDBDatabase | undefined> {
   if (typeof indexedDB === 'undefined') {
     console.error('indexedDB is not available in this environment.');
+
     return undefined;
   }
 
@@ -38,10 +41,18 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
           db.createObjectStore('snapshots', { keyPath: 'chatId' });
         }
       }
-      if (oldVersion < 3) { // New version for fileCache
+
+      // Error: Expected blank line before this statement (padding-line-between-statements)
+      // Error: Insert `⏎·······` (prettier/prettier)
+      if (oldVersion < 3) {
+        // New version for fileCache
+        // Error: Expected line before comment (@blitz/lines-around-comment)
+        // Error: Expected a block comment instead of consecutive line comments (multiline-comment-style)
+        /*
+         * Using a known key like 'currentFileMap' to store the single FileMap object.
+         * If you need to store multiple FileMaps (e.g., per project/chat), you'd use a keyPath.
+         */
         if (!db.objectStoreNames.contains('fileCache')) {
-          // Using a known key like 'currentFileMap' to store the single FileMap object.
-          // If you need to store multiple FileMaps (e.g., per project/chat), you'd use a keyPath.
           db.createObjectStore('fileCache');
         }
       }
@@ -59,20 +70,28 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
 }
 
 // --- FileCache functions ---
-const FILE_CACHE_KEY = 'currentFileMap'; // Key for storing the FileMap
+
+// Key for storing the FileMap
+const FILE_CACHE_KEY = 'currentFileMap';
 
 export async function getFileMap(db: IDBDatabase): Promise<Record<string, any> | undefined> {
   return new Promise((resolve, reject) => {
     if (!db.objectStoreNames.contains('fileCache')) {
       logger.warn('fileCache object store not found.');
       resolve(undefined);
+
+      // Error: Expected newline before return statement (@blitz/newline-before-return)
       return;
     }
+
+    // Error: Expected blank line before this statement (padding-line-between-statements)
     const transaction = db.transaction('fileCache', 'readonly');
     const store = transaction.objectStore('fileCache');
     const request = store.get(FILE_CACHE_KEY);
 
     request.onsuccess = () => resolve(request.result as Record<string, any> | undefined);
+
+    // Error: Expected blank line before this statement (padding-line-between-statements)
     request.onerror = () => {
       logger.error('Error getting FileMap from IndexedDB:', request.error);
       reject(request.error);
@@ -85,13 +104,19 @@ export async function setFileMap(db: IDBDatabase, fileMap: Record<string, any>):
     if (!db.objectStoreNames.contains('fileCache')) {
       logger.error('fileCache object store not found. Cannot set FileMap.');
       reject(new Error('fileCache object store not found'));
+
+      // Error: Expected newline before return statement (@blitz/newline-before-return)
       return;
     }
+
+    // Error: Expected blank line before this statement (padding-line-between-statements)
     const transaction = db.transaction('fileCache', 'readwrite');
     const store = transaction.objectStore('fileCache');
     const request = store.put(fileMap, FILE_CACHE_KEY);
 
     request.onsuccess = () => resolve();
+
+    // Error: Expected blank line before this statement (padding-line-between-statements)
     request.onerror = () => {
       logger.error('Error setting FileMap in IndexedDB:', request.error);
       reject(request.error);
@@ -106,6 +131,7 @@ export async function getAll(db: IDBDatabase): Promise<ChatHistoryItem[]> {
     const request = store.getAll();
 
     request.onsuccess = () => resolve(request.result as ChatHistoryItem[]);
+
     request.onerror = () => reject(request.error);
   });
 }
@@ -125,6 +151,7 @@ export async function setMessages(
 
     if (timestamp && isNaN(Date.parse(timestamp))) {
       reject(new Error('Invalid timestamp'));
+
       return;
     }
 
@@ -138,6 +165,7 @@ export async function setMessages(
     });
 
     request.onsuccess = () => resolve();
+
     request.onerror = () => reject(request.error);
   });
 }
@@ -154,6 +182,7 @@ export async function getMessagesByUrlId(db: IDBDatabase, id: string): Promise<C
     const request = index.get(id);
 
     request.onsuccess = () => resolve(request.result as ChatHistoryItem);
+
     request.onerror = () => reject(request.error);
   });
 }
@@ -165,6 +194,7 @@ export async function getMessagesById(db: IDBDatabase, id: string): Promise<Chat
     const request = store.get(id);
 
     request.onsuccess = () => resolve(request.result as ChatHistoryItem);
+
     request.onerror = () => reject(request.error);
   });
 }
@@ -210,6 +240,7 @@ export async function deleteById(db: IDBDatabase, id: string): Promise<void> {
     transaction.oncomplete = () => {
       // This might resolve before checkCompletion if one operation finishes much faster
     };
+
     transaction.onerror = () => reject(transaction.error);
   });
 }
@@ -357,6 +388,7 @@ export async function getSnapshot(db: IDBDatabase, chatId: string): Promise<Snap
     const request = store.get(chatId);
 
     request.onsuccess = () => resolve(request.result?.snapshot as Snapshot | undefined);
+
     request.onerror = () => reject(request.error);
   });
 }
@@ -368,6 +400,7 @@ export async function setSnapshot(db: IDBDatabase, chatId: string, snapshot: Sna
     const request = store.put({ chatId, snapshot });
 
     request.onsuccess = () => resolve();
+
     request.onerror = () => reject(request.error);
   });
 }

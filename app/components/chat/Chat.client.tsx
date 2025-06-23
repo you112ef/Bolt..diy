@@ -183,10 +183,15 @@ export const ChatImpl = memo(
             anonKey: supabaseConn?.credentials?.anonKey,
           },
         },
-        // TODO: Add UI elements to control these flags
+        /*
+         * TODO: Add UI elements to control these flags
+         */
         suggestions: true, // Enable suggestions by default
+
         webSearch: true, // Enable web search by default
+
         webScrape: true, // Enable web scrape by default
+
         imageSearch: true, // Enable image search by default
       },
       sendExtraMessageFields: true,

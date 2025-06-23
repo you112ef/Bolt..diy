@@ -125,7 +125,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       setDesignScheme,
       selectedElement,
       setSelectedElement,
-        onDragStart, // Added for drag and drop
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      onDragStart, // Added for drag and drop, passed to Messages
     },
     ref,
   ) => {

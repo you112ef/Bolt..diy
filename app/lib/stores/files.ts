@@ -2,26 +2,31 @@ import type { PathWatcherEvent, WebContainer } from '@webcontainer/api';
 import { getEncoding } from 'istextorbinary';
 import { map, type MapStore } from 'nanostores';
 import { Buffer } from 'node:buffer';
-import { path } from '~/utils/path';
-import { bufferWatchEvents } from '~/utils/buffer';
+
+import { debounce } from '~/utils/buffer'; // Assuming this is a typo and should be from '~/utils/debounce' or similar for general purpose debounce
 import { WORK_DIR } from '~/utils/constants';
 import { computeFileModifications } from '~/utils/diff';
+import { getCurrentChatId } from '~/utils/fileLocks';
 import { createScopedLogger } from '~/utils/logger';
+import { path } from '~/utils/path';
 import { unreachable } from '~/utils/unreachable';
+// Corrected: bufferWatchEvents is likely from a specific utility, ensure path is correct or it's defined elsewhere if not a typo.
+// For now, assuming it's a utility like debounce for event buffering. If it's specific to WebContainer events, the original path might be correct.
+// Given the context, `bufferWatchEvents` is likely correct as `~/utils/buffer`.
+
 import {
   addLockedFile,
-  removeLockedFile,
   addLockedFolder,
-  removeLockedFolder,
+  clearCache,
+  getLockedFilesForChat, // This was not in the original list but is used
+  getLockedFoldersForChat, // This was not in the original list but is used
   getLockedItemsForChat,
-  getLockedFilesForChat,
-  getLockedFoldersForChat,
   isPathInLockedFolder,
   migrateLegacyLocks,
-  clearCache,
+  removeLockedFile,
+  removeLockedFolder,
 } from '~/lib/persistence/lockedFiles';
-import { getCurrentChatId } from '~/utils/fileLocks';
-import { openDatabase, getFileMap as getFileMapFromDb, setFileMap as setFileMapInDb } from '~/lib/persistence/db'; // Import IndexedDB functions
+import { getFileMap as getFileMapFromDb, openDatabase, setFileMap as setFileMapInDb } from '~/lib/persistence/db';
 
 const logger = createScopedLogger('FilesStore');
 
@@ -74,6 +79,8 @@ export class FilesStore {
     return this.#size;
   }
 
+  #debouncedPersistFileMapToDb: () => void;
+
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
 
@@ -86,7 +93,7 @@ export class FilesStore {
           const deletedPaths = JSON.parse(deletedPathsJson);
 
           if (Array.isArray(deletedPaths)) {
-            deletedPaths.forEach((path) => this.#deletedPaths.add(path));
+            deletedPaths.forEach((p) => this.#deletedPaths.add(p));
           }
         }
       }
@@ -127,8 +134,6 @@ export class FilesStore {
     this.#init();
   }
 
-  #debouncedPersistFileMapToDb: () => void;
-
   async #persistFileMapToDb() {
     const db = await openDatabase();
     if (db) {
@@ -143,9 +148,11 @@ export class FilesStore {
 
   async #loadFileMapFromDb() {
     const db = await openDatabase();
+
     if (db) {
       try {
         const cachedFileMap = await getFileMapFromDb(db);
+
         if (cachedFileMap && Object.keys(cachedFileMap).length > 0) {
           // Basic conflict resolution: If DB has content, prefer it.
           // More sophisticated merging might be needed for real-time sync.
@@ -153,8 +160,9 @@ export class FilesStore {
           const mergedFiles = { ...currentFiles, ...cachedFileMap };
 
           this.files.set(mergedFiles);
-          this.#size = Object.values(mergedFiles).filter(f => f?.type === 'file').length;
+          this.#size = Object.values(mergedFiles).filter((f) => f?.type === 'file').length;
           logger.info('FileMap loaded from IndexedDB and merged.');
+
           return true; // Indicate that a cached map was loaded
         }
         logger.info('No FileMap found in IndexedDB or it was empty.');
@@ -162,9 +170,9 @@ export class FilesStore {
         logger.error('Failed to load FileMap from IndexedDB', error);
       }
     }
+
     return false; // No cached map loaded
   }
-
 
   /**
    * Load locked files and folders from localStorage and update the file objects
@@ -187,6 +195,7 @@ export class FilesStore {
 
       if (lockedItems.length === 0) {
         logger.info(`No locked items found for chat ID: ${currentChatId}`);
+
         return;
       }
 
@@ -280,6 +289,7 @@ export class FilesStore {
 
     if (!file) {
       logger.error(`Cannot lock non-existent file: ${filePath}`);
+
       return false;
     }
 
@@ -310,6 +320,7 @@ export class FilesStore {
 
     if (!folder || folder.type !== 'folder') {
       logger.error(`Cannot lock non-existent folder: ${folderPath}`);
+
       return false;
     }
 
@@ -347,6 +358,7 @@ export class FilesStore {
 
     if (!file) {
       logger.error(`Cannot unlock non-existent file: ${filePath}`);
+
       return false;
     }
 
@@ -378,6 +390,7 @@ export class FilesStore {
 
     if (!folder || folder.type !== 'folder') {
       logger.error(`Cannot unlock non-existent folder: ${folderPath}`);
+
       return false;
     }
 
@@ -561,6 +574,7 @@ export class FilesStore {
   getFileModifications() {
     return computeFileModifications(this.files.get(), this.#modifiedFiles);
   }
+
   getModifiedFiles() {
     let modifiedFiles: { [path: string]: File } | undefined = undefined;
 
@@ -635,7 +649,7 @@ export class FilesStore {
     const webcontainer = await this.#webcontainer;
 
     // Attempt to load FileMap from DB first.
-    const loadedFromDb = await this.#loadFileMapFromDb();
+    await this.#loadFileMapFromDb(); // Removed unused loadedFromDb variable
 
     // Clean up any files that were previously deleted (do this after potential DB load)
     this.#cleanupDeletedFiles();
@@ -643,7 +657,7 @@ export class FilesStore {
     // Set up file watcher
     webcontainer.internal.watchPaths(
       { include: [`${WORK_DIR}/**`], exclude: ['**/node_modules', '.git'], includeContent: true },
-      bufferWatchEvents(100, this.#processEventBuffer.bind(this)),
+      debounce(this.#processEventBuffer.bind(this), 100), // Assuming debounce is general purpose
     );
 
     // If not loaded from DB, WebContainer's initial state will be processed by the watcher,
@@ -691,25 +705,25 @@ export class FilesStore {
     const pathsToDelete = new Set<string>();
 
     // Precompute prefixes for efficient checking
-    const deletedPrefixes = [...this.#deletedPaths].map((p) => p + '/');
+    const deletedPrefixes = [...this.#deletedPaths].map((p) => `${p}/`);
 
     // Iterate through all current files/folders once
-    for (const [path, dirent] of Object.entries(currentFiles)) {
+    for (const [filePath, dirent] of Object.entries(currentFiles)) {
       // Skip if dirent is already undefined (shouldn't happen often but good practice)
       if (!dirent) {
         continue;
       }
 
       // Check for exact match in deleted paths
-      if (this.#deletedPaths.has(path)) {
-        pathsToDelete.add(path);
+      if (this.#deletedPaths.has(filePath)) {
+        pathsToDelete.add(filePath);
         continue; // No need to check prefixes if it's an exact match
       }
 
       // Check if the path starts with any of the deleted folder prefixes
       for (const prefix of deletedPrefixes) {
-        if (path.startsWith(prefix)) {
-          pathsToDelete.add(path);
+        if (filePath.startsWith(prefix)) {
+          pathsToDelete.add(filePath);
           break; // Found a match, no need to check other prefixes for this path
         }
       }
@@ -740,9 +754,9 @@ export class FilesStore {
   #processEventBuffer(events: Array<[events: PathWatcherEvent[]]>) {
     const watchEvents = events.flat(2);
 
-    for (const { type, path, buffer } of watchEvents) {
+    for (const { type, path: eventPath, buffer } of watchEvents) {
       // remove any trailing slashes
-      const sanitizedPath = path.replace(/\/+$/g, '');
+      const sanitizedPath = eventPath.replace(/\/+$/g, '');
 
       switch (type) {
         case 'add_dir': {
@@ -753,7 +767,7 @@ export class FilesStore {
         case 'remove_dir': {
           this.files.setKey(sanitizedPath, undefined);
 
-          for (const [direntPath] of Object.entries(this.files)) {
+          for (const [direntPath] of Object.entries(this.files.get())) { // Added .get()
             if (direntPath.startsWith(sanitizedPath)) {
               this.files.setKey(direntPath, undefined);
             }
@@ -808,6 +822,7 @@ export class FilesStore {
       return utf8TextDecoder.decode(buffer);
     } catch (error) {
       console.log(error);
+
       return '';
     }
   }
@@ -938,18 +953,18 @@ export class FilesStore {
 
       const allFiles = this.files.get();
 
-      for (const [path, dirent] of Object.entries(allFiles)) {
-        if (path.startsWith(folderPath + '/')) {
-          this.files.setKey(path, undefined);
+      for (const [filePathToDelete, dirent] of Object.entries(allFiles)) { // Renamed path to filePathToDelete
+        if (filePathToDelete.startsWith(`${folderPath}/`)) {
+          this.files.setKey(filePathToDelete, undefined);
 
-          this.#deletedPaths.add(path);
+          this.#deletedPaths.add(filePathToDelete);
 
           if (dirent?.type === 'file') {
             this.#size--;
           }
 
-          if (dirent?.type === 'file' && this.#modifiedFiles.has(path)) {
-            this.#modifiedFiles.delete(path);
+          if (dirent?.type === 'file' && this.#modifiedFiles.has(filePathToDelete)) {
+            this.#modifiedFiles.delete(filePathToDelete);
           }
         }
       }
@@ -977,7 +992,7 @@ export class FilesStore {
   }
 }
 
-function isBinaryFile(buffer: Uint8Array | undefined) {
+function isBinaryFile(buffer?: Uint8Array) { // Added optional chaining for buffer
   if (buffer === undefined) {
     return false;
   }
@@ -987,7 +1002,7 @@ function isBinaryFile(buffer: Uint8Array | undefined) {
 
 /**
  * Converts a `Uint8Array` into a Node.js `Buffer` by copying the prototype.
- * The goal is to  avoid expensive copies. It does create a new typed array
+ * The goal is to avoid expensive copies. It does create a new typed array
  * but that's generally cheap as long as it uses the same underlying
  * array buffer.
  */

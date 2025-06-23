@@ -58,9 +58,10 @@ function autoSwitchTheme() {
   if (!import.meta.env.SSR) {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const currentHour = new Date().getHours();
+
     // Consider it "night" between 8 PM and 6 AM
     const isNightTime = currentHour >= 20 || currentHour < 6;
-    const newTheme = (prefersDark || isNightTime) ? 'dark' : 'light';
+    const newTheme = prefersDark || isNightTime ? 'dark' : 'light';
 
     if (themeStore.get() !== newTheme) {
       themeStore.set(newTheme);

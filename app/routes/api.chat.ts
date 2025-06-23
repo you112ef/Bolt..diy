@@ -1,17 +1,18 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
-import { createDataStream, generateId } from 'ai';
-import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS, type FileMap } from '~/lib/.server/llm/constants';
+import { createDataStream, generateId, type Message as VercelAIMessage } from 'ai'; // Renamed Message to VercelAIMessage
+
 import { CONTINUE_PROMPT } from '~/lib/common/prompts/prompts';
-import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
-import SwitchableStream from '~/lib/.server/llm/switchable-stream';
-import type { IProviderSetting } from '~/types/model';
-import { createScopedLogger } from '~/utils/logger';
-import { getFilePaths, selectContext } from '~/lib/.server/llm/select-context';
-import type { ContextAnnotation, ProgressAnnotation } from '~/types/context';
-import { WORK_DIR } from '~/utils/constants';
 import { createSummary } from '~/lib/.server/llm/create-summary';
+import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS, type FileMap } from '~/lib/.server/llm/constants';
+import { getFilePaths, selectContext } from '~/lib/.server/llm/select-context';
+import SwitchableStream from '~/lib/.server/llm/switchable-stream';
+import { streamText, type Messages as StreamTextMessages, type StreamingOptions } from '~/lib/.server/llm/stream-text'; // Renamed Messages to StreamTextMessages
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
+import type { ContextAnnotation, ProgressAnnotation } from '~/types/context';
 import type { DesignScheme } from '~/types/design-scheme';
+import type { IProviderSetting } from '~/types/model';
+import { WORK_DIR } from '~/utils/constants';
+import { createScopedLogger } from '~/utils/logger';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -38,20 +39,29 @@ function parseCookies(cookieHeader: string): Record<string, string> {
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages, files, promptId, contextOptimization, supabase, chatMode, designScheme } = await request.json<{
-    messages: Messages;
+  const {
+    messages: requestMessages, // Renamed to avoid conflict with VercelAIMessage
+    files,
+    promptId,
+    contextOptimization,
+    supabase,
+    chatMode,
+    designScheme,
+    activeEditorFile,
+    activeEditorContent,
+  } = await request.json<{
+    messages: StreamTextMessages; // Use the aliased type
     files: any;
     promptId?: string;
     contextOptimization: boolean;
     chatMode: 'discuss' | 'build';
     designScheme?: DesignScheme;
-    suggestions?: boolean; // Added for code suggestions
-    webSearch?: boolean; // Added for web search
-    webScrape?: boolean; // Added for web scrape
-    imageSearch?: boolean; // Added for image search
-    activeEditorFile?: string; // For editor sync
-    activeEditorContent?: string; // For editor sync
-    // lastTerminalCommand?: string; // For terminal sync
+    suggestions?: boolean;
+    webSearch?: boolean;
+    webScrape?: boolean;
+    imageSearch?: boolean;
+    activeEditorFile?: string;
+    activeEditorContent?: string;
     supabase?: {
       isConnected: boolean;
       hasSelectedProject: boolean;
@@ -61,6 +71,10 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
       };
     };
   }>();
+
+  // Ensure messages is mutable for potential prepending
+  const messages: StreamTextMessages = [...requestMessages];
+
 
   const cookieHeader = request.headers.get('Cookie');
   // Allow anonymous access if apiKeys cookie is not present or empty
@@ -79,21 +93,21 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   };
   const encoder: TextEncoder = new TextEncoder();
   let progressCounter: number = 1;
-          // Access same.new functions from context
-          const sameNew = context.cloudflare.env.sameNew as any;
 
+  // Access same.new functions from context
+  const sameNew = context.cloudflare.env.sameNew as any;
 
   try {
-    const totalMessageContent = messages.reduce((acc, message) => acc + message.content, '');
-    logger.debug(`Total message length: ${totalMessageContent.split(' ').length}, words`);
+    const totalMessageContent = messages.reduce((acc, message) => acc + (message.content || ''), '');
+    logger.debug(`Total message length: ${totalMessageContent.split(' ').length} words`);
 
-    let lastChunk: string | undefined = undefined;
+    let lastChunk: string | undefined;
 
     const dataStream = createDataStream({
-      async execute(dataStream) {
+      async execute(currentDataStream) { // Renamed dataStream to currentDataStream
         const filePaths = getFilePaths(files || {});
-        let filteredFiles: FileMap | undefined = undefined;
-        let summary: string | undefined = undefined;
+        let filteredFiles: FileMap | undefined;
+        let summary: string | undefined;
         let messageSliceId = 0;
 
         if (messages.length > 3) {
@@ -102,7 +116,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
         if (filePaths.length > 0 && contextOptimization) {
           logger.debug('Generating Chat Summary');
-          dataStream.writeData({
+          currentDataStream.writeData({
             type: 'progress',
             label: 'summary',
             status: 'in-progress',
@@ -129,7 +143,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               }
             },
           });
-          dataStream.writeData({
+          currentDataStream.writeData({
             type: 'progress',
             label: 'summary',
             status: 'complete',
@@ -137,7 +151,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             message: 'Analysis Complete',
           } satisfies ProgressAnnotation);
 
-          dataStream.writeMessageAnnotation({
+          currentDataStream.writeMessageAnnotation({
             type: 'chatSummary',
             summary,
             chatId: messages.slice(-1)?.[0]?.id,
@@ -145,7 +159,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
           // Update context buffer
           logger.debug('Updating Context Buffer');
-          dataStream.writeData({
+          currentDataStream.writeData({
             type: 'progress',
             label: 'context',
             status: 'in-progress',
@@ -178,29 +192,31 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             logger.debug(`files in context : ${JSON.stringify(Object.keys(filteredFiles))}`);
           }
 
-          dataStream.writeMessageAnnotation({
+          currentDataStream.writeMessageAnnotation({
             type: 'codeContext',
-            files: Object.keys(filteredFiles).map((key) => {
-              let path = key;
+            files: Object.keys(filteredFiles || {}).map((key) => { // Added || {} for safety
+              let filePath = key; // Renamed path to filePath
 
-              if (path.startsWith(WORK_DIR)) {
-                path = path.replace(WORK_DIR, '');
+              if (filePath.startsWith(WORK_DIR)) {
+                filePath = filePath.replace(WORK_DIR, '');
               }
 
-              return path;
+              return filePath;
             }),
           } as ContextAnnotation);
 
-          dataStream.writeData({
+          currentDataStream.writeData({
             type: 'progress',
             label: 'context',
             status: 'complete',
             order: progressCounter++,
             message: 'Code Files Selected',
           } satisfies ProgressAnnotation);
-
-          // logger.debug('Code Files Selected');
         }
+
+        const currentRequest = request.clone(); // Clone the request to access body again if needed
+        const requestBody = await currentRequest.json();
+
 
         const options: StreamingOptions = {
           supabaseConnection: supabase,
@@ -215,7 +231,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             }
 
             if (finishReason !== 'length') {
-              dataStream.writeMessageAnnotation({
+              currentDataStream.writeMessageAnnotation({
                 type: 'usage',
                 value: {
                   completionTokens: cumulativeUsage.completionTokens,
@@ -223,7 +239,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
                   totalTokens: cumulativeUsage.totalTokens,
                 },
               });
-              dataStream.writeData({
+              currentDataStream.writeData({
                 type: 'progress',
                 label: 'response',
                 status: 'complete',
@@ -232,19 +248,18 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               } satisfies ProgressAnnotation);
               await new Promise((resolve) => setTimeout(resolve, 0));
 
-              // stream.close();
               return;
             }
 
             if (stream.switches >= MAX_RESPONSE_SEGMENTS) {
-              throw Error('Cannot continue message: Maximum segments reached');
+              throw new Error('Cannot continue message: Maximum segments reached');
             }
 
             const switchesLeft = MAX_RESPONSE_SEGMENTS - stream.switches;
 
             logger.info(`Reached max token limit (${MAX_TOKENS}): Continuing message (${switchesLeft} switches left)`);
 
-            const lastUserMessage = messages.filter((x) => x.role == 'user').slice(-1)[0];
+            const lastUserMessage = messages.filter((x) => x.role === 'user').slice(-1)[0];
             const { model, provider } = extractPropertiesFromMessage(lastUserMessage);
             messages.push({ id: generateId(), role: 'assistant', content });
             messages.push({
@@ -256,7 +271,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             const result = await streamText({
               messages,
               env: context.cloudflare?.env,
-              options,
+              options, // Pass the same options for recursion
               apiKeys,
               files,
               providerSettings,
@@ -269,7 +284,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               messageSliceId,
             });
 
-            result.mergeIntoDataStream(dataStream);
+            result.mergeIntoDataStream(currentDataStream);
 
             (async () => {
               for await (const part of result.fullStream) {
@@ -284,90 +299,116 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
             return;
           },
-          // Add same.new function calling capabilities if requested
-          tools: (request.body.webSearch || request.body.webScrape || request.body.imageSearch) ? [
-            {
-              type: 'function',
-              function: {
-                name: 'sameNewSearch',
-                description: 'Performs web searches, scrapes web pages, or searches for images using same.new API.',
-                parameters: {
-                  type: 'object',
-                  properties: {
-                    query: { type: 'string', description: 'The search query or URL to scrape.' },
-                    searchType: { type: 'string', enum: ['web', 'scrape', 'image'], description: 'Type of search to perform.' },
+          tools:
+            requestBody.webSearch || requestBody.webScrape || requestBody.imageSearch
+              ? [
+                  {
+                    type: 'function',
+                    function: {
+                      name: 'sameNewSearch',
+                      description:
+                        'Performs web searches, scrapes web pages, or searches for images using same.new API.',
+                      parameters: {
+                        type: 'object',
+                        properties: {
+                          query: { type: 'string', description: 'The search query or URL to scrape.' },
+                          searchType: {
+                            type: 'string',
+                            enum: ['web', 'scrape', 'image'],
+                            description: 'Type of search to perform.',
+                          },
+                        },
+                        required: ['query', 'searchType'],
+                      },
+                    },
                   },
-                  required: ['query', 'searchType'],
-                },
-              },
-            },
-            // Add run_terminal_cmd if available and relevant flags are set.
-            // For now, let's assume it's part of the general toolset if any tool is enabled.
-            {
-              type: 'function',
-              function: {
-                name: 'runTerminalCmd',
-                description: 'Executes a command in a sandboxed terminal environment via same.new API.',
-                parameters: {
-                  type: 'object',
-                  properties: {
-                    command: { type: 'string', description: 'The terminal command to execute.' },
+                  {
+                    type: 'function',
+                    function: {
+                      name: 'runTerminalCmd',
+                      description: 'Executes a command in a sandboxed terminal environment via same.new API.',
+                      parameters: {
+                        type: 'object',
+                        properties: {
+                          command: { type: 'string', description: 'The terminal command to execute.' },
+                        },
+                        required: ['command'],
+                      },
+                    },
                   },
-                  required: ['command'],
-                },
-              },
-            }
-          ] : undefined,
-          tool_choice: (request.body.webSearch || request.body.webScrape || request.body.imageSearch) ? 'auto' : undefined,
-          // --- Tool calling logic ---
+                ]
+              : undefined,
+          tool_choice:
+            requestBody.webSearch || requestBody.webScrape || requestBody.imageSearch ? 'auto' : undefined,
+
           onToolCall: async ({ toolCall }) => {
             logger.debug('Tool call requested:', toolCall);
             let result;
+
             try {
               if (toolCall.toolName === 'sameNewSearch' && toolCall.args) {
-                const { query, searchType } = toolCall.args as { query: string, searchType: 'web' | 'scrape' | 'image' };
+                const { query, searchType } = toolCall.args as {
+                  query: string;
+                  searchType: 'web' | 'scrape' | 'image';
+                };
                 if (searchType === 'web' && sameNew?.webSearch) {
                   result = await sameNew.webSearch({ query });
                 } else if (searchType === 'scrape' && sameNew?.webScrape) {
                   result = await sameNew.webScrape({ url: query }); // Assuming query is URL for scrape
-                } else if (searchType === 'image' && sameNew?.imageSearch) { // Assuming imageSearch exists
+                } else if (searchType === 'image' && sameNew?.imageSearch) {
+                  // Assuming imageSearch exists
                   result = await sameNew.imageSearch({ query });
                 } else {
                   throw new Error(`Unsupported searchType or function not available: ${searchType}`);
                 }
               } else if (toolCall.toolName === 'runTerminalCmd' && toolCall.args && sameNew?.runTerminalCmd) {
-                 const { command } = toolCall.args as { command: string };
-                 result = await sameNew.runTerminalCmd({ command });
+                const { command } = toolCall.args as { command: string };
+                result = await sameNew.runTerminalCmd({ command });
               } else {
                 throw new Error(`Unknown tool: ${toolCall.toolName}`);
               }
               logger.debug('Tool call result:', result);
-              dataStream.writeMessageAnnotation({
+              currentDataStream.writeMessageAnnotation({
                 type: 'tool_result', // Or a more specific type
                 toolName: toolCall.toolName,
-                result: result, // Or transform as needed
+                result, // Or transform as needed
               });
+
               return { toolCallId: toolCall.toolCallId, result };
             } catch (e: any) {
               logger.error('Tool call failed:', e);
-              dataStream.writeMessageAnnotation({
+              currentDataStream.writeMessageAnnotation({
                 type: 'tool_error',
                 toolName: toolCall.toolName,
                 error: e.message,
               });
+
               return { toolCallId: toolCall.toolCallId, result: { error: e.message } };
             }
           },
-          // --- End Tool calling logic ---
         };
 
-        dataStream.writeData({
+        currentDataStream.writeData({
           type: 'progress',
           label: 'response',
           status: 'in-progress',
           order: progressCounter++,
           message: 'Generating Response',
         } satisfies ProgressAnnotation);
+
+        // Prepend active editor context to the messages if available
+        if (activeEditorFile && activeEditorContent) {
+          const editorContextMessage: VercelAIMessage = { // Use VercelAIMessage type
+            role: 'system', // Or 'user' if more appropriate for how LLM processes it
+            // Using a structured format that the LLM can be prompted to understand
+            content: `[System Note: The user currently has the file "${activeEditorFile}" open in their editor. Its content is:\n\`\`\`\n${activeEditorContent}\n\`\`\`]`,
+            // annotations: [{ type: 'hidden' }] // Optional: Use Vercel AI SDK annotation format
+          };
+          // Insert this context before the last user message, or adjust as needed
+          messages.splice(messages.length - 1, 0, editorContextMessage as StreamTextMessages[number]); // Cast to StreamTextMessages element type
+          logger.debug(`Prepended editor context for: ${activeEditorFile}`);
+        }
+        // Similarly, prepend last terminal command if available and implemented
 
         const result = await streamText({
           messages,
@@ -385,21 +426,6 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           messageSliceId,
         });
 
-        // Prepend active editor context to the messages if available
-        if (request.body.activeEditorFile && request.body.activeEditorContent) {
-          const editorContextMessage = {
-            role: 'system', // Or 'user' if more appropriate for how LLM processes it
-            // Using a structured format that the LLM can be prompted to understand
-            content: `[System Note: The user currently has the file "${request.body.activeEditorFile}" open in their editor. Its content is:\n\`\`\`\n${request.body.activeEditorContent}\n\`\`\`]`,
-            // annotations: ['hidden'] // Optionally hide from user view but send to LLM
-          };
-          // Insert this context before the last user message, or adjust as needed
-          messages.splice(messages.length -1, 0, editorContextMessage as Message);
-          logger.debug(`Prepended editor context for: ${request.body.activeEditorFile}`);
-        }
-        // Similarly, prepend last terminal command if available and implemented
-
-
         (async () => {
           for await (const part of result.fullStream) {
             if (part.type === 'error') {
@@ -410,7 +436,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             }
           }
         })();
-        result.mergeIntoDataStream(dataStream);
+        result.mergeIntoDataStream(currentDataStream);
       },
       onError: (error: any) => `Custom error: ${error.message}`,
     }).pipeThrough(
@@ -422,11 +448,11 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
           if (typeof chunk === 'string') {
             if (chunk.startsWith('g') && !lastChunk.startsWith('g')) {
-              controller.enqueue(encoder.encode(`0: "<div class=\\"__boltThought__\\">"\n`));
+              controller.enqueue(encoder.encode('0: "<div class=\\"__boltThought__\\">"\n'));
             }
 
             if (lastChunk.startsWith('g') && !chunk.startsWith('g')) {
-              controller.enqueue(encoder.encode(`0: "</div>\\n"\n`));
+              controller.enqueue(encoder.encode('0: "</div>\\n"\n'));
             }
           }
 

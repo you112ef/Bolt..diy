@@ -1,10 +1,11 @@
 import React from 'react';
-import { Switch } from '~/components/ui/Switch';
-import { Label } from '~/components/ui/Label';
-import { Button } from '~/components/ui/Button';
+
 import { useAtom } from '@nanostores/react';
-import { isEventLogsEnabled, updateEventLogs, developerModeStore, setDeveloperMode } from '~/lib/stores/settings';
-import { logStore } from '~/lib/stores/logs'; // Assuming a log store exists for metrics
+import { Button } from '~/components/ui/Button';
+import { Label } from '~/components/ui/Label';
+import { Switch } from '~/components/ui/Switch';
+import { logStore } from '~/lib/stores/logs';
+import { developerModeStore, isEventLogsEnabled, setDeveloperMode, updateEventLogs } from '~/lib/stores/settings';
 
 export function DeveloperTab() {
   const eventLogs = useAtom(isEventLogsEnabled);
@@ -16,6 +17,7 @@ export function DeveloperTab() {
 
   const handleDeveloperModeChange = (checked: boolean) => {
     setDeveloperMode(checked);
+
     // Optionally, enable/disable more detailed logging or metrics when dev mode changes
     if (checked) {
       logStore.logSystem('Developer Mode Enabled');
@@ -32,9 +34,11 @@ export function DeveloperTab() {
 
   // Placeholder for metrics display
   const renderMetrics = () => {
-    // Example: Fetch and display some metrics from logStore or a dedicated metrics store
-    // const metrics = logStore.getMetrics(); // This is hypothetical
-    // return <pre>{JSON.stringify(metrics, null, 2)}</pre>;
+    /*
+     * Example: Fetch and display some metrics from logStore or a dedicated metrics store
+     * const metrics = logStore.getMetrics(); // This is hypothetical
+     * return <pre>{JSON.stringify(metrics, null, 2)}</pre>;
+     */
     return <p className="text-sm text-gray-500">Metrics display area (placeholder).</p>;
   };
 
@@ -42,18 +46,17 @@ export function DeveloperTab() {
     <div className="space-y-6 p-4 md:p-6">
       <div>
         <h3 className="text-lg font-medium">Developer Settings</h3>
-        <p className="text-sm text-gray-500">
-          Configure advanced settings for development and debugging.
-        </p>
+        <p className="text-sm text-gray-500">Configure advanced settings for development and debugging.</p>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label htmlFor="developer-mode" className="flex flex-col space-y-1">
+          <Label
+            htmlFor="developer-mode"
+            className="flex flex-col space-y-1"
+          >
             <span>Developer Mode</span>
-            <span className="font-normal leading-snug text-gray-500">
-              Enables additional debugging tools and logs.
-            </span>
+            <span className="font-normal leading-snug text-gray-500">Enables additional debugging tools and logs.</span>
           </Label>
           <Switch
             id="developer-mode"
@@ -65,7 +68,10 @@ export function DeveloperTab() {
         {devMode && (
           <>
             <div className="flex items-center justify-between">
-              <Label htmlFor="event-logs" className="flex flex-col space-y-1">
+              <Label
+                htmlFor="event-logs"
+                className="flex flex-col space-y-1"
+              >
                 <span>Enable Event Logs</span>
                 <span className="font-normal leading-snug text-gray-500">
                   Captures detailed application events for debugging.
@@ -85,12 +91,19 @@ export function DeveloperTab() {
 
             <div>
               <h4 className="text-md font-medium mb-2">Actions</h4>
-              <Button variant="outline" onClick={handleForceReload}>
+              <Button
+                variant="outline"
+                onClick={handleForceReload}
+              >
                 Force Reload Application
               </Button>
-              {/* TODO: "Force reload component" would require more specific component targeting logic */}
+              {/*
+               * TODO: "Force reload component" would require more specific
+               * component targeting logic
+               */}
               <p className="text-xs text-gray-500 mt-1">
-                "Force reload component" is a more advanced feature and would require component-level state management or a debug context.
+                &quot;Force reload component&quot; is a more advanced feature and would require component-level state
+                management or a debug context.
               </p>
             </div>
           </>

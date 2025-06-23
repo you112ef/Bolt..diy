@@ -52,31 +52,3 @@ export function toggleTheme() {
 
   logStore.logSystem(`Theme changed to ${newTheme} mode`);
 }
-
-// Auto-switch theme based on device time
-function autoSwitchTheme() {
-  if (!import.meta.env.SSR) {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const currentHour = new Date().getHours();
-
-    // Consider it "night" between 8 PM and 6 AM
-    const isNightTime = currentHour >= 20 || currentHour < 6;
-    const newTheme = prefersDark || isNightTime ? 'dark' : 'light';
-
-    if (themeStore.get() !== newTheme) {
-      themeStore.set(newTheme);
-      localStorage.setItem(kTheme, newTheme);
-      document.querySelector('html')?.setAttribute('data-theme', newTheme);
-      logStore.logSystem(`Theme auto-switched to ${newTheme} mode based on device settings/time.`);
-    }
-  }
-}
-
-// Initialize auto-switching
-if (!import.meta.env.SSR) {
-  autoSwitchTheme(); // Initial check
-  setInterval(autoSwitchTheme, 60 * 60 * 1000); // Check every hour
-
-  // Listen for system theme changes
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', autoSwitchTheme);
-}

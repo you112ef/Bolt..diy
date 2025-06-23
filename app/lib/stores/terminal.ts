@@ -2,22 +2,31 @@ import type { WebContainer, WebContainerProcess } from '@webcontainer/api';
 import { atom, type WritableAtom } from 'nanostores';
 import type { ITerminal } from '~/types/terminal';
 import { newBoltShellProcess, newShellProcess } from '~/utils/shell';
-import { coloredText } from '~/utils/terminal';
+import { coloredText, applyIntelligentColoring } from '~/utils/terminal';
+import { notificationService } from '~/lib/services/notificationService'; // Import notification service
 
 export class TerminalStore {
   #webcontainer: Promise<WebContainer>;
-  #terminals: Array<{ terminal: ITerminal; process: WebContainerProcess }> = [];
+  #terminals: Array<{
+    id: string,
+    terminal: ITerminal;
+    process: WebContainerProcess,
+    commandStartTime: number,
+    currentCommand: string, // To store the command being executed
+  }> = [];
   #boltTerminal = newBoltShellProcess();
 
   showTerminal: WritableAtom<boolean> = import.meta.hot?.data.showTerminal ?? atom(true);
 
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
-
     if (import.meta.hot) {
       import.meta.hot.data.showTerminal = this.showTerminal;
     }
+    // Ensure notification permission on startup or when relevant
+    // notificationService.ensurePermission(); // Can be called here or before first notification
   }
+
   get boltTerminal() {
     return this.#boltTerminal;
   }
@@ -27,105 +36,151 @@ export class TerminalStore {
   }
 
   #writeExecutionTimeToTerminal(terminal: ITerminal, startTime: number) {
+    if (startTime === 0) return;
     const endTime = performance.now();
     const duration = ((endTime - startTime) / 1000).toFixed(2);
-    // Using ANSI escape codes for subtle color, adjust as needed for theme
-    const timeMessage = `\n\x1b[90m(Command completed in ${duration}s)\x1b[0m\n`;
+    const timeMessage = `\r\n\x1b[2m\x1b[90m(Command completed in ${duration}s)\x1b[0m\r\n`;
     terminal.write(timeMessage);
   }
 
+  async #preCommandCheck(wc: WebContainer, command: string, terminal: ITerminal): Promise<boolean> {
+    const firstWord = command.split(' ')[0];
+    if (firstWord === 'npm' || firstWord === 'bun') {
+      try {
+        const checkProcess = await wc.spawn('which', [firstWord]);
+        const { exitCode } = await checkProcess.exit;
+        if (exitCode !== 0) {
+          terminal.write(coloredText.yellow(`\r\nWarning: '${firstWord}' command not found. Ensure it's installed.\r\n`));
+          return true; // Allow execution attempt, but warn
+        }
+      } catch (e) {
+        terminal.write(coloredText.yellow(`\r\nWarning: Could not verify '${firstWord}'. It might not be installed.\r\n`));
+        return true;
+      }
+    }
+    return true;
+  }
+
   async attachBoltTerminal(terminal: ITerminal) {
+    // Bolt terminal might have its own notification logic tied to AI interactions.
+    // For now, focusing on user-executed commands in regular terminals.
+    // If Bolt terminal also executes general commands, similar logic would apply.
     try {
       const wc = await this.#webcontainer;
-      // Wrap the original terminal.write to intercept command completion or output patterns
       const originalWrite = terminal.write.bind(terminal);
-      let commandStartTime = 0;
-
       terminal.write = (data: string | Uint8Array) => {
-        originalWrite(data);
-        // This is a heuristic: look for prompt-like patterns to detect command end.
-        // A more robust solution would involve shell-specific knowledge or process exit signals.
-        if (typeof data === 'string' && (data.includes('$ ') || data.includes('# '))) { // Common prompts
-          if (commandStartTime > 0) {
-            this.#writeExecutionTimeToTerminal(terminal, commandStartTime);
-            commandStartTime = 0; // Reset for next command
-          }
-        }
+        originalWrite(typeof data === 'string' ? applyIntelligentColoring(data) : data);
       };
-
-      // It's tricky to know when a command *starts* just from `attach`.
-      // We'll assume a command starts after an input is sent.
-      // This requires modifying how input is handled or having the shell process signal it.
-      // For now, we'll mark start time when input is likely sent (e.g., after user types Enter).
-      // This part is more conceptual for `attachBoltTerminal` as input is handled by `BoltShellProcess`.
-      // A more direct integration would be needed in `BoltShellProcess.ts` or `newShellProcess`.
-
       await this.#boltTerminal.init(wc, terminal);
-      // Conceptual: if boltTerminal had an onInputCommand hook:
-      // this.#boltTerminal.onInputCommand = () => { commandStartTime = performance.now(); };
-
+      terminal.write("Bolt Terminal Initialized.\r\n");
     } catch (error: any) {
       terminal.write(coloredText.red('Failed to spawn bolt shell\n\n') + error.message);
-      return;
     }
   }
 
-  async attachTerminal(terminal: ITerminal) {
+  async attachTerminal(terminal: ITerminal, terminalId: string) {
     try {
-      const shellProcess = await newShellProcess(await this.#webcontainer, terminal);
-      let commandStartTime = 0;
+      const wc = await this.#webcontainer;
+      // Use a temporary variable to build up the command before Enter
+      let currentCommandInput = '';
+      const shellProcess = await newShellProcess(wc, terminal);
 
-      // Monkey-patch the input stream of the process to detect when a command is likely starting
-      const originalInputWriter = shellProcess.input.getWriter();
-      const newPipe = new WritableStream({
-        write: async (chunk) => {
-          if (commandStartTime === 0) { // Assume new command is starting
-             commandStartTime = performance.now();
+      const terminalEntry = {
+        id: terminalId,
+        terminal,
+        process: shellProcess,
+        commandStartTime: 0,
+        currentCommand: '',
+      };
+      this.#terminals.push(terminalEntry);
+
+      terminal.onData(async (data) => {
+        shellProcess.input.write(data);
+        if (data === '\r') { // Enter key
+          if (currentCommandInput.trim().length > 0) {
+            terminalEntry.currentCommand = currentCommandInput.trim();
+            terminalEntry.commandStartTime = performance.now();
+            await this.#preCommandCheck(wc, terminalEntry.currentCommand, terminal);
           }
-          await originalInputWriter.write(chunk);
-          if (typeof chunk === 'string' && chunk.includes('\r')) { // Typically Enter key
-            // The command has been submitted. Time will be written when output appears.
-          }
-        },
-        close: () => originalInputWriter.close(),
-        abort: (reason) => originalInputWriter.abort(reason),
+          currentCommandInput = ''; // Reset for next command
+        } else if (data === '\x7f') { // Backspace
+            currentCommandInput = currentCommandInput.slice(0, -1);
+        } else if (typeof data === 'string' && !data.startsWith('\x1b')) { // Ignore escape sequences
+            currentCommandInput += data;
+        }
       });
-      (shellProcess as any).input = newPipe; // Overwrite input, might be risky if type is strict
 
-      // Monitor output for prompt to print time
-      const originalOutputReader = shellProcess.output.getReader();
-      const newOutputPipe = new ReadableStream({
-        async start(controller) {
-          while(true) {
-            const { value, done } = await originalOutputReader.read();
-            if (done) {
-              controller.close();
-              break;
-            }
-            controller.enqueue(value); // Pass data through
-            if (typeof value === 'string' && (value.includes('$ ') || value.includes('# '))) {
-              if (commandStartTime > 0) {
-                // Need to write to the *terminal*, not the process output controller
-                this.#writeExecutionTimeToTerminal(terminal, commandStartTime);
-                commandStartTime = 0;
-              }
+      (async () => {
+        let processExited = false;
+        shellProcess.exit.then(exitCode => {
+          processExited = true;
+          if (terminalEntry.commandStartTime > 0) {
+            this.#writeExecutionTimeToTerminal(terminal, terminalEntry.commandStartTime);
+          }
+          const notifType = exitCode === 0 ? 'success' : 'error';
+          const title = `Command ${exitCode === 0 ? 'Succeeded' : 'Failed'}`;
+          const body = `Command: "${terminalEntry.currentCommand}" exited with code ${exitCode}.`;
+
+          notificationService.showNotification({ title, body, type: notifType });
+
+          terminal.write(coloredText.yellow(`\r\nShell process for "${terminalEntry.currentCommand}" exited (code ${exitCode}).\r\n`));
+          terminalEntry.commandStartTime = 0;
+          terminalEntry.currentCommand = '';
+
+          // Prompt for new command or indicate closure
+          // This might be automatically handled by the shell restarting or xterm.js prompt
+        }).catch(err => {
+            processExited = true;
+            console.error("Error awaiting shell process exit:", err);
+            notificationService.showNotification({ title: "Shell Process Error", body: `Error with command: ${terminalEntry.currentCommand}`, type: 'error'});
+        });
+
+        for await (const outputChunk of shellProcess.output) {
+          const processedOutput = applyIntelligentColoring(outputChunk);
+          terminal.write(processedOutput);
+
+          // Heuristic for prompt display (simplified)
+          if (typeof processedOutput === 'string' && (processedOutput.includes('$ ') || processedOutput.includes('~# ') || processedOutput.includes('❯ '))) {
+            if (terminalEntry.commandStartTime > 0 && !processExited) { // If command was running and process hasn't formally exited via promise
+              // This part is tricky because a prompt might appear before exit code is processed.
+              // The exit.then block is more reliable for final notification.
+              // This could be a place for intermediate status, or just rely on exit.
             }
           }
         }
-      });
-      (shellProcess as any).output = newOutputPipe; // Overwrite output
-
-
-      this.#terminals.push({ terminal, process: shellProcess });
+      })();
     } catch (error: any) {
       terminal.write(coloredText.red('Failed to spawn shell\n\n') + error.message);
-      return;
+      notificationService.showNotification({ title: 'Shell Error', body: 'Failed to spawn shell process.', type: 'error' });
     }
   }
 
   onTerminalResize(cols: number, rows: number) {
     for (const { process } of this.#terminals) {
-      process.resize({ cols, rows });
+      if (process && typeof process.resize === 'function') {
+         process.resize({ cols, rows });
+      }
+    }
+    // if (this.#boltTerminal && (this.#boltTerminal as any).resize) {
+    //   (this.#boltTerminal as any).resize({cols, rows});
+    // }
+  }
+
+  getProcessForTerminal(terminalId: string): WebContainerProcess | undefined {
+    return this.#terminals.find(t => t.id === terminalId)?.process;
+  }
+
+  disposeTerminal(terminalId: string) {
+    const termIndex = this.#terminals.findIndex(t => t.id === terminalId);
+    if (termIndex !== -1) {
+      const { process, terminal } = this.#terminals[termIndex];
+      try {
+        process.kill();
+        terminal.dispose();
+      } catch (e) {
+        console.warn(`Error disposing terminal ${terminalId}:`, e);
+      }
+      this.#terminals.splice(termIndex, 1);
     }
   }
 }

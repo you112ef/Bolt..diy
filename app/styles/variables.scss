@@ -1,216 +1,228 @@
 /* Color Tokens Light Theme */
 :root,
 :root[data-theme='light'] {
-  --bolt-elements-borderColor: theme('colors.alpha.gray.10');
-  --bolt-elements-borderColorActive: theme('colors.accent.600');
+  --bolt-theme-background: #F9FAFB;
+  --bolt-theme-primary: #4F46E5;
+  --bolt-theme-secondary: #10B981;
+  --bolt-theme-surface: #FFFFFF;
+  --bolt-theme-text: #111827;
 
-  --bolt-elements-bg-depth-1: theme('colors.white');
-  --bolt-elements-bg-depth-2: theme('colors.gray.50');
-  --bolt-elements-bg-depth-3: theme('colors.gray.200');
-  --bolt-elements-bg-depth-4: theme('colors.alpha.gray.5');
+  --bolt-elements-borderColor: #E5E7EB; /* Adjusted from theme('colors.alpha.gray.10') */
+  --bolt-elements-borderColorActive: var(--bolt-theme-primary); /* Was theme('colors.accent.600') */
 
-  --bolt-elements-textPrimary: theme('colors.gray.950');
-  --bolt-elements-textSecondary: theme('colors.gray.600');
-  --bolt-elements-textTertiary: theme('colors.gray.500');
+  --bolt-elements-bg-depth-1: var(--bolt-theme-surface); /* Was theme('colors.white') */
+  --bolt-elements-bg-depth-2: #F3F4F6; /* Adjusted from theme('colors.gray.50') */
+  --bolt-elements-bg-depth-3: #E5E7EB; /* Adjusted from theme('colors.gray.200') */
+  --bolt-elements-bg-depth-4: #F9FAFB; /* Adjusted from theme('colors.alpha.gray.5') */
 
-  --bolt-elements-code-background: theme('colors.gray.100');
-  --bolt-elements-code-text: theme('colors.gray.950');
+  --bolt-elements-textPrimary: var(--bolt-theme-text); /* Was theme('colors.gray.950') */
+  --bolt-elements-textSecondary: #6B7280; /* Adjusted from theme('colors.gray.600') */
+  --bolt-elements-textTertiary: #9CA3AF; /* Adjusted from theme('colors.gray.500') */
 
-  --bolt-elements-button-primary-background: theme('colors.alpha.accent.10');
-  --bolt-elements-button-primary-backgroundHover: theme('colors.alpha.accent.20');
-  --bolt-elements-button-primary-text: theme('colors.accent.500');
+  --bolt-elements-code-background: #F3F4F6; /* Adjusted from theme('colors.gray.100') */
+  --bolt-elements-code-text: var(--bolt-theme-text); /* Was theme('colors.gray.950') */
 
-  --bolt-elements-button-secondary-background: theme('colors.alpha.gray.5');
-  --bolt-elements-button-secondary-backgroundHover: theme('colors.alpha.gray.10');
-  --bolt-elements-button-secondary-text: theme('colors.gray.950');
+  --bolt-elements-button-primary-background: var(--bolt-theme-primary); /* Adjusted from theme('colors.alpha.accent.10') */
+  --bolt-elements-button-primary-backgroundHover: #4338CA; /* Darker shade of primary */
+  --bolt-elements-button-primary-text: var(--bolt-theme-surface); /* Was theme('colors.accent.500') */
 
-  --bolt-elements-button-danger-background: theme('colors.alpha.red.10');
-  --bolt-elements-button-danger-backgroundHover: theme('colors.alpha.red.20');
-  --bolt-elements-button-danger-text: theme('colors.red.500');
+  --bolt-elements-button-secondary-background: #E5E7EB; /* Adjusted from theme('colors.alpha.gray.5') */
+  --bolt-elements-button-secondary-backgroundHover: #D1D5DB; /* Darker shade */
+  --bolt-elements-button-secondary-text: var(--bolt-theme-text); /* Was theme('colors.gray.950') */
 
-  --bolt-elements-item-contentDefault: theme('colors.alpha.gray.50');
-  --bolt-elements-item-contentActive: theme('colors.gray.950');
-  --bolt-elements-item-contentAccent: theme('colors.accent.700');
-  --bolt-elements-item-contentDanger: theme('colors.red.500');
+  --bolt-elements-button-danger-background: #FEE2E2; /* Adjusted from theme('colors.alpha.red.10') */
+  --bolt-elements-button-danger-backgroundHover: #FECACA; /* Darker shade */
+  --bolt-elements-button-danger-text: #DC2626; /* Was theme('colors.red.500') */
+
+  --bolt-elements-item-contentDefault: #D1D5DB; /* Adjusted from theme('colors.alpha.gray.50') */
+  --bolt-elements-item-contentActive: var(--bolt-theme-text); /* Was theme('colors.gray.950') */
+  --bolt-elements-item-contentAccent: var(--bolt-theme-primary); /* Was theme('colors.accent.700') */
+  --bolt-elements-item-contentDanger: #DC2626; /* Was theme('colors.red.500') */
   --bolt-elements-item-backgroundDefault: rgba(0, 0, 0, 0);
-  --bolt-elements-item-backgroundActive: theme('colors.alpha.gray.5');
-  --bolt-elements-item-backgroundAccent: theme('colors.alpha.accent.10');
-  --bolt-elements-item-backgroundDanger: theme('colors.alpha.red.10');
+  --bolt-elements-item-backgroundActive: #F3F4F6; /* Adjusted from theme('colors.alpha.gray.5') */
+  --bolt-elements-item-backgroundAccent: #E0E7FF; /* Lighter shade of primary */
+  --bolt-elements-item-backgroundDanger: #FEE2E2; /* Lighter shade of danger */
 
-  --bolt-elements-loader-background: theme('colors.alpha.gray.10');
-  --bolt-elements-loader-progress: theme('colors.accent.500');
+  --bolt-elements-loader-background: #E5E7EB; /* Adjusted from theme('colors.alpha.gray.10') */
+  --bolt-elements-loader-progress: var(--bolt-theme-primary); /* Was theme('colors.accent.500') */
 
-  --bolt-elements-artifacts-background: theme('colors.white');
-  --bolt-elements-artifacts-backgroundHover: theme('colors.alpha.gray.2');
+  --bolt-elements-artifacts-background: var(--bolt-theme-surface); /* Was theme('colors.white') */
+  --bolt-elements-artifacts-backgroundHover: #F9FAFB; /* Adjusted from theme('colors.alpha.gray.2') */
   --bolt-elements-artifacts-borderColor: var(--bolt-elements-borderColor);
-  --bolt-elements-artifacts-inlineCode-background: theme('colors.gray.100');
+  --bolt-elements-artifacts-inlineCode-background: #F3F4F6; /* Adjusted from theme('colors.gray.100') */
   --bolt-elements-artifacts-inlineCode-text: var(--bolt-elements-textPrimary);
 
-  --bolt-elements-actions-background: theme('colors.white');
-  --bolt-elements-actions-code-background: theme('colors.gray.800');
+  --bolt-elements-actions-background: var(--bolt-theme-surface); /* Was theme('colors.white') */
+  --bolt-elements-actions-code-background: #1F2937; /* Adjusted from theme('colors.gray.800') */
 
-  --bolt-elements-messages-background: theme('colors.gray.100');
-  --bolt-elements-messages-linkColor: theme('colors.accent.500');
-  --bolt-elements-messages-code-background: theme('colors.gray.800');
-  --bolt-elements-messages-inlineCode-background: theme('colors.gray.200');
-  --bolt-elements-messages-inlineCode-text: theme('colors.gray.800');
+  --bolt-elements-messages-background: #F3F4F6; /* Adjusted from theme('colors.gray.100') */
+  --bolt-elements-messages-linkColor: var(--bolt-theme-primary); /* Was theme('colors.accent.500') */
+  --bolt-elements-messages-code-background: #1F2937; /* Adjusted from theme('colors.gray.800') */
+  --bolt-elements-messages-inlineCode-background: #E5E7EB; /* Adjusted from theme('colors.gray.200') */
+  --bolt-elements-messages-inlineCode-text: #1F2937; /* Adjusted from theme('colors.gray.800') */
 
-  --bolt-elements-icon-success: theme('colors.green.500');
-  --bolt-elements-icon-error: theme('colors.red.500');
-  --bolt-elements-icon-primary: theme('colors.gray.950');
-  --bolt-elements-icon-secondary: theme('colors.gray.600');
-  --bolt-elements-icon-tertiary: theme('colors.gray.500');
+  --bolt-elements-icon-success: var(--bolt-theme-secondary); /* Was theme('colors.green.500') */
+  --bolt-elements-icon-error: #EF4444; /* Was theme('colors.red.500') */
+  --bolt-elements-icon-primary: var(--bolt-theme-text); /* Was theme('colors.gray.950') */
+  --bolt-elements-icon-secondary: #6B7280; /* Adjusted from theme('colors.gray.600') */
+  --bolt-elements-icon-tertiary: #9CA3AF; /* Adjusted from theme('colors.gray.500') */
 
-  --bolt-elements-dividerColor: theme('colors.gray.100');
+  --bolt-elements-dividerColor: #E5E7EB; /* Adjusted from theme('colors.gray.100') */
 
-  --bolt-elements-prompt-background: theme('colors.alpha.white.80');
+  --bolt-elements-prompt-background: rgba(255, 255, 255, 0.8); /* Adjusted from theme('colors.alpha.white.80') */
 
-  --bolt-elements-sidebar-dropdownShadow: theme('colors.alpha.gray.10');
-  --bolt-elements-sidebar-buttonBackgroundDefault: theme('colors.alpha.accent.10');
-  --bolt-elements-sidebar-buttonBackgroundHover: theme('colors.alpha.accent.20');
-  --bolt-elements-sidebar-buttonText: theme('colors.accent.700');
+  --bolt-elements-sidebar-dropdownShadow: rgba(0, 0, 0, 0.05); /* Adjusted from theme('colors.alpha.gray.10') */
+  --bolt-elements-sidebar-buttonBackgroundDefault: #E0E7FF; /* Lighter shade of primary */
+  --bolt-elements-sidebar-buttonBackgroundHover: #C7D2FE; /* Darker shade of primary */
+  --bolt-elements-sidebar-buttonText: var(--bolt-theme-primary); /* Was theme('colors.accent.700') */
 
-  --bolt-elements-preview-addressBar-background: theme('colors.gray.100');
-  --bolt-elements-preview-addressBar-backgroundHover: theme('colors.alpha.gray.5');
-  --bolt-elements-preview-addressBar-backgroundActive: theme('colors.white');
+  --bolt-elements-preview-addressBar-background: #F3F4F6; /* Adjusted from theme('colors.gray.100') */
+  --bolt-elements-preview-addressBar-backgroundHover: #F9FAFB; /* Adjusted from theme('colors.alpha.gray.5') */
+  --bolt-elements-preview-addressBar-backgroundActive: var(--bolt-theme-surface); /* Was theme('colors.white') */
   --bolt-elements-preview-addressBar-text: var(--bolt-elements-textSecondary);
   --bolt-elements-preview-addressBar-textActive: var(--bolt-elements-textPrimary);
 
-  --bolt-elements-terminals-background: theme('colors.white');
+  --bolt-elements-terminals-background: var(--bolt-theme-surface); /* Was theme('colors.white') */
   --bolt-elements-terminals-buttonBackground: var(--bolt-elements-bg-depth-4);
 
-  --bolt-elements-cta-background: theme('colors.gray.100');
-  --bolt-elements-cta-text: theme('colors.gray.950');
+  --bolt-elements-cta-background: #F3F4F6; /* Adjusted from theme('colors.gray.100') */
+  --bolt-elements-cta-text: var(--bolt-theme-text); /* Was theme('colors.gray.950') */
 
   /* Terminal Colors */
   --bolt-terminal-background: var(--bolt-elements-terminals-background);
-  --bolt-terminal-foreground: #333333;
-  --bolt-terminal-selection-background: #00000040;
-  --bolt-terminal-black: #000000;
-  --bolt-terminal-red: #cd3131;
-  --bolt-terminal-green: #00bc00;
-  --bolt-terminal-yellow: #949800;
-  --bolt-terminal-blue: #0451a5;
-  --bolt-terminal-magenta: #bc05bc;
-  --bolt-terminal-cyan: #0598bc;
-  --bolt-terminal-white: #555555;
-  --bolt-terminal-brightBlack: #686868;
-  --bolt-terminal-brightRed: #cd3131;
-  --bolt-terminal-brightGreen: #00bc00;
-  --bolt-terminal-brightYellow: #949800;
-  --bolt-terminal-brightBlue: #0451a5;
-  --bolt-terminal-brightMagenta: #bc05bc;
-  --bolt-terminal-brightCyan: #0598bc;
-  --bolt-terminal-brightWhite: #a5a5a5;
-  --modern-scrollbar-thumb-background: rgba(100, 100, 100, 0.3); // Example light theme color
-  --modern-scrollbar-thumb-backgroundHover: rgba(74, 74, 74, 0.8);
+  --bolt-terminal-foreground: #111827; /* text color */
+  --bolt-terminal-selection-background: rgba(79, 70, 229, 0.3); /* primary with alpha */
+  --bolt-terminal-black: #374151; /* Gray 700 */
+  --bolt-terminal-red: #EF4444; /* Red 500 */
+  --bolt-terminal-green: #10B981; /* secondary color */
+  --bolt-terminal-yellow: #F59E0B; /* Amber 500 */
+  --bolt-terminal-blue: #3B82F6; /* Blue 500 */
+  --bolt-terminal-magenta: #EC4899; /* Pink 500 */
+  --bolt-terminal-cyan: #06B6D4; /* Cyan 500 */
+  --bolt-terminal-white: #F3F4F6; /* Gray 100 */
+  --bolt-terminal-brightBlack: #9CA3AF; /* Gray 400 */
+  --bolt-terminal-brightRed: #F87171; /* Red 400 */
+  --bolt-terminal-brightGreen: #34D399; /* Emerald 400 */
+  --bolt-terminal-brightYellow: #FBBF24; /* Amber 400 */
+  --bolt-terminal-brightBlue: #60A5FA; /* Blue 400 */
+  --bolt-terminal-brightMagenta: #F472B6; /* Pink 400 */
+  --bolt-terminal-brightCyan: #22D3EE; /* Cyan 400 */
+  --bolt-terminal-brightWhite: #F9FAFB; /* background color */
+  --modern-scrollbar-thumb-background: rgba(107, 114, 128, 0.3); /* Gray 500 with alpha */
+  --modern-scrollbar-thumb-backgroundHover: rgba(79, 70, 229, 0.8); /* primary with alpha */
 }
 
-/* Color Tokens Dark Theme (HD Dark) */
+/* Color Tokens Dark Theme */
 :root[data-theme='dark'] {
-  --bolt-elements-borderColor: #333; /* Darker border */
-  --bolt-elements-borderColorActive: theme('colors.accent.400'); /* Slightly brighter accent */
+  --bolt-theme-background: #0F172A;
+  --bolt-theme-primary: #6366F1;
+  --bolt-theme-secondary: #22D3EE;
+  --bolt-theme-surface: #1E293B;
+  --bolt-theme-text: #F9FAFB;
 
-  --bolt-elements-bg-depth-1: #0a0a0a; /* Near black */
-  --bolt-elements-bg-depth-2: #121212; /* Very dark gray */
-  --bolt-elements-bg-depth-3: #1a1a1a; /* Dark gray */
-  --bolt-elements-bg-depth-4: #222; /* Slightly lighter dark gray */
+  --bolt-elements-borderColor: #334155; /* Adjusted from #333 */
+  --bolt-elements-borderColorActive: var(--bolt-theme-primary); /* Was theme('colors.accent.400') */
 
-  --bolt-elements-textPrimary: #f0f0f0; /* Off-white for better readability */
-  --bolt-elements-textSecondary: #a0a0a0; /* Lighter gray */
-  --bolt-elements-textTertiary: #777; /* Medium gray */
+  --bolt-elements-bg-depth-1: var(--bolt-theme-surface); /* Adjusted from #0a0a0a */
+  --bolt-elements-bg-depth-2: #0F172A; /* Adjusted from #121212 - background color */
+  --bolt-elements-bg-depth-3: #1E293B; /* Adjusted from #1a1a1a - surface color */
+  --bolt-elements-bg-depth-4: #334155; /* Adjusted from #222 */
 
-  --bolt-elements-code-background: #161616; /* Darker code background */
-  --bolt-elements-code-text: #e0e0e0; /* Lighter code text */
+  --bolt-elements-textPrimary: var(--bolt-theme-text); /* Was #f0f0f0 */
+  --bolt-elements-textSecondary: #94A3B8; /* Adjusted from #a0a0a0 */
+  --bolt-elements-textTertiary: #64748B; /* Adjusted from #777 */
 
-  --bolt-elements-button-primary-background: theme('colors.alpha.accent.20'); /* Was .15, using .20 */
-  --bolt-elements-button-primary-backgroundHover: theme('colors.alpha.accent.30'); /* Was .25, using .30 */
-  --bolt-elements-button-primary-text: theme('colors.accent.400');
+  --bolt-elements-code-background: #0F172A; /* Adjusted from #161616 - background color */
+  --bolt-elements-code-text: var(--bolt-theme-text); /* Was #e0e0e0 */
 
-  --bolt-elements-button-secondary-background: #2a2a2a; /* Darker secondary button */
-  --bolt-elements-button-secondary-backgroundHover: #333;
-  --bolt-elements-button-secondary-text: #e0e0e0;
+  --bolt-elements-button-primary-background: var(--bolt-theme-primary); /* Adjusted from theme('colors.alpha.accent.20') */
+  --bolt-elements-button-primary-backgroundHover: #4F46E5; /* Darker shade of primary */
+  --bolt-elements-button-primary-text: var(--bolt-theme-text); /* Was theme('colors.accent.400') */
 
-  --bolt-elements-button-danger-background: theme('colors.alpha.red.20'); /* Was .15, using .20 */
-  --bolt-elements-button-danger-backgroundHover: theme('colors.alpha.red.30'); /* Was .25, using .30 */
-  --bolt-elements-button-danger-text: theme('colors.red.400');
+  --bolt-elements-button-secondary-background: #334155; /* Adjusted from #2a2a2a */
+  --bolt-elements-button-secondary-backgroundHover: #475569; /* Darker shade */
+  --bolt-elements-button-secondary-text: var(--bolt-theme-text); /* Was #e0e0e0 */
 
-  --bolt-elements-item-contentDefault: #999;
-  --bolt-elements-item-contentActive: #f0f0f0;
-  --bolt-elements-item-contentAccent: theme('colors.accent.400');
-  --bolt-elements-item-contentDanger: theme('colors.red.400');
+  --bolt-elements-button-danger-background: #3F1212; /* Adjusted from theme('colors.alpha.red.20') - Darker red */
+  --bolt-elements-button-danger-backgroundHover: #5B1B1B; /* Darker shade */
+  --bolt-elements-button-danger-text: #F87171; /* Was theme('colors.red.400') */
+
+  --bolt-elements-item-contentDefault: #64748B; /* Adjusted from #999 */
+  --bolt-elements-item-contentActive: var(--bolt-theme-text); /* Was #f0f0f0 */
+  --bolt-elements-item-contentAccent: var(--bolt-theme-primary); /* Was theme('colors.accent.400') */
+  --bolt-elements-item-contentDanger: #F87171; /* Was theme('colors.red.400') */
   --bolt-elements-item-backgroundDefault: rgba(255, 255, 255, 0);
-  --bolt-elements-item-backgroundActive: #222;
-  --bolt-elements-item-backgroundAccent: theme('colors.alpha.accent.20'); /* Was .15, using .20 */
-  --bolt-elements-item-backgroundDanger: theme('colors.alpha.red.20'); /* Was .15, using .20 */
+  --bolt-elements-item-backgroundActive: #334155; /* Adjusted from #222 */
+  --bolt-elements-item-backgroundAccent: rgba(99, 102, 241, 0.2); /* primary with alpha */
+  --bolt-elements-item-backgroundDanger: rgba(248, 113, 113, 0.2); /* danger with alpha */
 
-  --bolt-elements-loader-background: #333;
-  --bolt-elements-loader-progress: theme('colors.accent.400');
+  --bolt-elements-loader-background: #334155; /* Adjusted from #333 */
+  --bolt-elements-loader-progress: var(--bolt-theme-primary); /* Was theme('colors.accent.400') */
 
-  --bolt-elements-artifacts-background: #101010;
-  --bolt-elements-artifacts-backgroundHover: #181818;
+  --bolt-elements-artifacts-background: var(--bolt-theme-surface); /* Adjusted from #101010 */
+  --bolt-elements-artifacts-backgroundHover: #0F172A; /* Adjusted from #181818 - background color */
   --bolt-elements-artifacts-borderColor: var(--bolt-elements-borderColor);
-  --bolt-elements-artifacts-inlineCode-background: #202020;
-  --bolt-elements-artifacts-inlineCode-text: #e0e0e0;
+  --bolt-elements-artifacts-inlineCode-background: #0F172A; /* Adjusted from #202020 - background color */
+  --bolt-elements-artifacts-inlineCode-text: var(--bolt-theme-text); /* Was #e0e0e0 */
 
-  --bolt-elements-actions-background: #101010;
-  --bolt-elements-actions-code-background: #161616;
+  --bolt-elements-actions-background: var(--bolt-theme-surface); /* Adjusted from #101010 */
+  --bolt-elements-actions-code-background: #0F172A; /* Adjusted from #161616 - background color */
 
-  --bolt-elements-messages-background: #1a1a1a;
-  --bolt-elements-messages-linkColor: theme('colors.accent.400');
-  --bolt-elements-messages-code-background: #0f0f0f; /* Darker code messages */
-  --bolt-elements-messages-inlineCode-background: #2c2c2c; /* Darker inline code */
+  --bolt-elements-messages-background: #1E293B; /* Adjusted from #1a1a1a - surface color */
+  --bolt-elements-messages-linkColor: var(--bolt-theme-primary); /* Was theme('colors.accent.400') */
+  --bolt-elements-messages-code-background: #0F172A; /* Adjusted from #0f0f0f - background color */
+  --bolt-elements-messages-inlineCode-background: #334155; /* Adjusted from #2c2c2c */
   --bolt-elements-messages-inlineCode-text: var(--bolt-elements-textPrimary);
 
-  --bolt-elements-icon-success: theme('colors.green.300'); /* Brighter success icon */
-  --bolt-elements-icon-error: theme('colors.red.300'); /* Brighter error icon */
-  --bolt-elements-icon-primary: #d0d0d0; /* Lighter primary icon */
-  --bolt-elements-icon-secondary: #909090;
-  --bolt-elements-icon-tertiary: #666;
+  --bolt-elements-icon-success: var(--bolt-theme-secondary); /* Was theme('colors.green.300') */
+  --bolt-elements-icon-error: #F87171; /* Was theme('colors.red.300') */
+  --bolt-elements-icon-primary: var(--bolt-theme-text); /* Was #d0d0d0 */
+  --bolt-elements-icon-secondary: #94A3B8; /* Adjusted from #909090 */
+  --bolt-elements-icon-tertiary: #64748B; /* Adjusted from #666 */
 
-  --bolt-elements-dividerColor: #282828; /* Darker divider */
+  --bolt-elements-dividerColor: #334155; /* Adjusted from #282828 */
 
-  --bolt-elements-prompt-background: rgba(10, 10, 10, 0.85); /* Darker prompt bg with more opacity */
+  --bolt-elements-prompt-background: rgba(15, 23, 42, 0.85); /* background color with alpha */
 
-  --bolt-elements-sidebar-dropdownShadow: rgba(0, 0, 0, 0.5); /* Stronger shadow */
-  --bolt-elements-sidebar-buttonBackgroundDefault: theme('colors.alpha.accent.20'); /* Was .15, using .20 */
-  --bolt-elements-sidebar-buttonBackgroundHover: theme('colors.alpha.accent.30'); /* Was .25, using .30 */
-  --bolt-elements-sidebar-buttonText: theme('colors.accent.400');
+  --bolt-elements-sidebar-dropdownShadow: rgba(0, 0, 0, 0.5);
+  --bolt-elements-sidebar-buttonBackgroundDefault: rgba(99, 102, 241, 0.2); /* primary with alpha */
+  --bolt-elements-sidebar-buttonBackgroundHover: rgba(99, 102, 241, 0.3); /* primary with more alpha */
+  --bolt-elements-sidebar-buttonText: var(--bolt-theme-primary); /* Was theme('colors.accent.400') */
 
   --bolt-elements-preview-addressBar-background: var(--bolt-elements-bg-depth-1);
-  --bolt-elements-preview-addressBar-backgroundHover: #1f1f1f;
+  --bolt-elements-preview-addressBar-backgroundHover: #0F172A; /* background color */
   --bolt-elements-preview-addressBar-backgroundActive: var(--bolt-elements-bg-depth-1);
   --bolt-elements-preview-addressBar-text: var(--bolt-elements-textSecondary);
   --bolt-elements-preview-addressBar-textActive: var(--bolt-elements-textPrimary);
 
-  --bolt-elements-terminals-background: var(--bolt-elements-bg-depth-1);
-  --bolt-elements-terminals-buttonBackground: var(--bolt-elements-bg-depth-3);
+  --bolt-elements-terminals-background: var(--bolt-elements-bg-depth-2); /* background color */
+  --bolt-elements-terminals-buttonBackground: var(--bolt-elements-bg-depth-3); /* surface color */
 
-  --bolt-elements-cta-background: #222;
-  --bolt-elements-cta-text: #f0f0f0;
+  --bolt-elements-cta-background: #334155; /* Adjusted from #222 */
+  --bolt-elements-cta-text: var(--bolt-theme-text); /* Was #f0f0f0 */
 
   /* Terminal Colors (HD Dark) */
-  --bolt-terminal-background: #0a0a0a;
-  --bolt-terminal-foreground: #e0e0e0; /* Brighter foreground */
-  --bolt-terminal-selection-background: rgba(180, 180, 180, 0.2); /* Lighter selection */
-  --bolt-terminal-black: #1c1c1c; /* Not pure black, for better contrast */
-  --bolt-terminal-red: #ff6f6f; /* Softer red */
-  --bolt-terminal-green: #79ffae; /* Softer green */
-  --bolt-terminal-yellow: #f8f89f; /* Softer yellow */
-  --bolt-terminal-blue: #7aa6ff; /* Softer blue */
-  --bolt-terminal-magenta: #ff85d4; /* Softer magenta */
-  --bolt-terminal-cyan: #7ffcff; /* Softer cyan */
-  --bolt-terminal-white: #e5e5e5;
-  --bolt-terminal-brightBlack: #777777;
-  --bolt-terminal-brightRed: #ff8282;
-  --bolt-terminal-brightGreen: #9cffc3;
-  --bolt-terminal-brightYellow: #ffffba;
-  --bolt-terminal-brightBlue: #9dc0ff;
-  --bolt-terminal-brightMagenta: #ffa3e0;
-  --bolt-terminal-brightCyan: #a5ffff;
-  --bolt-terminal-brightWhite: #ffffff;
-  --modern-scrollbar-thumb-background: rgba(120, 120, 120, 0.4); /* Adjusted for HD Dark */
-  --modern-scrollbar-thumb-backgroundHover: rgba(150, 150, 150, 0.6);
+  --bolt-terminal-background: var(--bolt-theme-background); /* background color */
+  --bolt-terminal-foreground: var(--bolt-theme-text); /* text color */
+  --bolt-terminal-selection-background: rgba(99, 102, 241, 0.3); /* primary with alpha */
+  --bolt-terminal-black: #475569; /* Slate 600 */
+  --bolt-terminal-red: #F87171; /* Red 400 */
+  --bolt-terminal-green: var(--bolt-theme-secondary); /* secondary color */
+  --bolt-terminal-yellow: #FCD34D; /* Amber 300 */
+  --bolt-terminal-blue: #93C5FD; /* Blue 300 */
+  --bolt-terminal-magenta: #F9A8D4; /* Pink 300 */
+  --bolt-terminal-cyan: #67E8F9; /* Cyan 300 */
+  --bolt-terminal-white: #E2E8F0; /* Slate 200 */
+  --bolt-terminal-brightBlack: #94A3B8; /* Slate 400 */
+  --bolt-terminal-brightRed: #FB7185; /* Rose 400 */
+  --bolt-terminal-brightGreen: #5EEAD4; /* Teal 300 */
+  --bolt-terminal-brightYellow: #FDE047; /* Yellow 300 */
+  --bolt-terminal-brightBlue: #A5B4FC; /* Indigo 300 */
+  --bolt-terminal-brightMagenta: #F0ABFC; /* Fuchsia 300 */
+  --bolt-terminal-brightCyan: #7DD3FC; /* Sky 300 */
+  --bolt-terminal-brightWhite: var(--bolt-theme-text); /* text color */
+  --modern-scrollbar-thumb-background: rgba(148, 163, 184, 0.4); /* Slate 400 with alpha */
+  --modern-scrollbar-thumb-backgroundHover: rgba(99, 102, 241, 0.6); /* primary with alpha */
 }
 
 /*
@@ -251,4 +263,117 @@
   --bolt-elements-terminal-color-brightMagenta: var(--bolt-terminal-brightMagenta);
   --bolt-elements-terminal-color-brightCyan: var(--bolt-terminal-brightCyan);
   --bolt-elements-terminal-color-brightWhite: var(--bolt-terminal-brightWhite);
+
+  /* CodeMirror Theme Variables */
+  /* These are derived from the main theme to ensure consistency */
+
+  /* General Editor Chrome */
+  --cm-backgroundColor: var(--bolt-theme-surface);
+  --cm-textColor: var(--bolt-theme-text);
+  --cm-cursor-width: 1.5px;
+  --cm-cursor-backgroundColor: var(--bolt-theme-primary);
+
+  --cm-selection-backgroundColorFocused: var(--bolt-theme-primary); /* Use primary color for selection */
+  --cm-selection-backgroundOpacityFocused: 0.3;
+  --cm-selection-backgroundColorBlured: var(--bolt-elements-borderColor); /* A less prominent color when editor is not focused */
+  --cm-selection-backgroundOpacityBlured: 0.3;
+
+  --cm-matching-bracket: rgba(128, 128, 128, 0.3); /* Neutral color for matching brackets */
+  --cm-activeLineBackgroundColor: var(--bolt-elements-bg-depth-4); /* Slightly different from main background */
+
+  /* Gutters (line numbers, folding) */
+  --cm-gutter-backgroundColor: var(--bolt-theme-surface); /* Same as editor background or slightly different */
+  --cm-gutter-textColor: var(--bolt-elements-textTertiary); /* Dimmer text for line numbers */
+  --cm-gutter-activeLineTextColor: var(--bolt-theme-primary); /* Highlight active line number */
+  --cm-foldGutter-textColor: var(--bolt-elements-textTertiary);
+  --cm-foldGutter-textColorHover: var(--bolt-theme-text);
+
+  /* Panels (Search Panel) */
+  --cm-panels-borderColor: var(--bolt-elements-borderColor);
+  --cm-search-backgroundColor: var(--bolt-elements-bg-depth-2);
+  --cm-search-textColor: var(--bolt-theme-text);
+  --cm-search-button-backgroundColor: var(--bolt-elements-button-secondary-background);
+  --cm-search-button-borderColor: var(--bolt-elements-borderColor);
+  --cm-search-button-textColor: var(--bolt-elements-button-secondary-text);
+  --cm-search-button-textColorHover: var(--bolt-theme-primary);
+  --cm-search-button-backgroundColorHover: var(--bolt-elements-button-secondary-backgroundHover);
+  --cm-search-button-borderColorHover: var(--bolt-elements-borderColor);
+  --cm-search-button-borderColorFocused: var(--bolt-theme-primary);
+
+  --cm-search-closeButton-backgroundColor: transparent;
+  --cm-search-closeButton-textColor: var(--bolt-elements-textSecondary);
+  --cm-search-closeButton-textColorHover: var(--bolt-theme-text);
+  --cm-search-closeButton-backgroundColorHover: var(--bolt-elements-bg-depth-4);
+
+  --cm-search-input-backgroundColor: var(--bolt-theme-surface);
+  --cm-search-input-borderColor: var(--bolt-elements-borderColor);
+  --cm-search-input-textColor: var(--bolt-theme-text);
+  --cm-search-input-borderColorFocused: var(--bolt-theme-primary);
+
+  /* Tooltips (Autocomplete, Readonly Tooltip) */
+  --cm-tooltip-backgroundColor: var(--bolt-elements-bg-depth-1); /* Usually same as editor surface or slightly elevated */
+  --cm-tooltip-borderColor: var(--bolt-elements-borderColorActive); /* Use active border for emphasis */
+  --cm-tooltip-textColor: var(--bolt-theme-text);
+  --cm-tooltip-backgroundColorSelected: var(--bolt-theme-primary); /* Autocomplete selected item */
+  --cm-tooltip-textColorSelected: var(--bolt-theme-surface); /* Text on selected autocomplete item */
+
+  /* Search Matches */
+  --cm-searchMatch-backgroundColor: rgba(255, 193, 7, 0.3); /* Yellowish, common for search matches */
+}
+
+:root[data-theme='dark'] {
+  /* CodeMirror Theme Variables for Dark Mode */
+  /* These are derived from the main theme to ensure consistency */
+
+  /* General Editor Chrome */
+  --cm-backgroundColor: var(--bolt-theme-surface);
+  --cm-textColor: var(--bolt-theme-text);
+  --cm-cursor-backgroundColor: var(--bolt-theme-primary);
+
+  --cm-selection-backgroundColorFocused: var(--bolt-theme-primary);
+  --cm-selection-backgroundOpacityFocused: 0.4; /* Slightly more opaque for dark mode */
+  --cm-selection-backgroundColorBlured: var(--bolt-elements-borderColor);
+  --cm-selection-backgroundOpacityBlured: 0.4;
+
+  --cm-matching-bracket: rgba(128, 128, 128, 0.4);
+  --cm-activeLineBackgroundColor: var(--bolt-elements-bg-depth-4);
+
+  /* Gutters */
+  --cm-gutter-backgroundColor: var(--bolt-theme-surface);
+  --cm-gutter-textColor: var(--bolt-elements-textTertiary);
+  --cm-gutter-activeLineTextColor: var(--bolt-theme-primary);
+  --cm-foldGutter-textColor: var(--bolt-elements-textTertiary);
+  --cm-foldGutter-textColorHover: var(--bolt-theme-text);
+
+  /* Panels (Search Panel) */
+  --cm-panels-borderColor: var(--bolt-elements-borderColor);
+  --cm-search-backgroundColor: var(--bolt-elements-bg-depth-2);
+  --cm-search-textColor: var(--bolt-theme-text);
+  --cm-search-button-backgroundColor: var(--bolt-elements-button-secondary-background);
+  --cm-search-button-borderColor: var(--bolt-elements-borderColor);
+  --cm-search-button-textColor: var(--bolt-elements-button-secondary-text);
+  --cm-search-button-textColorHover: var(--bolt-theme-primary);
+  --cm-search-button-backgroundColorHover: var(--bolt-elements-button-secondary-backgroundHover);
+  --cm-search-button-borderColorHover: var(--bolt-elements-borderColor);
+  --cm-search-button-borderColorFocused: var(--bolt-theme-primary);
+
+  --cm-search-closeButton-backgroundColor: transparent;
+  --cm-search-closeButton-textColor: var(--bolt-elements-textSecondary);
+  --cm-search-closeButton-textColorHover: var(--bolt-theme-text);
+  --cm-search-closeButton-backgroundColorHover: var(--bolt-elements-bg-depth-4);
+
+  --cm-search-input-backgroundColor: var(--bolt-elements-bg-depth-1); /* Slightly different from main surface for inputs */
+  --cm-search-input-borderColor: var(--bolt-elements-borderColor);
+  --cm-search-input-textColor: var(--bolt-theme-text);
+  --cm-search-input-borderColorFocused: var(--bolt-theme-primary);
+
+  /* Tooltips */
+  --cm-tooltip-backgroundColor: var(--bolt-elements-bg-depth-1);
+  --cm-tooltip-borderColor: var(--bolt-elements-borderColorActive);
+  --cm-tooltip-textColor: var(--bolt-theme-text);
+  --cm-tooltip-backgroundColorSelected: var(--bolt-theme-primary);
+  --cm-tooltip-textColorSelected: var(--bolt-theme-text); /* Ensure contrast on primary bg */
+
+  /* Search Matches */
+  --cm-searchMatch-backgroundColor: rgba(255, 215, 0, 0.4); /* Gold/Yellowish, slightly more opaque */
 }

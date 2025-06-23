@@ -5,23 +5,84 @@ on:
     branches:
       - master
   pull_request:
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
-  test:
-    name: Test
+  lint_test_build: # Combined job for lint, test, and build
+    name: Lint, Test & Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup and Build
-        uses: ./.github/actions/setup-and-build
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Specify your project's Node.js version
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run ESLint
+        run: pnpm run lint # Assuming you have a lint script
 
       - name: Run type check
         run: pnpm run typecheck
 
-      # - name: Run ESLint
-      #   run: pnpm run lint
-
       - name: Run tests
         run: pnpm run test
+
+      - name: Build project
+        run: pnpm run build
+
+  generate_apk:
+    name: Generate APK
+    runs-on: ubuntu-latest
+    needs: lint_test_build # Ensure build passes before generating APK
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/master') # Run on manual trigger or push to master
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Electron App (Placeholder)
+        run: |
+          # This is a placeholder. Replace with your actual Electron build command.
+          # For example, if you use electron-builder:
+          # pnpm exec electron-builder --linux --publish never
+          # For Android APK, you'd typically use a different process, possibly involving Cordova, Capacitor, or a native build.
+          # For this example, we'll create a dummy release.apk
+          echo "Simulating APK generation..."
+          mkdir -p dist_electron # electron-builder default output
+          touch dist_electron/release.apk
+          echo "Dummy release.apk created."
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: dist_electron/release.apk # Adjust path based on your build output
+
+      - name: Notify build status (Placeholder)
+        if: always() # Run even if previous steps fail to notify failure
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "APK Generation Successful!"
+            # Add more sophisticated notification logic here (e.g., Slack, Discord)
+          else
+            echo "APK Generation Failed!"
+            # Add more sophisticated notification logic here
+          fi

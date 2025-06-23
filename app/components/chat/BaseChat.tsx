@@ -79,6 +79,7 @@ interface BaseChatProps {
   setDesignScheme?: (scheme: DesignScheme) => void;
   selectedElement?: ElementInfo | null;
   setSelectedElement?: (element: ElementInfo | null) => void;
+  onDragStart?: (event: React.DragEvent<HTMLDivElement>, messageText: string) => void; // Added for drag and drop
 }
 
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
@@ -124,6 +125,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       setDesignScheme,
       selectedElement,
       setSelectedElement,
+        onDragStart, // Added for drag and drop
     },
     ref,
   ) => {

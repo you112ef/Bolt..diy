@@ -173,6 +173,29 @@ export const EditorPanel = memo(
                   onScroll={onEditorScroll}
                   onChange={onEditorChange}
                   onSave={onFileSave}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    const text = event.dataTransfer.getData('text/plain');
+                    // Assuming editorDocument has a way to insert text at the current cursor or a given position
+                    // This is a placeholder for actual CodeMirror text insertion
+                    if (editorDocument && text) {
+                      const currentDoc = editorDocument.value;
+                      // This is a naive way to insert. A real implementation would use CodeMirror's API
+                      // to insert text at the cursor position or replace selection.
+                      // For demonstration, appending to the end:
+                      // onEditorChange?.(currentDoc + '\n' + text, editorDocument.filePath, true);
+                      // A more realistic approach would involve getting cursor position and inserting there.
+                      // This part needs actual CodeMirror integration.
+                      console.log('Dropped text into editor:', text);
+                       // Placeholder: actual insertion logic depends on CodeMirror instance access
+                      // For example, if you have access to the CodeMirror view instance:
+                      // view.dispatch({changes: {from: view.state.selection.main.head, insert: text}});
+                      alert(`Pasted from assistant: "${text}". Implement actual CodeMirror insertion.`);
+                    }
+                  }}
+                  onDragOver={(event) => {
+                    event.preventDefault(); // Necessary to allow dropping
+                  }}
                 />
               </div>
             </Panel>

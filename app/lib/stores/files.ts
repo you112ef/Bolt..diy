@@ -21,6 +21,7 @@ import {
   clearCache,
 } from '~/lib/persistence/lockedFiles';
 import { getCurrentChatId } from '~/utils/fileLocks';
+import { openDatabase, getFileMap as getFileMapFromDb, setFileMap as setFileMapInDb } from '~/lib/persistence/db'; // Import IndexedDB functions
 
 const logger = createScopedLogger('FilesStore');
 
@@ -121,8 +122,49 @@ export class FilesStore {
       observer.observe(document, { subtree: true, childList: true });
     }
 
+    // Debounce persisting to IndexedDB to avoid too frequent writes.
+    this.#debouncedPersistFileMapToDb = debounce(this.#persistFileMapToDb.bind(this), 1000);
     this.#init();
   }
+
+  #debouncedPersistFileMapToDb: () => void;
+
+  async #persistFileMapToDb() {
+    const db = await openDatabase();
+    if (db) {
+      try {
+        await setFileMapInDb(db, this.files.get());
+        logger.debug('FileMap persisted to IndexedDB');
+      } catch (error) {
+        logger.error('Failed to persist FileMap to IndexedDB', error);
+      }
+    }
+  }
+
+  async #loadFileMapFromDb() {
+    const db = await openDatabase();
+    if (db) {
+      try {
+        const cachedFileMap = await getFileMapFromDb(db);
+        if (cachedFileMap && Object.keys(cachedFileMap).length > 0) {
+          // Basic conflict resolution: If DB has content, prefer it.
+          // More sophisticated merging might be needed for real-time sync.
+          const currentFiles = this.files.get();
+          const mergedFiles = { ...currentFiles, ...cachedFileMap };
+
+          this.files.set(mergedFiles);
+          this.#size = Object.values(mergedFiles).filter(f => f?.type === 'file').length;
+          logger.info('FileMap loaded from IndexedDB and merged.');
+          return true; // Indicate that a cached map was loaded
+        }
+        logger.info('No FileMap found in IndexedDB or it was empty.');
+      } catch (error) {
+        logger.error('Failed to load FileMap from IndexedDB', error);
+      }
+    }
+    return false; // No cached map loaded
+  }
+
 
   /**
    * Load locked files and folders from localStorage and update the file objects
@@ -592,7 +634,10 @@ export class FilesStore {
   async #init() {
     const webcontainer = await this.#webcontainer;
 
-    // Clean up any files that were previously deleted
+    // Attempt to load FileMap from DB first.
+    const loadedFromDb = await this.#loadFileMapFromDb();
+
+    // Clean up any files that were previously deleted (do this after potential DB load)
     this.#cleanupDeletedFiles();
 
     // Set up file watcher
@@ -600,6 +645,9 @@ export class FilesStore {
       { include: [`${WORK_DIR}/**`], exclude: ['**/node_modules', '.git'], includeContent: true },
       bufferWatchEvents(100, this.#processEventBuffer.bind(this)),
     );
+
+    // If not loaded from DB, WebContainer's initial state will be processed by the watcher,
+    // which will then trigger persistence.
 
     // Get the current chat ID
     const currentChatId = getCurrentChatId();
@@ -734,12 +782,13 @@ export class FilesStore {
           }
 
           this.files.setKey(sanitizedPath, { type: 'file', content, isBinary });
-
+          this.#debouncedPersistFileMapToDb(); // Persist on add/change
           break;
         }
         case 'remove_file': {
           this.#size--;
           this.files.setKey(sanitizedPath, undefined);
+          this.#debouncedPersistFileMapToDb(); // Persist on remove
           break;
         }
         case 'update_directory': {
@@ -806,7 +855,7 @@ export class FilesStore {
 
         this.#modifiedFiles.set(filePath, content as string);
       }
-
+      this.#debouncedPersistFileMapToDb(); // Persist after creating file
       logger.info(`File created: ${filePath}`);
 
       return true;
@@ -829,7 +878,7 @@ export class FilesStore {
       await webcontainer.fs.mkdir(relativePath, { recursive: true });
 
       this.files.setKey(folderPath, { type: 'folder' });
-
+      this.#debouncedPersistFileMapToDb(); // Persist after creating folder
       logger.info(`Folder created: ${folderPath}`);
 
       return true;
@@ -861,7 +910,7 @@ export class FilesStore {
       }
 
       this.#persistDeletedPaths();
-
+      this.#debouncedPersistFileMapToDb(); // Persist after deleting file
       logger.info(`File deleted: ${filePath}`);
 
       return true;
@@ -906,7 +955,7 @@ export class FilesStore {
       }
 
       this.#persistDeletedPaths();
-
+      this.#debouncedPersistFileMapToDb(); // Persist after deleting folder
       logger.info(`Folder deleted: ${folderPath}`);
 
       return true;

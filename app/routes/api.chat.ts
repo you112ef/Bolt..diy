@@ -45,6 +45,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     contextOptimization: boolean;
     chatMode: 'discuss' | 'build';
     designScheme?: DesignScheme;
+    suggestions?: boolean; // Added for code suggestions
+    webSearch?: boolean; // Added for web search
+    webScrape?: boolean; // Added for web scrape
+    imageSearch?: boolean; // Added for image search
+    activeEditorFile?: string; // For editor sync
+    activeEditorContent?: string; // For editor sync
+    // lastTerminalCommand?: string; // For terminal sync
     supabase?: {
       isConnected: boolean;
       hasSelectedProject: boolean;
@@ -56,7 +63,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   }>();
 
   const cookieHeader = request.headers.get('Cookie');
-  const apiKeys = JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
+  // Allow anonymous access if apiKeys cookie is not present or empty
+  const apiKeysCookie = parseCookies(cookieHeader || '').apiKeys;
+  const apiKeys = apiKeysCookie && apiKeysCookie !== '{}' ? JSON.parse(apiKeysCookie) : {};
   const providerSettings: Record<string, IProviderSetting> = JSON.parse(
     parseCookies(cookieHeader || '').providers || '{}',
   );
@@ -70,6 +79,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   };
   const encoder: TextEncoder = new TextEncoder();
   let progressCounter: number = 1;
+          // Access same.new functions from context
+          const sameNew = context.cloudflare.env.sameNew as any;
+
 
   try {
     const totalMessageContent = messages.reduce((acc, message) => acc + message.content, '');
@@ -272,6 +284,81 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
             return;
           },
+          // Add same.new function calling capabilities if requested
+          tools: (request.body.webSearch || request.body.webScrape || request.body.imageSearch) ? [
+            {
+              type: 'function',
+              function: {
+                name: 'sameNewSearch',
+                description: 'Performs web searches, scrapes web pages, or searches for images using same.new API.',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    query: { type: 'string', description: 'The search query or URL to scrape.' },
+                    searchType: { type: 'string', enum: ['web', 'scrape', 'image'], description: 'Type of search to perform.' },
+                  },
+                  required: ['query', 'searchType'],
+                },
+              },
+            },
+            // Add run_terminal_cmd if available and relevant flags are set.
+            // For now, let's assume it's part of the general toolset if any tool is enabled.
+            {
+              type: 'function',
+              function: {
+                name: 'runTerminalCmd',
+                description: 'Executes a command in a sandboxed terminal environment via same.new API.',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    command: { type: 'string', description: 'The terminal command to execute.' },
+                  },
+                  required: ['command'],
+                },
+              },
+            }
+          ] : undefined,
+          tool_choice: (request.body.webSearch || request.body.webScrape || request.body.imageSearch) ? 'auto' : undefined,
+          // --- Tool calling logic ---
+          onToolCall: async ({ toolCall }) => {
+            logger.debug('Tool call requested:', toolCall);
+            let result;
+            try {
+              if (toolCall.toolName === 'sameNewSearch' && toolCall.args) {
+                const { query, searchType } = toolCall.args as { query: string, searchType: 'web' | 'scrape' | 'image' };
+                if (searchType === 'web' && sameNew?.webSearch) {
+                  result = await sameNew.webSearch({ query });
+                } else if (searchType === 'scrape' && sameNew?.webScrape) {
+                  result = await sameNew.webScrape({ url: query }); // Assuming query is URL for scrape
+                } else if (searchType === 'image' && sameNew?.imageSearch) { // Assuming imageSearch exists
+                  result = await sameNew.imageSearch({ query });
+                } else {
+                  throw new Error(`Unsupported searchType or function not available: ${searchType}`);
+                }
+              } else if (toolCall.toolName === 'runTerminalCmd' && toolCall.args && sameNew?.runTerminalCmd) {
+                 const { command } = toolCall.args as { command: string };
+                 result = await sameNew.runTerminalCmd({ command });
+              } else {
+                throw new Error(`Unknown tool: ${toolCall.toolName}`);
+              }
+              logger.debug('Tool call result:', result);
+              dataStream.writeMessageAnnotation({
+                type: 'tool_result', // Or a more specific type
+                toolName: toolCall.toolName,
+                result: result, // Or transform as needed
+              });
+              return { toolCallId: toolCall.toolCallId, result };
+            } catch (e: any) {
+              logger.error('Tool call failed:', e);
+              dataStream.writeMessageAnnotation({
+                type: 'tool_error',
+                toolName: toolCall.toolName,
+                error: e.message,
+              });
+              return { toolCallId: toolCall.toolCallId, result: { error: e.message } };
+            }
+          },
+          // --- End Tool calling logic ---
         };
 
         dataStream.writeData({
@@ -297,6 +384,21 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           summary,
           messageSliceId,
         });
+
+        // Prepend active editor context to the messages if available
+        if (request.body.activeEditorFile && request.body.activeEditorContent) {
+          const editorContextMessage = {
+            role: 'system', // Or 'user' if more appropriate for how LLM processes it
+            // Using a structured format that the LLM can be prompted to understand
+            content: `[System Note: The user currently has the file "${request.body.activeEditorFile}" open in their editor. Its content is:\n\`\`\`\n${request.body.activeEditorContent}\n\`\`\`]`,
+            // annotations: ['hidden'] // Optionally hide from user view but send to LLM
+          };
+          // Insert this context before the last user message, or adjust as needed
+          messages.splice(messages.length -1, 0, editorContextMessage as Message);
+          logger.debug(`Prepended editor context for: ${request.body.activeEditorFile}`);
+        }
+        // Similarly, prepend last terminal command if available and implemented
+
 
         (async () => {
           for await (const part of result.fullStream) {

@@ -30,10 +30,50 @@ export class EditorStore {
       import.meta.hot.data.documents = this.documents;
       import.meta.hot.data.selectedFile = this.selectedFile;
     }
+    this.loadSession(); // Load session on initialization
+  }
+
+  // Save session to localStorage
+  saveSession() {
+    if (typeof window !== 'undefined') {
+      const session = {
+        selectedFile: this.selectedFile.get(),
+        documents: this.documents.get(),
+        // Add other relevant settings here if needed
+      };
+      localStorage.setItem('editorSession', JSON.stringify(session));
+      logger.debug('Editor session saved');
+    }
+  }
+
+  // Load session from localStorage
+  loadSession() {
+    if (typeof window !== 'undefined') {
+      const savedSession = localStorage.getItem('editorSession');
+      if (savedSession) {
+        try {
+          const session = JSON.parse(savedSession);
+          if (session.selectedFile) {
+            this.selectedFile.set(session.selectedFile);
+          }
+          if (session.documents) {
+            // We need to be careful here, as initial files might not be loaded yet.
+            // This might be better handled after initial files are processed.
+            // For now, let's assume documents can be set directly.
+            // A more robust solution would merge this with initial file loading.
+            this.documents.set(session.documents);
+          }
+          logger.debug('Editor session loaded');
+        } catch (e) {
+          logger.error('Failed to parse saved editor session', e);
+          localStorage.removeItem('editorSession'); // Clear corrupted session
+        }
+      }
+    }
   }
 
   setDocuments(files: FileMap) {
-    const previousDocuments = this.documents.value;
+    const previousDocuments = this.documents.get(); // Use .get() instead of .value for nanostores MapStore
 
     this.documents.set(
       Object.fromEntries<EditorDocument>(
@@ -61,6 +101,7 @@ export class EditorStore {
 
   setSelectedFile(filePath: string | undefined) {
     this.selectedFile.set(filePath);
+    this.saveSession(); // Save session when selected file changes
   }
 
   updateScrollPosition(filePath: string, position: ScrollPosition) {
@@ -75,6 +116,7 @@ export class EditorStore {
       ...documentState,
       scroll: position,
     });
+    this.saveSession(); // Save session when scroll position changes
   }
 
   updateFile(filePath: string, newContent: string) {
@@ -107,6 +149,7 @@ export class EditorStore {
         ...documentState,
         value: newContent,
       });
+      this.saveSession(); // Save session when file content changes
     }
   }
 }

@@ -56,6 +56,25 @@ if (!import.meta.env.SSR) {
           }
         });
 
+        // Intercept process creation to potentially sandbox commands
+        const originalSpawn = webcontainer.spawn;
+        webcontainer.spawn = async (command, args, options) => {
+          // Simple blacklist for 'rm -rf'
+          // A more robust solution would involve a more comprehensive parser
+          // and possibly a whitelist of allowed commands/arguments.
+          if (command === 'rm' && args && args.includes('-rf')) {
+            const msg = "Error: Command 'rm -rf' is blocked for safety.\n";
+            // The attempt to directly write to terminal via internal listeners was problematic.
+            // For now, we will just log the error and throw, preventing execution.
+            // A more robust solution would involve a proper way to message the terminal UI.
+            console.error(msg);
+            // Consider writing to a global terminal message store or event bus here if available.
+            // For example: terminalStore.displaySystemMessage(msg, 'error'); (This is hypothetical)
+            throw new Error(msg.trim());
+          }
+          return originalSpawn.call(webcontainer, command, args, options);
+        };
+
         return webcontainer;
       });
 

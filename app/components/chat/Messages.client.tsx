@@ -21,11 +21,12 @@ interface MessagesProps {
   setChatMode?: (mode: 'discuss' | 'build') => void;
   model?: string;
   provider?: ProviderInfo;
+  onDragStart?: (event: React.DragEvent<HTMLDivElement>, messageText: string) => void; // Added for drag and drop
 }
 
 export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
   (props: MessagesProps, ref: ForwardedRef<HTMLDivElement> | undefined) => {
-    const { id, isStreaming = false, messages = [] } = props;
+    const { id, isStreaming = false, messages = [], onDragStart } = props;
     const location = useLocation();
 
     const handleRewind = (messageId: string) => {
@@ -72,18 +73,33 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
                     {isUserMessage ? (
                       <UserMessage content={content} />
                     ) : (
-                      <AssistantMessage
-                        content={content}
-                        annotations={message.annotations}
-                        messageId={messageId}
-                        onRewind={handleRewind}
-                        onFork={handleFork}
-                        append={props.append}
-                        chatMode={props.chatMode}
-                        setChatMode={props.setChatMode}
-                        model={props.model}
-                        provider={props.provider}
-                      />
+                      <div // Wrap AssistantMessage for drag functionality
+                        draggable={!!onDragStart} // Make draggable only if onDragStart is provided
+                        onDragStart={(e) => {
+                          if (onDragStart && typeof content === 'string') {
+                            onDragStart(e, content);
+                          } else if (onDragStart && Array.isArray(content)) {
+                            // Attempt to find a text part of the message for dragging
+                            const textContent = content.find(part => part.type === 'text');
+                            if (textContent && typeof textContent.text === 'string') {
+                              onDragStart(e, textContent.text);
+                            }
+                          }
+                        }}
+                      >
+                        <AssistantMessage
+                          content={content}
+                          annotations={message.annotations}
+                          messageId={messageId}
+                          onRewind={handleRewind}
+                          onFork={handleFork}
+                          append={props.append}
+                          chatMode={props.chatMode}
+                          setChatMode={props.setChatMode}
+                          model={props.model}
+                          provider={props.provider}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

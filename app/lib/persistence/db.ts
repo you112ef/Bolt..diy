@@ -38,6 +38,13 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
           db.createObjectStore('snapshots', { keyPath: 'chatId' });
         }
       }
+      if (oldVersion < 3) { // New version for fileCache
+        if (!db.objectStoreNames.contains('fileCache')) {
+          // Using a known key like 'currentFileMap' to store the single FileMap object.
+          // If you need to store multiple FileMaps (e.g., per project/chat), you'd use a keyPath.
+          db.createObjectStore('fileCache');
+        }
+      }
     };
 
     request.onsuccess = (event: Event) => {
@@ -47,6 +54,47 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
     request.onerror = (event: Event) => {
       resolve(undefined);
       logger.error((event.target as IDBOpenDBRequest).error);
+    };
+  });
+}
+
+// --- FileCache functions ---
+const FILE_CACHE_KEY = 'currentFileMap'; // Key for storing the FileMap
+
+export async function getFileMap(db: IDBDatabase): Promise<Record<string, any> | undefined> {
+  return new Promise((resolve, reject) => {
+    if (!db.objectStoreNames.contains('fileCache')) {
+      logger.warn('fileCache object store not found.');
+      resolve(undefined);
+      return;
+    }
+    const transaction = db.transaction('fileCache', 'readonly');
+    const store = transaction.objectStore('fileCache');
+    const request = store.get(FILE_CACHE_KEY);
+
+    request.onsuccess = () => resolve(request.result as Record<string, any> | undefined);
+    request.onerror = () => {
+      logger.error('Error getting FileMap from IndexedDB:', request.error);
+      reject(request.error);
+    };
+  });
+}
+
+export async function setFileMap(db: IDBDatabase, fileMap: Record<string, any>): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!db.objectStoreNames.contains('fileCache')) {
+      logger.error('fileCache object store not found. Cannot set FileMap.');
+      reject(new Error('fileCache object store not found'));
+      return;
+    }
+    const transaction = db.transaction('fileCache', 'readwrite');
+    const store = transaction.objectStore('fileCache');
+    const request = store.put(fileMap, FILE_CACHE_KEY);
+
+    request.onsuccess = () => resolve();
+    request.onerror = () => {
+      logger.error('Error setting FileMap in IndexedDB:', request.error);
+      reject(request.error);
     };
   });
 }

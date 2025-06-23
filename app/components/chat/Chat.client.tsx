@@ -165,7 +165,12 @@ export const ChatImpl = memo(
       api: '/api/chat',
       body: {
         apiKeys,
-        files,
+        files, // This already sends all files, which can be a lot.
+        // For better sync, we should ideally send only the currently active file's content
+        // and path, or a more focused context. This is a placeholder for that enhancement.
+        activeEditorFile: workbenchStore.editorStore.currentDocument.get()?.filePath,
+        activeEditorContent: workbenchStore.editorStore.currentDocument.get()?.value,
+        // lastTerminalCommand: terminalStore.getLastCommand(), // Needs implementation in terminalStore
         promptId,
         contextOptimization: contextOptimizationEnabled,
         chatMode,
@@ -178,6 +183,11 @@ export const ChatImpl = memo(
             anonKey: supabaseConn?.credentials?.anonKey,
           },
         },
+        // TODO: Add UI elements to control these flags
+        suggestions: true, // Enable suggestions by default
+        webSearch: true, // Enable web search by default
+        webScrape: true, // Enable web scrape by default
+        imageSearch: true, // Enable image search by default
       },
       sendExtraMessageFields: true,
       onError: (e) => {
@@ -522,6 +532,11 @@ export const ChatImpl = memo(
         isStreaming={isLoading || fakeLoading}
         onStreamingChange={(streaming) => {
           streamingState.set(streaming);
+        }}
+        onDragStart={(event, messageText) => {
+          if (event.dataTransfer && messageText) {
+            event.dataTransfer.setData('text/plain', messageText);
+          }
         }}
         enhancingPrompt={enhancingPrompt}
         promptEnhanced={promptEnhanced}

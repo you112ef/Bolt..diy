@@ -123,8 +123,8 @@
   --bolt-elements-code-background: #161616; /* Darker code background */
   --bolt-elements-code-text: #e0e0e0; /* Lighter code text */
 
-  --bolt-elements-button-primary-background: theme('colors.alpha.accent.15'); /* Slightly more opaque accent */
-  --bolt-elements-button-primary-backgroundHover: theme('colors.alpha.accent.25');
+  --bolt-elements-button-primary-background: theme('colors.alpha.accent.20'); /* Was .15, using .20 */
+  --bolt-elements-button-primary-backgroundHover: theme('colors.alpha.accent.30'); /* Was .25, using .30 */
   --bolt-elements-button-primary-text: theme('colors.accent.400');
 
   --bolt-elements-button-secondary-background: #2a2a2a; /* Darker secondary button */
@@ -141,8 +141,8 @@
   --bolt-elements-item-contentDanger: theme('colors.red.400');
   --bolt-elements-item-backgroundDefault: rgba(255, 255, 255, 0);
   --bolt-elements-item-backgroundActive: #222;
-  --bolt-elements-item-backgroundAccent: theme('colors.alpha.accent.15');
-  --bolt-elements-item-backgroundDanger: theme('colors.alpha.red.15');
+  --bolt-elements-item-backgroundAccent: theme('colors.alpha.accent.20'); /* Was .15, using .20 */
+  --bolt-elements-item-backgroundDanger: theme('colors.alpha.red.20'); /* Was .15, using .20 */
 
   --bolt-elements-loader-background: #333;
   --bolt-elements-loader-progress: theme('colors.accent.400');
@@ -173,8 +173,8 @@
   --bolt-elements-prompt-background: rgba(10, 10, 10, 0.85); /* Darker prompt bg with more opacity */
 
   --bolt-elements-sidebar-dropdownShadow: rgba(0, 0, 0, 0.5); /* Stronger shadow */
-  --bolt-elements-sidebar-buttonBackgroundDefault: theme('colors.alpha.accent.15');
-  --bolt-elements-sidebar-buttonBackgroundHover: theme('colors.alpha.accent.25');
+  --bolt-elements-sidebar-buttonBackgroundDefault: theme('colors.alpha.accent.20'); /* Was .15, using .20 */
+  --bolt-elements-sidebar-buttonBackgroundHover: theme('colors.alpha.accent.30'); /* Was .25, using .30 */
   --bolt-elements-sidebar-buttonText: theme('colors.accent.400');
 
   --bolt-elements-preview-addressBar-background: var(--bolt-elements-bg-depth-1);

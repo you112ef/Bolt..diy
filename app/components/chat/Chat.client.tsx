@@ -148,6 +148,46 @@ export const ChatImpl = memo(
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [chatMode, setChatMode] = useState<'discuss' | 'build'>('build');
     const [selectedElement, setSelectedElement] = useState<ElementInfo | null>(null);
+
+    // Use useStore to get reactive values for the useChat body
+    const currentDocument = useStore(workbenchStore.editorStore.currentDocument);
+
+    const chatApiBody = useMemo(() => {
+      return {
+        apiKeys,
+        files,
+        activeEditorFile: currentDocument?.filePath,
+        activeEditorContent: currentDocument?.value,
+        promptId,
+        contextOptimization: contextOptimizationEnabled,
+        chatMode,
+        designScheme,
+        supabase: {
+          isConnected: supabaseConn.isConnected,
+          hasSelectedProject: !!selectedProject,
+          credentials: {
+            supabaseUrl: supabaseConn?.credentials?.supabaseUrl,
+            anonKey: supabaseConn?.credentials?.anonKey,
+          },
+        },
+        suggestions: true,
+        webSearch: true,
+        webScrape: true,
+        imageSearch: true,
+      };
+    }, [
+      apiKeys,
+      files,
+      currentDocument,
+      promptId,
+      contextOptimizationEnabled,
+      chatMode,
+      designScheme,
+      supabaseConn.isConnected,
+      selectedProject,
+      supabaseConn?.credentials
+    ]);
+
     const {
       messages,
       isLoading,
@@ -163,37 +203,7 @@ export const ChatImpl = memo(
       setData,
     } = useChat({
       api: '/api/chat',
-      body: {
-        apiKeys,
-        files, // This already sends all files, which can be a lot.
-        // For better sync, we should ideally send only the currently active file's content
-        // and path, or a more focused context. This is a placeholder for that enhancement.
-        activeEditorFile: workbenchStore.editorStore.currentDocument.get()?.filePath,
-        activeEditorContent: workbenchStore.editorStore.currentDocument.get()?.value,
-        // lastTerminalCommand: terminalStore.getLastCommand(), // Needs implementation in terminalStore
-        promptId,
-        contextOptimization: contextOptimizationEnabled,
-        chatMode,
-        designScheme,
-        supabase: {
-          isConnected: supabaseConn.isConnected,
-          hasSelectedProject: !!selectedProject,
-          credentials: {
-            supabaseUrl: supabaseConn?.credentials?.supabaseUrl,
-            anonKey: supabaseConn?.credentials?.anonKey,
-          },
-        },
-        /*
-         * TODO: Add UI elements to control these flags
-         */
-        suggestions: true, // Enable suggestions by default
-
-        webSearch: true, // Enable web search by default
-
-        webScrape: true, // Enable web scrape by default
-
-        imageSearch: true, // Enable image search by default
-      },
+      body: chatApiBody, // Use the memoized reactive body
       sendExtraMessageFields: true,
       onError: (e) => {
         logger.error('Request failed\n\n', e, error);

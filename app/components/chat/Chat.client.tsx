@@ -150,7 +150,9 @@ export const ChatImpl = memo(
     const [selectedElement, setSelectedElement] = useState<ElementInfo | null>(null);
 
     // Use useStore to get reactive values for the useChat body
-    const currentDocument = useStore(workbenchStore.editorStore.currentDocument);
+    // Safely access editorStore and currentDocument
+    const editorStore = useStore(workbenchStore.editorStore); // Get the editorStore itself
+    const currentDocument = useStore(editorStore?.currentDocument); // Then get currentDocument if editorStore exists
 
     const chatApiBody = useMemo(() => {
       return {

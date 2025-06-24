@@ -27,6 +27,7 @@ import { getTheme, reconfigureTheme } from './cm-theme';
 import { indentKeyBinding } from './indent';
 import { getLanguage } from './languages';
 import { createEnvMaskingExtension } from './EnvMasking';
+import { showMinimap } from '@replit/codemirror-minimap';
 
 const logger = createScopedLogger('CodeMirrorEditor');
 
@@ -331,6 +332,15 @@ export default CodeMirrorEditor;
 
 CodeMirrorEditor.displayName = 'CodeMirrorEditor';
 
+// TODO: Implement Fuzzy Search UI and integrate with a function like this
+// import Fuse from 'fuse.js';
+// function performFuzzySearch(docContent: string, searchTerm: string) {
+//   const fuse = new Fuse([docContent]); // Or on lines of docContent for better granularity
+//   const results = fuse.search(searchTerm);
+//   // Process and highlight results in CodeMirror
+//   console.log('Fuzzy search results:', results);
+// }
+
 function newEditorState(
   content: string,
   theme: Theme,
@@ -420,6 +430,16 @@ function newEditorState(
           return icon;
         },
       }),
+      showMinimap.compute(['doc'], () => ({ // Basic minimap configuration
+        create: () => {
+          const dom = document.createElement('div');
+          // Basic styling, can be customized further via CSS
+          dom.style.cssText = 'background-color: var(--bolt-elements-bg-depth-2); overflow: hidden;';
+          return { dom };
+        },
+        // displayText: 'blocks', // Optional: 'blocks' or 'characters'
+        // showOverlay: 'mouse-over', // Optional: 'always' or 'mouse-over'
+      })),
       ...extensions,
     ],
   });

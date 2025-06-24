@@ -63,14 +63,18 @@ export const Head = createHead(() => (
     <Links />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#000000" />
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .catch(e => console.error('SW registration failed', e));
-        });
-      }
-    </script>
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/service-worker.js')
+                .catch(e => console.error('SW registration failed', e));
+            });
+          }
+        `,
+      }}
+    />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
   </>
 ));

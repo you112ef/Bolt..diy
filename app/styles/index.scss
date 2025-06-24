@@ -15,9 +15,10 @@ html,
 body {
   height: 100%;
   width: 100%;
+  /* background-color: red !important; */ /* Temporary for debugging -REVERTED */
   background-color: var(--bolt-elements-bg-depth-1);
-  max-width: 360px; /* Added max-width */
-  overflow-x: hidden; /* Added overflow-x hidden */
+  max-width: 360px;
+  overflow-x: hidden;
 }
 
 :root {

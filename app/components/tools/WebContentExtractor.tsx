@@ -105,9 +105,9 @@ export function WebContentExtractor() {
                     title: 'Success!',
                     options: {
                       body: 'The task completed successfully.',
-                      icon: '/favicon.svg', // Or a success icon
+                      icon: '/favicon.svg',
                       vibrate: [100, 50, 100],
-                      // sound: '/sounds/success.mp3' // Example sound
+                      sound: '/sounds/success.mp3' // Added sound path
                     }
                   }
                 });
@@ -128,9 +128,9 @@ export function WebContentExtractor() {
                     title: 'Error Occurred',
                     options: {
                       body: 'Something went wrong with the task.',
-                      icon: '/favicon.ico', // Or an error icon
-                      vibrate: [200, 100, 200, 100, 200], // Different pattern for error
-                      // sound: '/sounds/error.mp3' // Example sound
+                      icon: '/favicon.ico',
+                      vibrate: [200, 100, 200, 100, 200],
+                      sound: '/sounds/error.mp3' // Added sound path
                     }
                   }
                 });

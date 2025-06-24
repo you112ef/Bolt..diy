@@ -22,9 +22,11 @@ import { FileBreadcrumb } from './FileBreadcrumb';
 import { FileTree } from './FileTree';
 import { DEFAULT_TERMINAL_SIZE, TerminalTabs } from './terminal/TerminalTabs';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { Search } from './Search'; // <-- Ensure Search is imported
-import { classNames } from '~/utils/classNames'; // <-- Import classNames if not already present
-import { LockManager } from './LockManager'; // <-- Import LockManager
+import { Search } from './Search';
+import { classNames } from '~/utils/classNames';
+import { LockManager } from './LockManager';
+import { WebSearch } from '~/components/search/WebSearch'; // Added WebSearch import
+import { WebContentExtractor } from '~/components/tools/WebContentExtractor'; // Added WebContentExtractor import
 
 interface EditorPanelProps {
   files?: FileMap;
@@ -114,6 +116,22 @@ export const EditorPanel = memo(
                         >
                           Locks
                         </Tabs.Trigger>
+                        <Tabs.Trigger
+                          value="web-search"
+                          className={classNames(
+                            'h-full bg-transparent hover:bg-bolt-elements-background-depth-3 py-0.5 px-2 rounded-lg text-sm font-medium text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary data-[state=active]:text-bolt-elements-textPrimary',
+                          )}
+                        >
+                          Web Search
+                        </Tabs.Trigger>
+                        <Tabs.Trigger
+                          value="content-extractor"
+                          className={classNames(
+                            'h-full bg-transparent hover:bg-bolt-elements-background-depth-3 py-0.5 px-2 rounded-lg text-sm font-medium text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary data-[state=active]:text-bolt-elements-textPrimary',
+                          )}
+                        >
+                          Extractor
+                        </Tabs.Trigger>
                       </Tabs.List>
                     </div>
                   </PanelHeader>
@@ -137,6 +155,12 @@ export const EditorPanel = memo(
 
                   <Tabs.Content value="locks" className="flex-grow overflow-auto focus-visible:outline-none">
                     <LockManager />
+                  </Tabs.Content>
+                  <Tabs.Content value="web-search" className="flex-grow overflow-auto focus-visible:outline-none p-2">
+                    <WebSearch />
+                  </Tabs.Content>
+                  <Tabs.Content value="content-extractor" className="flex-grow overflow-auto focus-visible:outline-none p-2">
+                    <WebContentExtractor />
                   </Tabs.Content>
                 </Tabs.Root>
               </div>

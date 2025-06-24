@@ -1,0 +1,16 @@
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://*.githubusercontent.com https://camo.githubusercontent.com https://avatars.githubusercontent.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' vitals.vercel-insights.com wss://*.supabase.co https://*.supabase.co https://api.duckduckgo.com; frame-src 'self' https://*.stackblitz.com https://stackblitz.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; report-uri https://csp-reporter.example.com/csp-violations;
+
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=(), clipboard-read=(), clipboard-write=(), gamepad=(), speaker-selection=()
+
+# Note: For Cloudflare Pages, CSP can also be managed via Transform Rules or Workers for more dynamic control.
+# The 'unsafe-inline' and 'unsafe-eval' for script-src are often needed for development mode or certain libraries.
+# For production, strive to remove them by using hashes or nonces if possible.
+# The report-uri is a placeholder and should be configured to a real endpoint if violation reporting is desired.
+# Added common GitHub domains for images often found in user content/profiles.
+# Added Supabase domains for connect-src based on project dependencies.
+# Added vitals.vercel-insights.com as it's common for Remix apps deployed on Vercel/similar.
+# Adjusted frame-ancestors to 'none' for stronger clickjacking protection, change to 'self' if you need to iframe your own app.

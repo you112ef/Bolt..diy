@@ -75,6 +75,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <noscript>
+        <div style={{ backgroundColor: '#0a0a0a', color: '#f0f0f0', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
+          <h1>JavaScript Required</h1>
+          <p>This application requires JavaScript to function properly. Please enable JavaScript in your browser settings and refresh the page.</p>
+          <p>If you need help, please visit <a href="https://www.enable-javascript.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#8A2BE2' }}>enable-javascript.com</a>.</p>
+        </div>
+      </noscript>
       <ClientOnly>{() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}</ClientOnly>
       <ScrollRestoration />
       <Scripts />

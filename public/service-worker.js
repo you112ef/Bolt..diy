@@ -4,7 +4,10 @@ const APP_SHELL_FILES = [
   '/manifest.webmanifest',
   '/favicon.svg',
   '/assets/icons/icon.png', // أيقونة PWA الرئيسية
-  '/offline.html' // صفحة الاحتياط عند عدم الاتصال
+  '/offline.html', // صفحة الاحتياط عند عدم الاتصال
+  // إضافة ملفات الصوت المفترضة هنا ليتم تخزينها مؤقتًا
+  '/sounds/success.mp3',
+  '/sounds/error.mp3'
 ];
 // لا نضع هنا ملفات CSS/JS المبنية ذات الهاشات، ستُخزن ديناميكيًا
 
@@ -149,16 +152,43 @@ self.addEventListener('message', event => {
     event.waitUntil(
       self.registration.showNotification(title, {
         body: options.body || 'Bolt AI Notification',
-        icon: options.icon || '/assets/icons/icon.png', // Default icon
-        badge: options.badge || '/assets/icons/icon.png', // Icon for notification bar (Android)
-        vibrate: options.vibrate || [200, 100, 200], // Default vibration pattern
-        sound: options.sound || undefined, // Path to sound file or rely on system default
-        tag: options.tag || 'bolt-notification', // Tag to group or replace notifications
-        renotify: options.renotify || false, // Whether to renotify if tag is the same
-        requireInteraction: options.requireInteraction || false, // Keep notification until user interacts
-        actions: options.actions || [], // Example: [{ action: 'explore', title: 'Explore' }]
-        // data: options.data || {} // Custom data to pass along
+        icon: options.icon || '/assets/icons/icon.png',
+        badge: options.badge || '/assets/icons/icon.png',
+        vibrate: options.vibrate || [200, 100, 200],
+        sound: options.sound || undefined, // Use provided sound, or system default if undefined
+        tag: options.tag || 'bolt-notification',
+        renotify: options.renotify || false,
+        requireInteraction: options.requireInteraction || false,
+        actions: options.actions || [],
+        data: { ...(options.data || {}), url: event.notification?.data?.url || '/' } // Pass along data, including URL for click action
       })
     );
   }
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', event => {
+  console.log('[Service Worker V2] Notification click Received.', event.notification);
+  event.notification.close();
+
+  const notificationData = event.notification.data || {};
+  const urlToOpen = notificationData.url || '/'; // Default to opening the app's root
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      // Check if there's already a window open for the app.
+      for (let i = 0; i < clientList.length; i++) {
+        const client = clientList[i];
+        // If an app window is already open, focus it.
+        // You might want to check client.url to see if it's already on the target URL.
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // If no window is open or the target URL is different, open a new window.
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
 });

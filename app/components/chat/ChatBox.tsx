@@ -171,7 +171,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <textarea
           ref={props.textareaRef}
           className={classNames(
-            'w-full pl-3 pt-3 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm', // Adjusted padding
+            'w-full pl-3 pt-3 pr-12 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-xs', // Adjusted padding (pr-12 from pr-16), changed text-sm to text-xs
             'transition-all duration-200',
             'hover:border-bolt-elements-focus',
           )}
@@ -257,7 +257,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             />
           )}
         </ClientOnly>
-        <div className="flex justify-between items-center text-sm p-2 pt-1 flex-wrap wrap">
+        <div className="flex justify-between items-center p-2 pt-1 flex-wrap wrap"> {/* Removed text-sm from container */}
           <div className="flex gap-1 items-center flex-wrap wrap">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
             <IconButton title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
@@ -299,7 +299,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 }}
               >
                 <div className={`i-ph:chats text-lg`} />
-                {props.chatMode === 'discuss' ? <span>Discuss</span> : <span />}
+                {props.chatMode === 'discuss' ? <span className="text-xs">Discuss</span> : <span />} {/* Added text-xs */}
               </IconButton>
             )}
             <IconButton

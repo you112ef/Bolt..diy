@@ -61,7 +61,7 @@ export const DeployButton = ({ onVercelDeploy, onNetlifyDeploy }: DeployButtonPr
   };
 
   return (
-    <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden text-sm">
+    <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden"> {/* Removed text-sm */}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger
           disabled={isDeploying || !activePreview || isStreaming}
@@ -84,7 +84,7 @@ export const DeployButton = ({ onVercelDeploy, onNetlifyDeploy }: DeployButtonPr
         >
           <DropdownMenu.Item
             className={classNames(
-              'cursor-pointer flex items-center w-full px-2 py-1.5 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted padding and gap
+              'cursor-pointer flex items-center w-full px-2 py-1.5 text-xs text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted text size
               {
                 'opacity-60 cursor-not-allowed': isDeploying || !activePreview || !netlifyConn.user,
               },
@@ -93,7 +93,7 @@ export const DeployButton = ({ onVercelDeploy, onNetlifyDeploy }: DeployButtonPr
             onClick={handleNetlifyDeployClick}
           >
             <img
-              className="w-4.5 h-4.5" // Adjusted size
+              className="w-4 h-4" // Adjusted icon size
               height="24"
               width="24"
               crossOrigin="anonymous"
@@ -105,7 +105,7 @@ export const DeployButton = ({ onVercelDeploy, onNetlifyDeploy }: DeployButtonPr
 
           <DropdownMenu.Item
             className={classNames(
-              'cursor-pointer flex items-center w-full px-2 py-1.5 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted padding and gap
+              'cursor-pointer flex items-center w-full px-2 py-1.5 text-xs text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted text size
               {
                 'opacity-60 cursor-not-allowed': isDeploying || !activePreview || !vercelConn.user,
               },
@@ -114,7 +114,7 @@ export const DeployButton = ({ onVercelDeploy, onNetlifyDeploy }: DeployButtonPr
             onClick={handleVercelDeployClick}
           >
             <img
-              className="w-4.5 h-4.5 bg-black p-0.5 rounded" // Adjusted size & padding
+              className="w-4 h-4 bg-black p-0.5 rounded" // Adjusted icon size
               height="24"
               width="24"
               crossOrigin="anonymous"
@@ -127,10 +127,10 @@ export const DeployButton = ({ onVercelDeploy, onNetlifyDeploy }: DeployButtonPr
 
           <DropdownMenu.Item
             disabled
-            className="flex items-center w-full rounded-md px-2 py-1.5 text-sm text-bolt-elements-textTertiary gap-1.5 opacity-60 cursor-not-allowed" // Adjusted padding and gap
+            className="flex items-center w-full rounded-md px-2 py-1.5 text-xs text-bolt-elements-textTertiary gap-1.5 opacity-60 cursor-not-allowed" // Adjusted text size
           >
             <img
-              className="w-4.5 h-4.5" // Adjusted size
+              className="w-4 h-4" // Adjusted icon size
               height="24"
               width="24"
               crossOrigin="anonymous"

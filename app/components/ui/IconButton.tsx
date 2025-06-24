@@ -31,7 +31,7 @@ export const IconButton = memo(
     (
       {
         icon,
-        size = 'xl',
+        size = 'md', // Changed default size to 'md'
         className,
         iconClassName,
         disabledClassName,
@@ -71,14 +71,14 @@ export const IconButton = memo(
 
 function getIconSize(size: IconSize) {
   if (size === 'sm') {
-    return 'text-sm';
+    return 'text-xs'; // Reduced from text-sm
   } else if (size === 'md') {
-    return 'text-md';
+    return 'text-sm'; // Reduced from text-md (1rem) to text-sm (14px if base 16, or use standard icon classes like w-4 h-4) - let's use text-sm for slightly larger than xs
   } else if (size === 'lg') {
-    return 'text-lg';
+    return 'text-base'; // Reduced from text-lg
   } else if (size === 'xl') {
-    return 'text-xl';
+    return 'text-lg'; // Reduced from text-xl
   } else {
-    return 'text-2xl';
+    return 'text-xl'; // Reduced from text-2xl
   }
 }

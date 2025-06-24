@@ -249,7 +249,7 @@ export default defineConfig({
     {
       getCSS: () => `
         body {
-          max-width: 430px !important;
+          max-width: 360px !important;
           margin: 0 auto !important;
         }
       `,

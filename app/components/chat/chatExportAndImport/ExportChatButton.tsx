@@ -4,7 +4,7 @@ import { classNames } from '~/utils/classNames';
 
 export const ExportChatButton = ({ exportChat }: { exportChat?: () => void }) => {
   return (
-    <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden mr-2 text-sm">
+    <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden mr-2"> {/* Removed text-sm */}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger className="rounded-md items-center justify-center [&:is(:disabled,.disabled)]:cursor-not-allowed [&:is(:disabled,.disabled)]:opacity-60 px-3 py-1.5 text-xs bg-bolt-elements-background-depth-2 text-bolt-elements-textPrimary [&:not(:disabled,.disabled)]:hover:bg-bolt-elements-button-primary-backgroundHover outline-accent-500 flex gap-1.7">
           Export
@@ -24,22 +24,22 @@ export const ExportChatButton = ({ exportChat }: { exportChat?: () => void }) =>
         >
           <DropdownMenu.Item
             className={classNames(
-              'cursor-pointer flex items-center w-auto px-2 py-1.5 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted padding and gap
+              'cursor-pointer flex items-center w-auto px-2 py-1.5 text-xs text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted text size
             )}
             onClick={() => {
               workbenchStore.downloadZip();
             }}
           >
-            <div className="i-ph:code size-4.5"></div>
+            <div className="i-ph:code size-4"></div> {/* Adjusted icon size */}
             <span>Download Code</span>
           </DropdownMenu.Item>
           <DropdownMenu.Item
             className={classNames(
-              'cursor-pointer flex items-center w-full px-2 py-1.5 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted padding and gap
+              'cursor-pointer flex items-center w-full px-2 py-1.5 text-xs text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-1.5 rounded-md group relative', // Adjusted text size
             )}
             onClick={() => exportChat?.()}
           >
-            <div className="i-ph:chat size-4.5"></div>
+            <div className="i-ph:chat size-4"></div> {/* Adjusted icon size */}
             <span>Export Chat</span>
           </DropdownMenu.Item>
         </DropdownMenu.Content>

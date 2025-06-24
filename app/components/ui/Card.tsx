@@ -18,7 +18,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref
 Card.displayName = 'Card';
 
 const CardHeader = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => {
-  return <div ref={ref} className={classNames('flex flex-col space-y-1.5 p-4', className)} {...props} />;
+  return <div ref={ref} className={classNames('flex flex-col space-y-1 p-3', className)} {...props} />;
 });
 CardHeader.displayName = 'CardHeader';
 
@@ -27,7 +27,7 @@ const CardTitle = forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHead
     return (
       <h3
         ref={ref}
-        className={classNames('text-xl font-semibold leading-none tracking-tight', className)}
+        className={classNames('text-base font-semibold leading-none tracking-tight', className)} // Reduced from text-xl to text-base
         {...props}
       />
     );
@@ -37,18 +37,18 @@ CardTitle.displayName = 'CardTitle';
 
 const CardDescription = forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => {
-    return <p ref={ref} className={classNames('text-sm text-bolt-elements-textSecondary', className)} {...props} />;
+    return <p ref={ref} className={classNames('text-xs text-bolt-elements-textSecondary', className)} {...props} />; // Reduced from text-sm to text-xs
   },
 );
 CardDescription.displayName = 'CardDescription';
 
 const CardContent = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => {
-  return <div ref={ref} className={classNames('p-4 pt-0', className)} {...props} />;
+  return <div ref={ref} className={classNames('p-3 pt-0', className)} {...props} />;
 });
 CardContent.displayName = 'CardContent';
 
 const CardFooter = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
-  <div ref={ref} className={classNames('flex items-center p-4 pt-0', className)} {...props} />
+  <div ref={ref} className={classNames('flex items-center p-3 pt-0', className)} {...props} />
 ));
 CardFooter.displayName = 'CardFooter';
 

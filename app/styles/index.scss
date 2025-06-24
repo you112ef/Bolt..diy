@@ -99,5 +99,6 @@ i,
 .popup,
 .dialog { /* Add other selectors for your modals/popups */
   max-width: 90%;
+  max-height: 90vh; /* Added max-height relative to viewport height */
   overflow: auto;
 }

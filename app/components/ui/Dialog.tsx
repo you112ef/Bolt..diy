@@ -22,12 +22,12 @@ export const DialogButton = memo(({ type, children, onClick, disabled }: DialogB
   return (
     <button
       className={classNames(
-        'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors',
+        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-colors', // Reduced padding, gap, font size, rounded
         type === 'primary'
           ? 'bg-purple-500 text-white hover:bg-purple-600 dark:bg-purple-500 dark:hover:bg-purple-600'
           : type === 'secondary'
             ? 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-            : 'bg-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10',
+            : 'bg-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10', // Ensure destructive variant is properly styled if needed
       )}
       onClick={onClick}
       disabled={disabled}
@@ -40,7 +40,7 @@ export const DialogButton = memo(({ type, children, onClick, disabled }: DialogB
 export const DialogTitle = memo(({ className, children, ...props }: RadixDialog.DialogTitleProps) => {
   return (
     <RadixDialog.Title
-      className={classNames('text-lg font-medium text-bolt-elements-textPrimary flex items-center gap-2', className)}
+      className={classNames('text-base font-medium text-bolt-elements-textPrimary flex items-center gap-1.5', className)} // Reduced font size, gap
       {...props}
     >
       {children}
@@ -51,7 +51,7 @@ export const DialogTitle = memo(({ className, children, ...props }: RadixDialog.
 export const DialogDescription = memo(({ className, children, ...props }: RadixDialog.DialogDescriptionProps) => {
   return (
     <RadixDialog.Description
-      className={classNames('text-sm text-bolt-elements-textSecondary mt-1', className)}
+      className={classNames('text-xs text-bolt-elements-textSecondary mt-1', className)} // Reduced font size
       {...props}
     >
       {children}
@@ -116,7 +116,7 @@ export const Dialog = memo(({ children, className, showCloseButton = true, onClo
       <RadixDialog.Content asChild>
         <motion.div
           className={classNames(
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-950 rounded-lg shadow-xl border border-bolt-elements-borderColor z-[9999] w-[520px] focus:outline-none',
+            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-950 rounded-lg shadow-xl border border-bolt-elements-borderColor z-[9999] w-full max-w-[calc(100vw-2rem)] sm:max-w-sm focus:outline-none', // Responsive width
             className,
           )}
           initial="closed"
@@ -208,7 +208,7 @@ export function ConfirmationDialog({
   return (
     <RadixDialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog showCloseButton={false}>
-        <div className="p-6 bg-white dark:bg-gray-950 relative z-10">
+        <div className="p-4 bg-white dark:bg-gray-950 relative z-10"> {/* Reduced padding */}
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="mb-4">{description}</DialogDescription>
           <div className="flex justify-end space-x-2">
@@ -364,8 +364,8 @@ export function SelectionDialog({
         <div className="grid gap-1.5 leading-none">
           <Label
             htmlFor={`item-${item.id}`}
-            className={classNames(
-              'text-sm font-medium cursor-pointer',
+            className={classNames( // Reduced font size for item label
+              'text-xs font-medium cursor-pointer',
               selectedItems.includes(item.id)
                 ? 'text-bolt-elements-item-contentAccent'
                 : 'text-bolt-elements-textPrimary',
@@ -382,7 +382,7 @@ export function SelectionDialog({
   return (
     <RadixDialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog showCloseButton={false}>
-        <div className="p-6 bg-white dark:bg-gray-950 relative z-10">
+        <div className="p-4 bg-white dark:bg-gray-950 relative z-10"> {/* Reduced padding */}
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="mt-2 mb-4">
             Select the items you want to include and click{' '}
@@ -391,7 +391,7 @@ export function SelectionDialog({
 
           <div className="py-4">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-bolt-elements-textSecondary">
+              <span className="text-xs font-medium text-bolt-elements-textSecondary"> {/* Reduced font size */}
                 {selectedItems.length} of {items.length} selected
               </span>
               <Button
@@ -415,13 +415,13 @@ export function SelectionDialog({
                   height={listHeight}
                   width="100%"
                   itemCount={items.length}
-                  itemSize={60}
+                  itemSize={50} // Reduced item size
                   className="scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-bolt-elements-bg-depth-3"
                 >
                   {ItemRenderer}
                 </FixedSizeList>
               ) : (
-                <div className="text-center py-4 text-sm text-bolt-elements-textTertiary">No items to display</div>
+                <div className="text-center py-4 text-xs text-bolt-elements-textTertiary">No items to display</div> // Reduced font size
               )}
             </div>
           </div>

@@ -16,16 +16,16 @@ export function Header() {
       })}
     >
       <div className="flex items-center gap-2 z-logo text-bolt-elements-textPrimary cursor-pointer">
-        <div className="i-ph:sidebar-simple-duotone text-3xl" />
-        <a href="/" className="text-2xl font-semibold text-accent flex items-center">
+        <div className="i-ph:sidebar-simple-duotone text-xl" /> {/* Reduced icon size */}
+        <a href="/" className="text-lg font-semibold text-accent flex items-center"> {/* Reduced text size */}
           {/* <span className="i-bolt:logo-text?mask w-[46px] inline-block" /> */}
-          <img src="https://d.top4top.io/p_3448rqs6n1.png" alt="logo" className="w-[80px] inline-block dark:hidden" />
-          <img src="https://d.top4top.io/p_3448rqs6n1.png" alt="logo" className="w-[80px] inline-block hidden dark:block" />
+          <img src="https://d.top4top.io/p_3448rqs6n1.png" alt="logo" className="w-[70px] inline-block dark:hidden" /> {/* Reduced image width */}
+          <img src="https://d.top4top.io/p_3448rqs6n1.png" alt="logo" className="w-[70px] inline-block hidden dark:block" /> {/* Reduced image width */}
         </a>
       </div>
       {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.
         <>
-          <span className="flex-1 px-2 truncate text-center text-bolt-elements-textPrimary">
+          <span className="flex-1 px-2 truncate text-center text-bolt-elements-textPrimary text-xs"> {/* Added text-xs */}
             <ClientOnly>{() => <ChatDescription />}</ClientOnly>
           </span>
           <ClientOnly>

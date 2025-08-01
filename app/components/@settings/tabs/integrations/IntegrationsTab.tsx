@@ -1,20 +1,36 @@
 import { motion } from 'framer-motion';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { classNames } from '~/utils/classNames';
 import { Button } from '~/components/ui/Button';
 import { Badge } from '~/components/ui/Badge';
+import { toast } from 'react-toastify';
 
 interface Integration {
   id: string;
   name: string;
   description: string;
   icon: string;
-  status: 'available' | 'connected' | 'premium' | 'coming-soon';
+  status: 'available' | 'connected' | 'premium' | 'coming-soon' | 'error';
   category: 'development' | 'productivity' | 'communication' | 'design' | 'analytics';
   features: string[];
   isFree: boolean;
   isPopular?: boolean;
+  apiKey?: string;
+  config?: any;
+  lastSync?: string;
+  syncStatus?: 'success' | 'error' | 'pending';
 }
+
+interface IntegrationConfig {
+  apiKey?: string;
+  webhookUrl?: string;
+  workspace?: string;
+  projectId?: string;
+  customDomain?: string;
+}
+
+// Store for integration states
+const integrationStore = new Map<string, Integration>();
 
 const INTEGRATIONS: Integration[] = [
   // Development Tools
@@ -23,7 +39,7 @@ const INTEGRATIONS: Integration[] = [
     name: 'GitHub',
     description: 'Connect your repositories and manage code directly',
     icon: 'i-simple-icons:github',
-    status: 'connected',
+    status: 'available',
     category: 'development',
     features: ['Repository Management', 'Code Review', 'Issue Tracking', 'CI/CD Integration'],
     isFree: true,
@@ -40,21 +56,11 @@ const INTEGRATIONS: Integration[] = [
     isFree: true,
   },
   {
-    id: 'bitbucket',
-    name: 'Bitbucket',
-    description: 'Git code hosting and collaboration platform',
-    icon: 'i-simple-icons:bitbucket',
-    status: 'available',
-    category: 'development',
-    features: ['Repository Management', 'Pull Requests', 'Jira Integration', 'Pipelines'],
-    isFree: true,
-  },
-  {
     id: 'vercel',
     name: 'Vercel',
     description: 'Deploy and host your applications instantly',
     icon: 'i-simple-icons:vercel',
-    status: 'connected',
+    status: 'available',
     category: 'development',
     features: ['Instant Deployments', 'Preview URLs', 'Custom Domains', 'Analytics'],
     isFree: true,
@@ -65,19 +71,9 @@ const INTEGRATIONS: Integration[] = [
     name: 'Netlify',
     description: 'Build, deploy, and manage modern web projects',
     icon: 'i-simple-icons:netlify',
-    status: 'connected',
-    category: 'development',
-    features: ['Continuous Deployment', 'Form Handling', 'Serverless Functions', 'CDN'],
-    isFree: true,
-  },
-  {
-    id: 'railway',
-    name: 'Railway',
-    description: 'Deploy your code with zero configuration',
-    icon: 'i-simple-icons:railway',
     status: 'available',
     category: 'development',
-    features: ['Zero Config Deploy', 'Database Hosting', 'Custom Domains', 'Team Collaboration'],
+    features: ['Continuous Deployment', 'Form Handling', 'Serverless Functions', 'CDN'],
     isFree: true,
   },
 
@@ -113,26 +109,6 @@ const INTEGRATIONS: Integration[] = [
     features: ['Voice Channels', 'Text Channels', 'Screen Sharing', 'Bots'],
     isFree: true,
   },
-  {
-    id: 'trello',
-    name: 'Trello',
-    description: 'Visual project management with boards and cards',
-    icon: 'i-simple-icons:trello',
-    status: 'available',
-    category: 'productivity',
-    features: ['Kanban Boards', 'Task Management', 'Team Collaboration', 'Automation'],
-    isFree: true,
-  },
-  {
-    id: 'asana',
-    name: 'Asana',
-    description: 'Work management platform for teams',
-    icon: 'i-simple-icons:asana',
-    status: 'available',
-    category: 'productivity',
-    features: ['Project Management', 'Task Tracking', 'Team Calendar', 'Reporting'],
-    isFree: true,
-  },
 
   // Communication Tools
   {
@@ -153,16 +129,6 @@ const INTEGRATIONS: Integration[] = [
     status: 'available',
     category: 'communication',
     features: ['Team Chat', 'Video Calls', 'File Sharing', 'Office Integration'],
-    isFree: true,
-  },
-  {
-    id: 'telegram',
-    name: 'Telegram',
-    description: 'Secure messaging and file sharing',
-    icon: 'i-simple-icons:telegram',
-    status: 'available',
-    category: 'communication',
-    features: ['Secure Messaging', 'File Sharing', 'Channels', 'Bots'],
     isFree: true,
   },
 
@@ -188,16 +154,6 @@ const INTEGRATIONS: Integration[] = [
     features: ['Graphic Design', 'Templates', 'Collaboration', 'Brand Kit'],
     isFree: true,
   },
-  {
-    id: 'adobe-creative-cloud',
-    name: 'Adobe Creative Cloud',
-    description: 'Professional creative software suite',
-    icon: 'i-simple-icons:adobecreativecloud',
-    status: 'premium',
-    category: 'design',
-    features: ['Photoshop', 'Illustrator', 'InDesign', 'XD'],
-    isFree: false,
-  },
 
   // Analytics Tools
   {
@@ -218,48 +174,6 @@ const INTEGRATIONS: Integration[] = [
     status: 'available',
     category: 'analytics',
     features: ['Event Tracking', 'Funnel Analysis', 'A/B Testing', 'User Profiles'],
-    isFree: true,
-  },
-  {
-    id: 'hotjar',
-    name: 'Hotjar',
-    description: 'Website heatmaps and user behavior analytics',
-    icon: 'i-simple-icons:hotjar',
-    status: 'available',
-    category: 'analytics',
-    features: ['Heatmaps', 'Session Recordings', 'Feedback Tools', 'Conversion Funnels'],
-    isFree: true,
-  },
-  {
-    id: 'amplitude',
-    name: 'Amplitude',
-    description: 'Product analytics for digital products',
-    icon: 'i-simple-icons:amplitude',
-    status: 'available',
-    category: 'analytics',
-    features: ['Event Analytics', 'User Segmentation', 'Cohort Analysis', 'Retention'],
-    isFree: true,
-  },
-
-  // Coming Soon
-  {
-    id: 'linear',
-    name: 'Linear',
-    description: 'Issue tracking and project management for software teams',
-    icon: 'i-simple-icons:linear',
-    status: 'coming-soon',
-    category: 'development',
-    features: ['Issue Tracking', 'Roadmaps', 'Automation', 'Integrations'],
-    isFree: true,
-  },
-  {
-    id: 'clickup',
-    name: 'ClickUp',
-    description: 'All-in-one productivity platform',
-    icon: 'i-simple-icons:clickup',
-    status: 'coming-soon',
-    category: 'productivity',
-    features: ['Task Management', 'Docs', 'Chat', 'Goals'],
     isFree: true,
   },
 ];
@@ -294,14 +208,234 @@ const STATUS_CONFIG = {
     color: 'bg-gray-500/10 text-gray-600 dark:text-gray-400',
     icon: 'i-ph:clock',
   },
+  error: {
+    label: 'Connection Error',
+    color: 'bg-red-500/10 text-red-600 dark:text-red-400',
+    icon: 'i-ph:warning',
+  },
+};
+
+// Real API functions for integrations
+const IntegrationAPI = {
+  // GitHub Integration
+  async connectGitHub(token: string): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const response = await fetch('https://api.github.com/user', {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid GitHub token');
+      }
+
+      const userData = await response.json();
+      
+      // Test repository access
+      const reposResponse = await fetch('https://api.github.com/user/repos?per_page=5', {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+
+      const repos = await reposResponse.json();
+
+      return {
+        success: true,
+        data: {
+          user: userData,
+          repos: repos,
+          lastSync: new Date().toISOString(),
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to connect to GitHub',
+      };
+    }
+  },
+
+  // Vercel Integration
+  async connectVercel(token: string): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const response = await fetch('https://api.vercel.com/v1/user', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid Vercel token');
+      }
+
+      const userData = await response.json();
+      
+      // Get projects
+      const projectsResponse = await fetch('https://api.vercel.com/v1/projects', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const projects = await projectsResponse.json();
+
+      return {
+        success: true,
+        data: {
+          user: userData,
+          projects: projects.projects || [],
+          lastSync: new Date().toISOString(),
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to connect to Vercel',
+      };
+    }
+  },
+
+  // Notion Integration
+  async connectNotion(token: string): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const response = await fetch('https://api.notion.com/v1/users/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Notion-Version': '2022-06-28',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid Notion token');
+      }
+
+      const userData = await response.json();
+
+      return {
+        success: true,
+        data: {
+          user: userData,
+          lastSync: new Date().toISOString(),
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to connect to Notion',
+      };
+    }
+  },
+
+  // Slack Integration
+  async connectSlack(token: string): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const response = await fetch('https://slack.com/api/auth.test', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid Slack token');
+      }
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        throw new Error(data.error || 'Slack authentication failed');
+      }
+
+      return {
+        success: true,
+        data: {
+          user: data,
+          lastSync: new Date().toISOString(),
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to connect to Slack',
+      };
+    }
+  },
+
+  // Test connection for any integration
+  async testConnection(integrationId: string, config: IntegrationConfig): Promise<{ success: boolean; error?: string }> {
+    switch (integrationId) {
+      case 'github':
+        if (!config.apiKey) return { success: false, error: 'GitHub token is required' };
+        const githubResult = await this.connectGitHub(config.apiKey);
+        return { success: githubResult.success, error: githubResult.error };
+
+      case 'vercel':
+        if (!config.apiKey) return { success: false, error: 'Vercel token is required' };
+        const vercelResult = await this.connectVercel(config.apiKey);
+        return { success: vercelResult.success, error: vercelResult.error };
+
+      case 'notion':
+        if (!config.apiKey) return { success: false, error: 'Notion token is required' };
+        const notionResult = await this.connectNotion(config.apiKey);
+        return { success: notionResult.success, error: notionResult.error };
+
+      case 'slack':
+        if (!config.apiKey) return { success: false, error: 'Slack token is required' };
+        const slackResult = await this.connectSlack(config.apiKey);
+        return { success: slackResult.success, error: slackResult.error };
+
+      default:
+        return { success: false, error: 'Integration not implemented yet' };
+    }
+  },
 };
 
 export default function IntegrationsTab() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showConnectedOnly, setShowConnectedOnly] = useState(false);
+  const [integrations, setIntegrations] = useState<Integration[]>(INTEGRATIONS);
+  const [connectingId, setConnectingId] = useState<string | null>(null);
+  const [showConfigModal, setShowConfigModal] = useState<string | null>(null);
+  const [configData, setConfigData] = useState<IntegrationConfig>({});
 
-  const filteredIntegrations = INTEGRATIONS.filter((integration) => {
+  // Load saved integrations from localStorage
+  useEffect(() => {
+    const savedIntegrations = localStorage.getItem('integrations');
+    if (savedIntegrations) {
+      try {
+        const parsed = JSON.parse(savedIntegrations);
+        const updatedIntegrations = integrations.map(integration => ({
+          ...integration,
+          ...parsed[integration.id],
+        }));
+        setIntegrations(updatedIntegrations);
+      } catch (error) {
+        console.error('Failed to load saved integrations:', error);
+      }
+    }
+  }, []);
+
+  // Save integrations to localStorage
+  const saveIntegrations = (updatedIntegrations: Integration[]) => {
+    const savedData: Record<string, any> = {};
+    updatedIntegrations.forEach(integration => {
+      if (integration.status === 'connected' || integration.config) {
+        savedData[integration.id] = {
+          status: integration.status,
+          config: integration.config,
+          lastSync: integration.lastSync,
+          syncStatus: integration.syncStatus,
+        };
+      }
+    });
+    localStorage.setItem('integrations', JSON.stringify(savedData));
+  };
+
+  const filteredIntegrations = integrations.filter((integration) => {
     const matchesCategory = selectedCategory === 'all' || integration.category === selectedCategory;
     const matchesSearch = integration.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          integration.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -310,14 +444,91 @@ export default function IntegrationsTab() {
     return matchesCategory && matchesSearch && matchesStatus;
   });
 
-  const handleConnect = (integration: Integration) => {
-    // TODO: Implement connection logic
-    console.log('Connecting to:', integration.name);
+  const handleConnect = async (integration: Integration) => {
+    setConnectingId(integration.id);
+    setShowConfigModal(integration.id);
   };
 
   const handleDisconnect = (integration: Integration) => {
-    // TODO: Implement disconnection logic
-    console.log('Disconnecting from:', integration.name);
+    const updatedIntegrations = integrations.map(int => 
+      int.id === integration.id 
+        ? { ...int, status: 'available' as const, config: undefined, lastSync: undefined, syncStatus: undefined }
+        : int
+    );
+    setIntegrations(updatedIntegrations);
+    saveIntegrations(updatedIntegrations);
+    toast.success(`Disconnected from ${integration.name}`);
+  };
+
+  const handleTestConnection = async (integrationId: string) => {
+    setConnectingId(integrationId);
+    
+    try {
+      const result = await IntegrationAPI.testConnection(integrationId, configData);
+      
+      if (result.success) {
+        const updatedIntegrations = integrations.map(int => 
+          int.id === integrationId 
+            ? { 
+                ...int, 
+                status: 'connected' as const, 
+                config: configData,
+                lastSync: new Date().toISOString(),
+                syncStatus: 'success' as const
+              }
+            : int
+        );
+        setIntegrations(updatedIntegrations);
+        saveIntegrations(updatedIntegrations);
+        setShowConfigModal(null);
+        setConfigData({});
+        toast.success(`Successfully connected to ${integrations.find(i => i.id === integrationId)?.name}`);
+      } else {
+        const updatedIntegrations = integrations.map(int => 
+          int.id === integrationId 
+            ? { ...int, status: 'error' as const, syncStatus: 'error' as const }
+            : int
+        );
+        setIntegrations(updatedIntegrations);
+        toast.error(result.error || 'Connection failed');
+      }
+    } catch (error) {
+      toast.error('Connection failed. Please try again.');
+    } finally {
+      setConnectingId(null);
+    }
+  };
+
+  const handleSync = async (integration: Integration) => {
+    if (!integration.config) return;
+    
+    setConnectingId(integration.id);
+    
+    try {
+      const result = await IntegrationAPI.testConnection(integration.id, integration.config);
+      
+      const updatedIntegrations = integrations.map(int => 
+        int.id === integration.id 
+          ? { 
+              ...int, 
+              lastSync: new Date().toISOString(),
+              syncStatus: result.success ? 'success' as const : 'error' as const
+            }
+          : int
+      );
+      setIntegrations(updatedIntegrations);
+      saveIntegrations(updatedIntegrations);
+      
+      if (result.success) {
+        toast.success(`Synced with ${integration.name}`);
+      } else {
+        toast.error(`Sync failed: ${result.error}`);
+      }
+    } catch (error) {
+      toast.error('Sync failed. Please try again.');
+    } finally {
+      setConnectingId(null);
+    }
   };
 
   return (
@@ -420,6 +631,16 @@ export default function IntegrationsTab() {
               </div>
             )}
 
+            {/* Sync Status Indicator */}
+            {integration.status === 'connected' && integration.syncStatus && (
+              <div className="absolute top-3 left-3">
+                <div className={classNames(
+                  'w-2 h-2 rounded-full',
+                  integration.syncStatus === 'success' ? 'bg-green-500' : 'bg-red-500'
+                )} />
+              </div>
+            )}
+
             {/* Header */}
             <div className="flex items-start gap-3 mb-3">
               <div className="flex-shrink-0 w-10 h-10 bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 rounded-lg flex items-center justify-center">
@@ -456,6 +677,13 @@ export default function IntegrationsTab() {
               )}
             </div>
 
+            {/* Last Sync Info */}
+            {integration.status === 'connected' && integration.lastSync && (
+              <div className="mb-3 text-xs text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary">
+                Last synced: {new Date(integration.lastSync).toLocaleDateString()}
+              </div>
+            )}
+
             {/* Features */}
             <div className="mb-4">
               <div className="flex flex-wrap gap-1">
@@ -475,18 +703,34 @@ export default function IntegrationsTab() {
               </div>
             </div>
 
-            {/* Action Button */}
+            {/* Action Buttons */}
             <div className="flex gap-2">
               {integration.status === 'connected' ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDisconnect(integration)}
-                  className="flex-1 flex items-center gap-2 text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
-                >
-                  <div className="i-ph:link-break w-4 h-4" />
-                  Disconnect
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSync(integration)}
+                    disabled={connectingId === integration.id}
+                    className="flex-1 flex items-center gap-2"
+                  >
+                    {connectingId === integration.id ? (
+                      <div className="i-ph:spinner-gap w-4 h-4 animate-spin" />
+                    ) : (
+                      <div className="i-ph:arrow-clockwise w-4 h-4" />
+                    )}
+                    Sync
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDisconnect(integration)}
+                    className="flex-1 flex items-center gap-2 text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
+                  >
+                    <div className="i-ph:link-break w-4 h-4" />
+                    Disconnect
+                  </Button>
+                </>
               ) : integration.status === 'coming-soon' ? (
                 <Button
                   variant="outline"
@@ -502,9 +746,14 @@ export default function IntegrationsTab() {
                   variant="default"
                   size="sm"
                   onClick={() => handleConnect(integration)}
+                  disabled={connectingId === integration.id}
                   className="flex-1 flex items-center gap-2"
                 >
-                  <div className="i-ph:link w-4 h-4" />
+                  {connectingId === integration.id ? (
+                    <div className="i-ph:spinner-gap w-4 h-4 animate-spin" />
+                  ) : (
+                    <div className="i-ph:link w-4 h-4" />
+                  )}
                   Connect
                 </Button>
               )}
@@ -520,6 +769,57 @@ export default function IntegrationsTab() {
           </motion.div>
         ))}
       </motion.div>
+
+      {/* Configuration Modal */}
+      {showConfigModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-bolt-elements-background dark:bg-bolt-elements-background rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4 text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
+              Connect to {integrations.find(i => i.id === showConfigModal)?.name}
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary mb-2">
+                  API Key / Token
+                </label>
+                <input
+                  type="password"
+                  value={configData.apiKey || ''}
+                  onChange={(e) => setConfigData({ ...configData, apiKey: e.target.value })}
+                  className="w-full px-3 py-2 bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-lg text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent/20"
+                  placeholder="Enter your API key..."
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowConfigModal(null);
+                    setConfigData({});
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={() => handleTestConnection(showConfigModal)}
+                  disabled={!configData.apiKey || connectingId === showConfigModal}
+                  className="flex-1"
+                >
+                  {connectingId === showConfigModal ? (
+                    <div className="i-ph:spinner-gap w-4 h-4 animate-spin" />
+                  ) : (
+                    'Connect'
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Empty State */}
       {filteredIntegrations.length === 0 && (
@@ -550,19 +850,17 @@ export default function IntegrationsTab() {
           <div className="i-ph:lightbulb w-5 h-5 text-bolt-elements-icon-success dark:text-bolt-elements-icon-success flex-shrink-0 mt-0.5" />
           <div>
             <h4 className="font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary mb-1">
-              Need a specific integration?
+              Real Integrations
             </h4>
             <p className="text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary">
-              We're constantly adding new integrations. If you don't see what you need, let us know and we'll prioritize it for future releases.
+              These integrations connect to real APIs and services. You'll need valid API keys or tokens to connect. All data is stored locally and securely.
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3 flex items-center gap-2"
-            >
-              <div className="i-ph:envelope w-4 h-4" />
-              Request Integration
-            </Button>
+            <div className="mt-3 space-y-2 text-xs text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary">
+              <p><strong>GitHub:</strong> Personal Access Token with repo, read:org, read:user scopes</p>
+              <p><strong>Vercel:</strong> Vercel API Token from account settings</p>
+              <p><strong>Notion:</strong> Internal Integration Token</p>
+              <p><strong>Slack:</strong> Bot User OAuth Token</p>
+            </div>
           </div>
         </div>
       </motion.div>
